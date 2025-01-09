@@ -6,11 +6,10 @@ package frc.robot.subsystems;
 
 import java.util.Optional;
 
-import com.kauailabs.navx.frc.AHRS;
+import com.studica.frc.AHRS;
+import com.studica.frc.AHRS.NavXComType;
 import com.pathplanner.lib.auto.AutoBuilder;
-import com.pathplanner.lib.util.HolonomicPathFollowerConfig;
-import com.pathplanner.lib.util.PIDConstants;
-import com.pathplanner.lib.util.ReplanningConfig;
+import com.pathplanner.lib.util.DriveFeedforwards;
 
 import edu.wpi.first.math.filter.SlewRateLimiter;
 import edu.wpi.first.math.geometry.Pose2d;
@@ -32,7 +31,6 @@ import frc.robot.Constants.DriveConstants.DriveModes;
 import frc.robot.Constants.VisionConstants.CameraMode;
 import frc.utils.SwerveUtils;
 import frc.utils.VisionUtils;
-import frc.utils.devices.Camera;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 public class Drivetrain extends SubsystemBase {
@@ -58,7 +56,7 @@ public class Drivetrain extends SubsystemBase {
       DriveConstants.kBackRightChassisAngularOffset);
 
   // The gyro sensor
-  private final AHRS m_gyro = new AHRS();
+  private final AHRS m_gyro = new AHRS(NavXComType.kMXP_SPI);
 
   // Slew rate filter variables for controlling lateral acceleration
   private double m_currentRotation = 0.0;
@@ -75,17 +73,9 @@ public class Drivetrain extends SubsystemBase {
   private boolean m_slowMode = false;
   private boolean m_fastMode = false;
 
-  // If you switch the camera you have to change the name property of this
-  private final Camera m_noteCamera = new Camera(VisionConstants.kNoteCameraName); // These names might need to be changed
-  private final Camera m_tagCamera = new Camera(VisionConstants.kTagCameraName); // this too
-
   public boolean isRedAlliance;
-
-  private boolean isVisionAuto;
-
   private DriveModes driveMode = DriveModes.MANUAL;
 
-  public boolean onTarget;
 
   // Odometry class for tracking robot pose
   SwerveDriveOdometry m_odometry = new SwerveDriveOdometry(
@@ -100,7 +90,7 @@ public class Drivetrain extends SubsystemBase {
 
   /** Creates a new DriveSubsystem. */
   public Drivetrain() {
-    this.initializeAuto();
+    //this.initializeAuto();
   }
 
   // Very important drive mode functions that make everything work
@@ -114,23 +104,6 @@ public class Drivetrain extends SubsystemBase {
 
   @Override
   public void periodic() {
-    // temporary code for storing trajectory predictions to be used by commands
-    
-    // define speaker target pose
-    Pose2d speakerPose = VisionUtils.getPose(CameraMode.SPEAKER, isRedAlliance);
-    if (speakerPose != null) {
-      boolean shotPred = VisionUtils.isReadyToShoot(6.95, 0.5, 0.95, this.m_odometry.getPoseMeters().getRotation().getDegrees(), speakerPose, getPose(), getChassisSpeeds().vxMetersPerSecond, getChassisSpeeds().vyMetersPerSecond);
-      Mechanism.getInstance().shotLights(shotPred);
-      onTarget = shotPred;
-    }
-    else {
-      onTarget = false;
-    }
-
-    // Refresh the data gathered by the camera
-    m_noteCamera.refreshResult();
-    m_tagCamera.refreshResult();
-
     // Set the max speed of the bot
     setSpeedPercent();
 
@@ -146,42 +119,6 @@ public class Drivetrain extends SubsystemBase {
 
     // Print debug values to smartDashboard
     this.printToDashboard();
-
-    // ---- Updating Apriltag Positions ---- //
-    // Loop through all apriltag ids
-    for (int i = 0; i < VisionUtils.apriltagCount; i++) {
-      // Check to see if the current id is flagged
-      // This means we are keeping track of it
-      boolean isFlagged = false;
-      for (int j = 0; j < VisionUtils.flaggedTags.length; j++) {
-        if (VisionUtils.flaggedTags[j] == i) {
-          isFlagged = true;
-          break;
-        }
-      }
-
-      // If the current tag isn't flagged it's useless to us
-      // So skip to the next id
-      if (!isFlagged) { continue; }
-      // all code below THIS POINT will NOT RUN if the tag isn't flagged
-
-      if (m_tagCamera.hasTargetOfId(i)) {
-        VisionUtils.tagPositions[i] = m_tagCamera.getApriltagPose(getPose(), this.m_odometry.getPoseMeters().getRotation().getDegrees(), i, VisionUtils.getHeadingFromTagIndex(i, isRedAlliance));
-      }
-    }
-
-    // TODO: THIS CODE WILL BE DELETED ONCE TESTED
-    // // Update the amp target pose
-    // int desiredTagId = isRedAlliance ? 5 : 6; // Which amp tag to target (blue or red)
-    // if (m_tagCamera.hasTargetOfId(desiredTagId)) {
-    //   ampTargetPose = m_tagCamera.getApriltagPose(getPose(), this.m_odometry.getPoseMeters().getRotation().getDegrees(), desiredTagId, CameraMode.AMP.getHeading(isRedAlliance));
-    // }
-
-    // // Update the speaker target pose
-    // desiredTagId = isRedAlliance ? 4 : 7; // Which speaker tag to target (blue or red)
-    // if (m_tagCamera.hasTargetOfId(desiredTagId)) {
-    //   speakerTargetPose = m_tagCamera.getApriltagPose(getPose(), this.m_odometry.getPoseMeters().getRotation().getDegrees(), desiredTagId, CameraMode.SPEAKER.getHeading(isRedAlliance));
-    // }
   }
 
   /**
@@ -191,29 +128,6 @@ public class Drivetrain extends SubsystemBase {
    */
   public Pose2d getPose() {
     return m_odometry.getPoseMeters();
-  }
-
-  /**
-   * Lying to pathplanner
-   */
-  public Pose2d getAssistedPose() {
-    // Here we are interpreting the angle from the robot to the note as a distance (technically wrong but it works out anyways)
-    // We are using this distance to construct a robot-relative offset to the note (again, this is wrong but it works)
-    Transform2d robotNoteOffset = new Transform2d(0, -m_noteCamera.getAngleError() * 0.07, new Rotation2d());
-    // Convert to field relative coords using rotation matrix
-    Transform2d fieldNoteOffset = VisionUtils.tagToField(robotNoteOffset, getHeading());
-    // Using tagToField() here because the note is on the front of the bot (I am aware the functions need renaming)
-
-    if (isVisionAuto) {
-      return m_odometry.getPoseMeters().plus(fieldNoteOffset);
-    }
-    else {
-      return m_odometry.getPoseMeters();
-    }
-  }
-
-  public void autoVision(boolean input) {
-    isVisionAuto = input;
   }
 
   /**
@@ -365,18 +279,6 @@ public class Drivetrain extends SubsystemBase {
     m_rearRight.resetEncoders();
   }
 
-  /**
-   * Sets the idle states of the SparkMAX motors.
-   *
-   * @param mode the mode to set the states to (0 is coast, 1 is brake)
-   */
-  public void setIdleStates(int mode) {
-    m_frontLeft.setIdle(mode);
-    m_rearLeft.setIdle(mode);
-    m_frontRight.setIdle(mode);
-    m_rearRight.setIdle(mode);
-  }
-
   /** Zeroes the heading of the robot. */
   public void zeroHeading() {
     m_gyro.reset();
@@ -432,38 +334,38 @@ public class Drivetrain extends SubsystemBase {
     }
   }
 
-  /**
-   * Initializes the auto using PathPlannerLib.
-   */
-  public void initializeAuto() {
-    AutoBuilder.configureHolonomic(
-          this::getAssistedPose, 
-          this::resetOdometry, 
-          this::getChassisSpeeds, 
-          this::setChassisSpeeds,
-          new HolonomicPathFollowerConfig( 
-                  new PIDConstants(AutoConstants.kPXController, 0.0, 0.0), // Translation PID constants
-                  new PIDConstants(AutoConstants.kPThetaController, 0.0, 0.0), // Rotation PID constants
-                  AutoConstants.kMaxSpeedMetersPerSecond,
-                  AutoConstants.kDriveBase, // Distance from robot center to furthest module
-                  new ReplanningConfig() 
-          ),
-          () -> {
-              Optional<Alliance> alliance = DriverStation.getAlliance();
-              if (alliance.isPresent()) {
-                  return alliance.get() == DriverStation.Alliance.Red;
-              }
-              return false;
-          },
-          this   // Reference to this subsystem to set requirements
-        );
-  }
+  // /**
+  //  * Initializes the auto using PathPlannerLib.
+  //  */
+  // public void initializeAuto() {
+  //   AutoBuilder.configureHolonomic(
+  //         this::getAssistedPose, 
+  //         this::resetOdometry, 
+  //         this::getChassisSpeeds, 
+  //         this::setChassisSpeeds,
+  //         new HolonomicPathFollowerConfig( 
+  //                 new PIDConstants(AutoConstants.kPXController, 0.0, 0.0), // Translation PID constants
+  //                 new PIDConstants(AutoConstants.kPThetaController, 0.0, 0.0), // Rotation PID constants
+  //                 AutoConstants.kMaxSpeedMetersPerSecond,
+  //                 AutoConstants.kDriveBase, // Distance from robot center to furthest module
+  //                 new ReplanningConfig() 
+  //         ),
+  //         () -> {
+  //             Optional<Alliance> alliance = DriverStation.getAlliance();
+  //             if (alliance.isPresent()) {
+  //                 return alliance.get() == DriverStation.Alliance.Red;
+  //             }
+  //             return false;
+  //         },
+  //         this   // Reference to this subsystem to set requirements
+  //       );
+  // }
   
   /**
    * Sets the speed of the robot chassis.
    * @param speed The new chassis speed.
    */
-  public void setChassisSpeeds(ChassisSpeeds speed) {
+  public void setChassisSpeeds(ChassisSpeeds speed, DriveFeedforwards ff) {
     this.setModuleStates(DriveConstants.kDriveKinematics.toSwerveModuleStates(speed));
   }
 
@@ -477,57 +379,5 @@ public class Drivetrain extends SubsystemBase {
 
   /** Prints all values to the dashboard. */
   public void printToDashboard() {
-
-    // Speed
-    // SmartDashboard.putNumber("Vertical Speed", this.getChassisSpeeds().vyMetersPerSecond); // Field relative horizontal speed
-    // SmartDashboard.putNumber("Horizontal Speed", this.getChassisSpeeds().vxMetersPerSecond); // Field relative vertical speed
-    // SmartDashboard.putNumber("Turn Speed", this.getChassisSpeeds().omegaRadiansPerSecond); // Field relative turn speed
-    SmartDashboard.putNumber("Current Speed Percentage", m_maxSpeed); // Commanded speed multiplier [0 --> 1]
-
-    // Position
-    SmartDashboard.putNumber("X Position", this.getPose().getX());
-    SmartDashboard.putNumber("Y Position", this.getPose().getY());
-    // SmartDashboard.putNumber("Gyro Heading: ", this.getHeading());
-    SmartDashboard.putNumber("Odometry Heading: ", this.m_odometry.getPoseMeters().getRotation().getDegrees());
-
-    // Slew rate filter variables
-    // SmartDashboard.putNumber("slewCurrentRotation: ", m_currentRotation);
-    // SmartDashboard.putNumber("slewCurrentTranslationDirection: ", m_currentTranslationDir);
-    // SmartDashboard.putNumber("slewCurrentTranslationMagnitude: ", m_currentTranslationMag);
-
-    // Encoder values
-    // SmartDashboard.putNumber("Front left Encoder", m_frontLeft.getVel());
-    // SmartDashboard.putString("Front right Encoder", m_frontRight.getState().toString());
-    // SmartDashboard.putString("Rear left Encoder", m_rearLeft.getState().toString());
-    // SmartDashboard.putString("Rear right Encoder", m_rearRight.getState().toString());
-
-    // Apriltag target location/rotation for amp (field relative space)
-    // if (ampTargetPose != null) {
-    //   SmartDashboard.putNumber("Target X", ampTargetPose.getX());
-    //   SmartDashboard.putNumber("Target Y", ampTargetPose.getY());
-
-    //   SmartDashboard.putNumber("Target Rotation", ampTargetPose.getRotation().getDegrees());
-    // }
-
-    // Apriltag target location/rotation for speaker (field relative space)
-    if (VisionUtils.getPose(CameraMode.SPEAKER, isRedAlliance) != null) {
-      double xDist = new Transform2d(getPose(), VisionUtils.getPose(CameraMode.SPEAKER, isRedAlliance)).getX();
-      double yDist = new Transform2d(getPose(), VisionUtils.getPose(CameraMode.SPEAKER, isRedAlliance)).getY();
-      SmartDashboard.putNumber("DIST", Math.sqrt(xDist * xDist + yDist * yDist));
-      // SmartDashboard.putNumber("Target X", speakerTargetPose.getX());
-      // SmartDashboard.putNumber("Target Y", speakerTargetPose.getY());
-
-      // SmartDashboard.putNumber("Target Rotation", speakerTargetPose.getRotation().getDegrees());
-    }
-
-    SmartDashboard.putNumber("TEST", getChassisSpeeds().vxMetersPerSecond);
-
-    // Do the cameras have targets?
-    SmartDashboard.putBoolean("Note Cam", m_noteCamera.getResult().hasTargets());
-    SmartDashboard.putBoolean("Tag Cam", m_tagCamera.getResult().hasTargets());
-
-    // Are the cameras connected?
-    SmartDashboard.putBoolean("Note Cam Connected", m_noteCamera.isConnected());
-    SmartDashboard.putBoolean("Tag Cam Connected", m_tagCamera.isConnected());
   }
 }

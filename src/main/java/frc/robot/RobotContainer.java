@@ -12,15 +12,10 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.Constants.OIConstants;
 import frc.robot.Constants.ElevatorConstants.ElevatorPositions;
 import frc.robot.Constants.LEDConstants.LEDColor;
-import frc.robot.commands.CombinedCommands;
 import frc.robot.commands.TeleopDriveCommand;
-import frc.robot.commands.mechanism.DirectSpeakerShoot;
 import frc.robot.subsystems.Drivetrain;
-import frc.robot.subsystems.Elevator;
-import frc.robot.subsystems.Mechanism;
-import frc.utils.AutoUtils;
-import frc.utils.devices.BeamBreak;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 
@@ -33,33 +28,25 @@ import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 public class RobotContainer {
     // The robot's subsystems
     private final Drivetrain m_robotDrive = new Drivetrain();
-    private final Elevator m_elevator;
-    private final Mechanism m_mechanism;
 
     // Flightstick controller
     //CommandJoystick m_driverFlightstickController = new CommandJoystick(OIConstants.kFlightstickPort);
     // Driving controller
     CommandXboxController m_driverController = new CommandXboxController(OIConstants.kDrivingControllerXBoxPort);
     // Operator controller
-    CommandXboxController m_operatorController = new CommandXboxController(OIConstants.kOperatingControllerXBoxPort);
-    // A set of commands that do multiple things at once (raise elevator, then shoot)
-    CombinedCommands m_combinedCommands = new CombinedCommands();
 
     // The auto chooser
-    private final SendableChooser<Command> autoChooser;
+    //private final SendableChooser<Command> autoChooser;
 
     /**
      * The container for the robot. Contains subsystems, OI devices, and commands.
      */
     public RobotContainer() {
-        m_elevator = Elevator.getInstance();
-        m_mechanism = Mechanism.getInstance();
-
         configureNamedCommands();
 
         // Build an auto chooser. This will use Commands.none() as the default option.
-        autoChooser = AutoBuilder.buildAutoChooser();
-        SmartDashboard.putData("Auto Chooser", autoChooser);
+        //autoChooser = AutoBuilder.buildAutoChooser();
+        //SmartDashboard.putData("Auto Chooser", autoChooser);
     }
 
     // Sets up the drivetrain for teleoperated driving
@@ -70,7 +57,7 @@ public class RobotContainer {
         m_robotDrive.setDefaultCommand(new TeleopDriveCommand(
             () -> -m_driverController.getLeftY() * invert,
             () -> -m_driverController.getLeftX() * invert,
-            () -> -m_driverController.getRightX(),
+            () -> -m_driverController.getLeftTriggerAxis(),
             () -> OIConstants.kFieldRelative, () -> OIConstants.kRateLimited,
             m_robotDrive));
         
@@ -113,42 +100,8 @@ public class RobotContainer {
         this.m_driverController.rightBumper().onTrue(new InstantCommand(() -> m_robotDrive.setFastMode(true)));
         this.m_driverController.rightBumper().onFalse(new InstantCommand(() -> m_robotDrive.setFastMode(false)));
         
-        // Activate targeting
-        // this.m_driverController.rightTrigger().onTrue(
-        //     new AlignWithAmpCommand(m_robotDrive));
-
-        // Shoot directly at speaker
-        this.m_driverController.leftTrigger().onTrue(
-            new DirectSpeakerShoot(m_robotDrive));
-
-        // Ground intake
-        this.m_driverController.x().onTrue(this.m_mechanism.groundIntake(12));
-        // Stop the mech
-        this.m_driverController.b().onTrue(this.m_mechanism.stopMechanism());
-        // Scoring into amp
-        this.m_driverController.a().onTrue(m_mechanism.scoreAmp(6));
-        // Intaking from source
-        this.m_driverController.povLeft().onTrue(this.m_combinedCommands.pickupFromSource());
-
         // Reset Gyro
         this.m_driverController.y().onTrue(new InstantCommand(() -> m_robotDrive.zeroHeading()));
-        // // Set drive mode to manual (cancel vision) (not used rn)
-        // this.m_driverController.a().onTrue(new InstantCommand(() -> m_robotDrive.setDriveMode(DriveModes.MANUAL)));
-
-        // Moving the elevator (TO BE TESTED)
-        this.m_driverController.povUp().onTrue(this.m_elevator.moveToPositionCommand(ElevatorPositions.AMP));
-        this.m_driverController.povRight().onTrue(this.m_elevator.moveToPositionCommand(ElevatorPositions.SOURCE));
-        this.m_driverController.povDown().onTrue(this.m_elevator.moveToPositionCommand(ElevatorPositions.INTAKE));
-
-        // Lock heading to amp direction (not used rn)
-        // this.m_driverController.povLeft().onTrue(
-        //     new HeadingLockDriveCommand(
-        //     () -> -m_driverController.getLeftY() * invert,
-        //     () -> -m_driverController.getLeftX() * invert,
-        //     () -> -m_driverController.getRightX(),
-        //     () -> OIConstants.kFieldRelative, 
-        //     () -> OIConstants.kRateLimited,
-        //     m_robotDrive));
     }
 
     /**
@@ -166,32 +119,19 @@ public class RobotContainer {
     public Command getAutonomousCommand() {
         //return autoChooser.getSelected();
 
-        // EVERYTHING FROM HERE     ON DOWN IS A TEMPORARY TEST
-
-        // define the auto as a set of paths in a string
-        String commandString = "1,2";
-        // split up the command string and make an auto with it
-        return AutoUtils.BuildAutoFromCommands(AutoUtils.SeparateCommandString(commandString));
+        return Commands.none();
     }
 
     /**
      * This function is called when the robot enters disabled mode, it sets the motors to brake mode.
      */
     public void eStop() {
-        m_robotDrive.setIdleStates(1);
-    }
-
-    /**
-     * enable the PCM channels
-     */
-    public void enablePCMChannels() {
-        BeamBreak.solenoidChannelActive(true);
+        //m_robotDrive.setIdleStates(1);
     }
 
     /**
      * Initializes the LEDs
      */
     public void initLEDs() {
-        this.m_mechanism.powerLEDs(LEDColor.OFF);
     }
 }

@@ -4,7 +4,8 @@
 
 package frc.robot;
 
-import com.revrobotics.CANSparkBase.IdleMode;
+import com.pathplanner.lib.config.ModuleConfig;
+import com.pathplanner.lib.config.RobotConfig;
 
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
@@ -23,6 +24,7 @@ import edu.wpi.first.math.util.Units;
  * wherever the
  * constants are needed, to reduce verbosity.
  */
+
 public final class Constants {
   public static final class DriveConstants {
     // Ways to drive the robot
@@ -63,15 +65,15 @@ public final class Constants {
     public static final double kBackRightChassisAngularOffset = Math.PI / 2;
 
     // SPARK MAX CAN IDs
-    public static final int kFrontLeftDrivingCanId = 12; //13
-    public static final int kRearLeftDrivingCanId = 10; //15
-    public static final int kFrontRightDrivingCanId = 14; //17
-    public static final int kRearRightDrivingCanId = 16;  //11
+    public static final int kFrontLeftDrivingCanId = 12;
+    public static final int kRearLeftDrivingCanId = 10;
+    public static final int kFrontRightDrivingCanId = 14;
+    public static final int kRearRightDrivingCanId = 16; 
 
-    public static final int kFrontLeftTurningCanId = 13; //12
-    public static final int kRearLeftTurningCanId = 11;  //14
-    public static final int kFrontRightTurningCanId = 15; //16
-    public static final int kRearRightTurningCanId = 17;  //10
+    public static final int kFrontLeftTurningCanId = 13;
+    public static final int kRearLeftTurningCanId = 11;
+    public static final int kFrontRightTurningCanId = 15;
+    public static final int kRearRightTurningCanId = 17;
 
     public static final boolean kGyroReversed = true;
   }
@@ -295,9 +297,6 @@ public final class Constants {
     public static final double kTurningMinOutput = -1;
     public static final double kTurningMaxOutput = 1;
 
-    public static final IdleMode kDrivingMotorIdleMode = IdleMode.kCoast;
-    public static final IdleMode kTurningMotorIdleMode = IdleMode.kCoast;
-
     public static final int kDrivingMotorCurrentLimit = 50; // amps
     public static final int kTurningMotorCurrentLimit = 20; // amps
   }
@@ -314,6 +313,10 @@ public final class Constants {
   }
 
   public static final class AutoConstants {
+    public static final RobotConfig robotConfig = 
+    new RobotConfig(56, 1, new ModuleConfig(null, null, 0, null, null, 0),
+    new Translation2d[]{new Translation2d(), new Translation2d(), new Translation2d(), new Translation2d()});
+
     public static final double kMaxSpeedMetersPerSecond = 3.0;
     public static final double kMaxAccelerationMetersPerSecondSquared = 3.0;
     public static final double kMaxAngularSpeedRadiansPerSecond = Math.PI;
