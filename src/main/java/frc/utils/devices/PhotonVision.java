@@ -1,4 +1,4 @@
-package frc.robot.commands;
+package frc.utils.devices;
 
 import java.util.List;
 
@@ -6,8 +6,7 @@ import org.photonvision.PhotonCamera;
 import org.photonvision.targeting.PhotonPipelineResult;
 import org.photonvision.targeting.PhotonTrackedTarget;
 
-public class VisionDriveCommand {
-   
+public class PhotonVision{
     PhotonCamera cameraRight = new PhotonCamera("Right");
     PhotonCamera cameraLeft = new PhotonCamera("Left");
     PhotonCamera cameraCenter = new PhotonCamera("Center");
@@ -31,4 +30,5 @@ public class VisionDriveCommand {
 
     double rightYaw = closestRightTarget.getYaw();
     double leftYaw = closestLeftTarget.getYaw();
+    
 }
