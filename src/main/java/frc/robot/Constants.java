@@ -33,9 +33,8 @@ public final class Constants {
     public enum DriveModes {
       MANUAL,
       HEADINGLOCK,
-      NOTEALIGN,
-      AMPALIGN,
-      SPEAKERALIGN;
+      alignRightReef,
+      alignLeftReef;
     }
 
     // Driving Parameters - Note that these are not the maximum and minimum capable speeds of
