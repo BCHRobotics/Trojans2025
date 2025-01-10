@@ -67,7 +67,8 @@ public class Robot extends TimedRobot {
 
     // schedule the autonomous command (example)
     if (m_autonomousCommand != null) {
-      m_autonomousCommand.schedule();
+      System.out.println("command start");
+      m_autonomousCommand.andThen(() -> System.out.println("command finished")).schedule();
     }
   }
 

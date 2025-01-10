@@ -5,10 +5,12 @@
 package frc.robot;
 
 import com.pathplanner.lib.config.ModuleConfig;
+import com.pathplanner.lib.config.PIDConstants;
 import com.pathplanner.lib.config.RobotConfig;
 
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
+import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.math.util.Units;
 
@@ -313,9 +315,8 @@ public final class Constants {
   }
 
   public static final class AutoConstants {
-    public static final RobotConfig robotConfig = 
-    new RobotConfig(56, 1, new ModuleConfig(null, null, 0, null, null, 0),
-    new Translation2d[]{new Translation2d(), new Translation2d(), new Translation2d(), new Translation2d()});
+    public static final PIDConstants translationConstants = new PIDConstants(1, 0, 0);
+    public static final PIDConstants rotationConstants = new PIDConstants(1, 0, 0);
 
     public static final double kMaxSpeedMetersPerSecond = 3.0;
     public static final double kMaxAccelerationMetersPerSecondSquared = 3.0;

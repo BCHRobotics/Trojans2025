@@ -5,8 +5,10 @@
 package frc.robot;
 
 import com.pathplanner.lib.auto.AutoBuilder;
+import com.pathplanner.lib.commands.PathPlannerAuto;
 
 import edu.wpi.first.cameraserver.CameraServer;
+import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.Constants.OIConstants;
@@ -36,7 +38,7 @@ public class RobotContainer {
     // Operator controller
 
     // The auto chooser
-    //private final SendableChooser<Command> autoChooser;
+    private final SendableChooser<Command> autoChooser;
 
     /**
      * The container for the robot. Contains subsystems, OI devices, and commands.
@@ -45,8 +47,8 @@ public class RobotContainer {
         configureNamedCommands();
 
         // Build an auto chooser. This will use Commands.none() as the default option.
-        //autoChooser = AutoBuilder.buildAutoChooser();
-        //SmartDashboard.putData("Auto Chooser", autoChooser);
+        autoChooser = AutoBuilder.buildAutoChooser();
+        SmartDashboard.putData("Auto Chooser", autoChooser);
     }
 
     // Sets up the drivetrain for teleoperated driving
@@ -55,9 +57,9 @@ public class RobotContainer {
         
         // If no other command is running on the drivetrain, then this manual driving command (driving via controller) is used
         m_robotDrive.setDefaultCommand(new TeleopDriveCommand(
-            () -> -m_driverController.getLeftY() * invert,
-            () -> -m_driverController.getLeftX() * invert,
-            () -> -m_driverController.getLeftTriggerAxis(),
+            () -> -MathUtil.applyDeadband(m_driverController.getLeftY() * invert, 0.05),
+            () -> -MathUtil.applyDeadband(m_driverController.getLeftX() * invert, 0.05),
+            () -> -MathUtil.applyDeadband(m_driverController.getLeftTriggerAxis(), 0.05),
             () -> OIConstants.kFieldRelative, () -> OIConstants.kRateLimited,
             m_robotDrive));
         
@@ -77,7 +79,6 @@ public class RobotContainer {
      */
     public void configureNamedCommands() {
         // Enabling and disabling note vision in auto
-        //NamedCommands.registerCommand("ALIGN NOTE", new InstantCommand(() -> m_robotDrive.autoVision(true)));
     }
 
     /**
@@ -117,9 +118,7 @@ public class RobotContainer {
      * @return the command to run in autonomous
      */ 
     public Command getAutonomousCommand() {
-        //return autoChooser.getSelected();
-
-        return Commands.none();
+        return new PathPlannerAuto("Example Auto");
     }
 
     /**

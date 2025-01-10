@@ -9,6 +9,8 @@ import java.util.Optional;
 import com.studica.frc.AHRS;
 import com.studica.frc.AHRS.NavXComType;
 import com.pathplanner.lib.auto.AutoBuilder;
+import com.pathplanner.lib.config.RobotConfig;
+import com.pathplanner.lib.controllers.PPHolonomicDriveController;
 import com.pathplanner.lib.util.DriveFeedforwards;
 
 import edu.wpi.first.math.filter.SlewRateLimiter;
@@ -24,6 +26,7 @@ import edu.wpi.first.util.WPIUtilJNI;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import frc.robot.Constants;
 import frc.robot.Constants.AutoConstants;
 import frc.robot.Constants.DriveConstants;
 import frc.robot.Constants.VisionConstants;
@@ -90,7 +93,7 @@ public class Drivetrain extends SubsystemBase {
 
   /** Creates a new DriveSubsystem. */
   public Drivetrain() {
-    //this.initializeAuto();
+    this.initializeAuto();
   }
 
   // Very important drive mode functions that make everything work
@@ -335,31 +338,34 @@ public class Drivetrain extends SubsystemBase {
   }
 
   // /**
-  //  * Initializes the auto using PathPlannerLib.
+  //  * Initializes the auto builder using PathPlannerLib.
   //  */
-  // public void initializeAuto() {
-  //   AutoBuilder.configureHolonomic(
-  //         this::getAssistedPose, 
-  //         this::resetOdometry, 
-  //         this::getChassisSpeeds, 
-  //         this::setChassisSpeeds,
-  //         new HolonomicPathFollowerConfig( 
-  //                 new PIDConstants(AutoConstants.kPXController, 0.0, 0.0), // Translation PID constants
-  //                 new PIDConstants(AutoConstants.kPThetaController, 0.0, 0.0), // Rotation PID constants
-  //                 AutoConstants.kMaxSpeedMetersPerSecond,
-  //                 AutoConstants.kDriveBase, // Distance from robot center to furthest module
-  //                 new ReplanningConfig() 
-  //         ),
-  //         () -> {
-  //             Optional<Alliance> alliance = DriverStation.getAlliance();
-  //             if (alliance.isPresent()) {
-  //                 return alliance.get() == DriverStation.Alliance.Red;
-  //             }
-  //             return false;
-  //         },
-  //         this   // Reference to this subsystem to set requirements
-  //       );
-  // }
+  public void initializeAuto() {
+    RobotConfig config = null;
+    try{
+      config = RobotConfig.fromGUISettings();
+    } catch (Exception e) {
+      // Handle exception as needed
+      e.printStackTrace();
+    }
+
+    AutoBuilder.configure(
+      this::getPose, 
+      this::resetOdometry, 
+      this::getChassisSpeeds, 
+      this::setChassisSpeeds, 
+      new PPHolonomicDriveController(
+        Constants.AutoConstants.translationConstants, 
+        Constants.AutoConstants.rotationConstants, 0.03), 
+        config, 
+        this::shouldFlipPath, 
+        this);
+  }   
+
+  // test function for auto builder
+  boolean shouldFlipPath() {
+    return false;
+  }
   
   /**
    * Sets the speed of the robot chassis.

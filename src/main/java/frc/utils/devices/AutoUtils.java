@@ -111,6 +111,14 @@ public class AutoUtils {
             // get a path file from the name of the command
             PathPlannerPath path = PathPlannerPath.fromPathFile(_commands[i]);
 
+            RobotConfig config = null;
+            try{
+            config = RobotConfig.fromGUISettings();
+            } catch (Exception e) {
+            // Handle exception as needed
+            e.printStackTrace();
+            }
+
             // create a followPath command from the path, then add it to the auto using .andThen()
             followCommand = followCommand.andThen(
                 new FollowPathCommand(
@@ -119,7 +127,7 @@ public class AutoUtils {
                 subsystem::getChassisSpeeds, // ChassisSpeeds supplier. MUST BE ROBOT RELATIVE
                 subsystem::setChassisSpeeds, // Method that will drive the robot given ROBOT RELATIVE ChassisSpeeds, AND feedforwards
                 new PPLTVController(0.02), // PPLTVController is the built in path following controller for differential drive trains
-                Constants.AutoConstants.robotConfig, // The robot configuration
+                config, // The robot configuration
                 () -> {
                   // Boolean supplier that controls when the path will be mirrored for the red alliance
                   // This will flip the path being followed to the red side of the field.
