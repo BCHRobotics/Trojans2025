@@ -33,7 +33,7 @@ import frc.robot.Constants.VisionConstants;
 import frc.robot.Constants.DriveConstants.DriveModes;
 import frc.robot.Constants.VisionConstants.CameraMode;
 import frc.utils.SwerveUtils;
-import frc.utils.VisionUtils;
+import frc.utils.devices.AutoUtils;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 public class Drivetrain extends SubsystemBase {
@@ -73,12 +73,15 @@ public class Drivetrain extends SubsystemBase {
   private SlewRateLimiter m_rotLimiter = new SlewRateLimiter(DriveConstants.kRotationalSlewRate);
   private double m_prevTime = WPIUtilJNI.now() * 1e-6;
 
+  // boolean variable for switching between 3 diff robot speeds (slow, medium, fast)
   private boolean m_slowMode = false;
   private boolean m_fastMode = false;
 
+  // boolean for keeping track of robot alliance (used for flipping auto path)
   public boolean isRedAlliance;
+  
+  // enum for keeping track of how the robot is driving
   private DriveModes driveMode = DriveModes.MANUAL;
-
 
   // Odometry class for tracking robot pose
   SwerveDriveOdometry m_odometry = new SwerveDriveOdometry(
@@ -155,6 +158,14 @@ public class Drivetrain extends SubsystemBase {
    */
   public void setAlliance(boolean isRed) {
     isRedAlliance = isRed;
+  }
+
+  /*
+   * A function for getting the alliance of the robot
+   * if true, the alliance is RED
+   */
+  public boolean getAlliance() {
+    return isRedAlliance;
   }
   
   /**
@@ -341,13 +352,7 @@ public class Drivetrain extends SubsystemBase {
   //  * Initializes the auto builder using PathPlannerLib.
   //  */
   public void initializeAuto() {
-    RobotConfig config = null;
-    try{
-      config = RobotConfig.fromGUISettings();
-    } catch (Exception e) {
-      // Handle exception as needed
-      e.printStackTrace();
-    }
+    RobotConfig robotConfig = AutoUtils.geRobotConfig();
 
     AutoBuilder.configure(
       this::getPose, 
@@ -356,16 +361,11 @@ public class Drivetrain extends SubsystemBase {
       this::setChassisSpeeds, 
       new PPHolonomicDriveController(
         Constants.AutoConstants.translationConstants, 
-        Constants.AutoConstants.rotationConstants, 0.03), 
-        config, 
-        this::shouldFlipPath, 
+        Constants.AutoConstants.rotationConstants, 0.02), 
+        robotConfig, 
+        this::getAlliance, 
         this);
   }   
-
-  // test function for auto builder
-  boolean shouldFlipPath() {
-    return false;
-  }
   
   /**
    * Sets the speed of the robot chassis.

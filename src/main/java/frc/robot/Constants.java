@@ -315,8 +315,8 @@ public final class Constants {
   }
 
   public static final class AutoConstants {
-    public static final PIDConstants translationConstants = new PIDConstants(1, 0, 0);
-    public static final PIDConstants rotationConstants = new PIDConstants(1, 0, 0);
+    public static final PIDConstants translationConstants = new PIDConstants(8, 8, 0);
+    public static final PIDConstants rotationConstants = new PIDConstants(5, 0, 0);
 
     public static final double kMaxSpeedMetersPerSecond = 3.0;
     public static final double kMaxAccelerationMetersPerSecondSquared = 3.0;

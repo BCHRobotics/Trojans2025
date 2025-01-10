@@ -4,8 +4,13 @@
 
 package frc.robot;
 
+import java.io.IOException;
+
+import org.json.simple.parser.ParseException;
+
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.commands.PathPlannerAuto;
+import com.pathplanner.lib.util.FileVersionException;
 
 import edu.wpi.first.cameraserver.CameraServer;
 import edu.wpi.first.math.MathUtil;
@@ -16,6 +21,7 @@ import frc.robot.Constants.ElevatorConstants.ElevatorPositions;
 import frc.robot.Constants.LEDConstants.LEDColor;
 import frc.robot.commands.TeleopDriveCommand;
 import frc.robot.subsystems.Drivetrain;
+import frc.utils.devices.AutoUtils;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
@@ -66,8 +72,6 @@ public class RobotContainer {
         // Setup the commands associated with all buttons on the controller
         // Driver controller
         configureButtonBindingsDriver(isRedAlliance);
-        // Operator controller
-        configureButtonBindingsOperator(isRedAlliance);
 
         // Set the alliance to either red or blue (to invert controls if necessary)
         m_robotDrive.setAlliance(isRedAlliance);
@@ -87,9 +91,6 @@ public class RobotContainer {
      * NOTE - Things are configured for the SHSM event, vision is (ofc) not being used for this
      */
     private void configureButtonBindingsDriver(boolean isRedAlliance) {
-        // variable is not needed rn
-        //final double invert = isRedAlliance ? -1 : 1;
-
         // NOTE FOR SLOW/FAST MODE COMMANDS
         // These commands don't have requirements else they interrupt the drive command (TeleopDriveCommand)
 
@@ -106,26 +107,17 @@ public class RobotContainer {
     }
 
     /**
-     * Binding for operator xbox controller buttons
-     */
-    private void configureButtonBindingsOperator(boolean isRedAlliance) {
-        // -- no operator controls because working with 2 controllers is annoying -- //
-    }
-
-    /**
      * Use this to pass the autonomous command to the main {@link Robot} class.
      *
      * @return the command to run in autonomous
+     * @throws ParseException 
+     * @throws IOException 
+     * @throws FileVersionException 
      */ 
-    public Command getAutonomousCommand() {
-        return new PathPlannerAuto("Example Auto");
-    }
+    public Command getAutonomousCommand() throws FileVersionException, IOException, ParseException {
+        //return new PathPlannerAuto("Example Auto");
 
-    /**
-     * This function is called when the robot enters disabled mode, it sets the motors to brake mode.
-     */
-    public void eStop() {
-        //m_robotDrive.setIdleStates(1);
+        return AutoUtils.BuildAutoFromCommands(AutoUtils.SeparateCommandString("1,2,3"), m_robotDrive);
     }
 
     /**

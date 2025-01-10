@@ -4,6 +4,12 @@
 
 package frc.robot;
 
+import java.io.IOException;
+
+import org.json.simple.parser.ParseException;
+
+import com.pathplanner.lib.util.FileVersionException;
+
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -53,7 +59,6 @@ public class Robot extends TimedRobot {
   /** This function is called once each time the robot enters Disabled mode. */
   @Override
   public void disabledInit() {
-    m_robotContainer.eStop();
   }
 
   /** This function is called periodically during Disabled mode. */
@@ -63,13 +68,22 @@ public class Robot extends TimedRobot {
   /** This autonomous runs the autonomous command selected by your {@link RobotContainer} class. */
   @Override
   public void autonomousInit() {
-    m_autonomousCommand = m_robotContainer.getAutonomousCommand();
+    try {
+      m_autonomousCommand = m_robotContainer.getAutonomousCommand();
+    } catch (FileVersionException | IOException | ParseException e) {
+      e.printStackTrace();
+    }
 
     // schedule the autonomous command (example)
     if (m_autonomousCommand != null) {
       System.out.println("command start");
       m_autonomousCommand.andThen(() -> System.out.println("command finished")).schedule();
     }
+
+    final boolean isRed = DriverStation.getAlliance().get() == DriverStation.Alliance.Red;
+
+    // Schedules the teleop drive command when entering teleop
+    m_robotContainer.configureDriveMode(isRed);
   }
 
   /** This function is called periodically during autonomous. */

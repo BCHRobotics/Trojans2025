@@ -9,8 +9,12 @@ import org.json.simple.parser.ParseException;
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.commands.FollowPathCommand;
 import com.pathplanner.lib.config.RobotConfig;
+import com.pathplanner.lib.controllers.PPHolonomicDriveController;
 import com.pathplanner.lib.controllers.PPLTVController;
 import com.pathplanner.lib.path.PathPlannerPath;
+import com.pathplanner.lib.path.PathPoint;
+import com.pathplanner.lib.path.RotationTarget;
+import com.pathplanner.lib.path.Waypoint;
 import com.pathplanner.lib.util.FileVersionException;
 
 import edu.wpi.first.math.geometry.Pose2d;
@@ -35,7 +39,7 @@ public class AutoUtils {
 
     // A composite auto is represented by a command string
     // each command is separated by a comma
-    // e.g. "1, 2, 3" would score game pieces 1, 2 and 3
+    // e.g. "1,2,3" would score game pieces 1, 2 and 3
     // This function takes in that string and returns an array with the separated commands
     // The elements in the array can then be used to get paths and assemble an auto
     // Basically, this removes commas
@@ -106,28 +110,58 @@ public class AutoUtils {
         Pose2d startingPose = PathPlannerPath.fromPathFile(_commands[0]).getStartingHolonomicPose().get();
         Command followCommand = Commands.runOnce(() -> subsystem.resetOdometry(startingPose));
 
+        PathPlannerPath finalPath = null;
+
         // loop through the command strings and add them to the auto
         for (int i = 0; i < _commands.length; i++) {
             // get a path file from the name of the command
-            PathPlannerPath path = PathPlannerPath.fromPathFile(_commands[i]);
+            PathPlannerPath currentPath = PathPlannerPath.fromPathFile(_commands[i]);
+            
+            if (i == 0) {
+                // if this is the first path, create a new path class with it's path points
+                // also include constraints and end state
 
-            RobotConfig config = null;
-            try{
-            config = RobotConfig.fromGUISettings();
-            } catch (Exception e) {
-            // Handle exception as needed
-            e.printStackTrace();
+                // NOTE - the constraints defined for the first path will apply to ALL PATHS because they're combined,
+                // this means that you CANNOT define different constraints for the other paths
+                finalPath = PathPlannerPath.fromPathPoints(
+                    currentPath.getAllPathPoints(), 
+                    currentPath.getGlobalConstraints(), 
+                    currentPath.getGoalEndState());
             }
+            else {
+                // define what points are already a part of the final path and what ones are to be added
+                List<PathPoint> existingPoints = finalPath.getAllPathPoints();
+                List<PathPoint> newPoints = currentPath.getAllPathPoints();
+
+                // loop through all new points and throw them on top of the existing points in the list
+                // NOTE - we SKIP THE FIRST POINT because it should already be in the list, the end state of the last path
+                for (int j = 1; j < newPoints.size(); j++) {
+                    existingPoints.add(newPoints.get(j));
+                }
+
+                // re-construct the path from all the points
+                finalPath = PathPlannerPath.fromPathPoints(
+                    existingPoints, 
+                finalPath.getGlobalConstraints(), 
+                currentPath.getGoalEndState());
+            }
+        }
+
+        
+        RobotConfig robotConfig = geRobotConfig();
 
             // create a followPath command from the path, then add it to the auto using .andThen()
             followCommand = followCommand.andThen(
                 new FollowPathCommand(
-                path,
+                    finalPath,
                 subsystem::getPose, // Robot pose supplier
                 subsystem::getChassisSpeeds, // ChassisSpeeds supplier. MUST BE ROBOT RELATIVE
                 subsystem::setChassisSpeeds, // Method that will drive the robot given ROBOT RELATIVE ChassisSpeeds, AND feedforwards
-                new PPLTVController(0.02), // PPLTVController is the built in path following controller for differential drive trains
-                config, // The robot configuration
+                new PPHolonomicDriveController(
+                    Constants.AutoConstants.translationConstants, 
+                    Constants.AutoConstants.rotationConstants, 
+                    0.02),
+                robotConfig, // The robot configuration
                 () -> {
                   // Boolean supplier that controls when the path will be mirrored for the red alliance
                   // This will flip the path being followed to the red side of the field.
@@ -142,10 +176,21 @@ public class AutoUtils {
                 subsystem // Reference to this subsystem to set requirements
         )
             );
-        }
 
         // return the auto as a command
         return followCommand;
+    }
+
+    public static RobotConfig geRobotConfig() {
+        RobotConfig config = null;
+        try{
+        config = RobotConfig.fromGUISettings();
+        } catch (Exception e) {
+        // Handle exception as needed
+        e.printStackTrace();
+        }
+
+        return config;
     }
 
     // MATH STUFF
