@@ -31,7 +31,6 @@ import frc.robot.Constants.AutoConstants;
 import frc.robot.Constants.DriveConstants;
 import frc.robot.Constants.VisionConstants;
 import frc.robot.Constants.DriveConstants.DriveModes;
-import frc.robot.Constants.VisionConstants.CameraMode;
 import frc.utils.SwerveUtils;
 import frc.utils.devices.AutoUtils;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;

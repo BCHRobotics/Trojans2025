@@ -1,55 +1,93 @@
 package frc.robot.commands;
 
+import java.lang.annotation.Target;
 import java.util.function.BooleanSupplier;
 
+import frc.robot.subsystems.Cameras;
 import frc.robot.subsystems.Drivetrain;
-import frc.utils.devices.PhotonVision;
+import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.PIDController;
+import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Transform2d;
+import edu.wpi.first.math.geometry.Translation2d;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 
 import frc.robot.Constants.DriveConstants.DriveModes;
 
 import frc.robot.Constants.AutoConstants;
+import frc.robot.Constants.VisionConstants;
 
 
 public class AlignCenterCommand extends Command{
    private Drivetrain driveSubsystem;
-   PIDController pid = new PIDController(AutoConstants.kPXController,AutoConstants.kPYController,AutoConstants.kPThetaController);
+   private Cameras cameraSubsystem;
+   
+   PIDController pid = new PIDController(VisionConstants.kAlignP,VisionConstants.kAlignI,VisionConstants.kAlignD);
+   PIDController pidRot = new PIDController(VisionConstants.kRotP,VisionConstants.kRotI,VisionConstants.kRotD);
 
-   Double commandRot;
-   BooleanSupplier isFieldRelative;
-   BooleanSupplier isRateLimited;
+   Boolean isFieldRelative;
+   Boolean isRateLimited;
    
 
 
-   public AlignCenterCommand(Double rotationSpeed,BooleanSupplier fieldRelative, BooleanSupplier rateLimit, Drivetrain subsystem){
-        commandRot = rotationSpeed;
-        rotationSpeed = pid.calculate(PhotonVision.centerYaw,0);
+   public AlignCenterCommand(Boolean fieldRelative, Boolean rateLimit, Drivetrain driveSubsystem, Cameras cameraSubsystem){
         isFieldRelative = fieldRelative;
         isRateLimited = rateLimit;
 
-        driveSubsystem = subsystem;
+        this.driveSubsystem = driveSubsystem;
+        this.cameraSubsystem = cameraSubsystem;
 
         addRequirements(driveSubsystem);
    } 
    @Override
    public void initialize() {
+    System.out.println("ALIGN ON");
        // Set the drive mode
-       driveSubsystem.setDriveMode(DriveModes.alignLeftReef);
+       driveSubsystem.setDriveMode(DriveModes.ALIGNREEF);
    }
 
    @Override
    public void execute() {
-       // include the actual rotation lock into this
-       driveSubsystem.drive(0, 0, commandRot, isFieldRelative.getAsBoolean(), isRateLimited.getAsBoolean());
+        // 4 is just the test tag we're working with rn
+        Transform2d tagOffset = cameraSubsystem.getFieldOrientedTagOffset(4);
+
+        if (tagOffset == null) {
+            // if null, cannot see tag
+            Pose2d cameraPose = cameraSubsystem.getTagTestPosition(4);
+            if (cameraPose != null) {tagOffset = cameraPose.minus(driveSubsystem.getPose());}
+        }
+
+        if (tagOffset != null) {
+            double commandedX = pid.calculate(-(tagOffset.getX() - 1), 0);
+            double commandedY = pid.calculate(-tagOffset.getY(), 0);
+
+            double commandedRot = pidRot.calculate(
+                Rotation2d.fromDegrees(VisionConstants.tagHeadings[4-1]).
+                minus(Rotation2d.fromDegrees(driveSubsystem.getHeading())).
+                minus(Rotation2d.fromDegrees(180))
+                .getDegrees(), 0);
+
+            commandedX = MathUtil.clamp(commandedX, -0.1, 0.1);
+            commandedY = MathUtil.clamp(commandedY, -0.1, 0.1);
+
+            driveSubsystem.drive(commandedX, commandedY, commandedRot, isFieldRelative, isRateLimited);
+        }
    }
 
    @Override
    public void end(boolean interrupted) {
+    if (interrupted) {
+        System.out.println("ALIGN INTERRUPT!");
+    }
+    else {
+        System.out.println("ALIGN OFF");
+    }
    }
 
    @Override
    public boolean isFinished() {
-       return (driveSubsystem.getDriveMode() != DriveModes.alignLeftReef || Math.abs(commandRot) < 0.04);
+       return (driveSubsystem.getDriveMode() != DriveModes.ALIGNREEF);
    }
 }

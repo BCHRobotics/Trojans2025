@@ -13,6 +13,7 @@ import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.math.util.Units;
+import frc.utils.CameraTransform;
 
 
 /**
@@ -33,9 +34,8 @@ public final class Constants {
     // Ways to drive the robot
     public enum DriveModes {
       MANUAL,
-      HEADINGLOCK,
-      alignRightReef,
-      alignLeftReef;
+      ALIGNREEF,
+      HEADINGLOCK
     }
 
     // Driving Parameters - Note that these are not the maximum and minimum capable speeds of
@@ -175,80 +175,28 @@ public final class Constants {
     public static final int kBlueLEDPort = 7;
   }
   public static final class VisionConstants{
-    public enum VisionProfile {
-      EXACT,
-      RADIAL,
-      TANGENT,
-      LINEUP
-    }
+    // camera names, transforms, etc.
+    public static final String[] cameraNames = new String[] {"Front","Back"};
+    public static final CameraTransform[] cameraOffsets = 
+    new CameraTransform[] {
+      new CameraTransform(0, 0, 0),
+      new CameraTransform(0, 0, 180)
+    };
 
-    // Camera modes, with their respective desired offsets
-    // TODO: implement apriltag ids into this system
-    public enum CameraMode {
-      // the first two variables are the offsets, the second two are the headings
-      // NOTE - the heading can be different for red and blue side, so two variables are available
-      // NOTE - these offsets are in local space, so the x coordinate is in the direction the target is facing
-      NONE(new double[]{0, 0}, 0, 0, 0, 0), // values aren't used here
-      AMP(new double[]{0.35, 0}, -90, -90, 5, 6),
-      SPEAKER(new double[]{2.05, 0}, 0, 180, 4, 7);
+    public static final double[] tagHeadings = new double[] {
+      0,
+      0,
+      0,
+      180,
+    };
 
-      private final double[] offsets;
-      private final double redHeading;
-      private final double blueHeading;
-      private final int redTagIndex;
-      private final int blueTagIndex;
+    public static double kAlignP = 0.25;
+    public static double kAlignI = 0;
+    public static double kAlignD = 0;
 
-      CameraMode(double[] _offsets, double _blueHeading, double _redHeading, int _redId, int _blueId) {
-          this.offsets = _offsets;
-          this.blueHeading = _blueHeading;
-          this.redHeading = _redHeading;
-          this.redTagIndex = _redId;
-          this.blueTagIndex = _blueId;
-      }
-      
-      /**
-       * @return the offset from the apriltag
-       */
-      public double[] getOffsets() {
-          return this.offsets;
-      }
-      /**
-       * A function that grabs either the red or blue heading depending on a boolean
-       * @param isRed whether to get the red or blue heading
-       * @return either the red or blue alliance heading
-       */
-      public double getHeading(boolean isRed) {
-        return isRed ? this.redHeading : this.blueHeading;
-      }
-      /**
-       * A function that grabs either the red or blue apriltag index depending on a boolean
-       * @param isRed whether to get the red or blue apriltag index
-       * @return either the red or blue alliance apriltag index
-       */
-      public int getIndex(boolean isRed) {
-        return isRed ? this.redTagIndex : this.blueTagIndex;
-      }
-    }
-
-    // Speed and rotation caps for vision
-    public static final double kVisionSpeedLimit = 0.1; //0.4
-    public static final double kVisionTurningLimit = 0.8;  //0.4
-
-    // How close to an apriltag the robot has to be before stopping (meters)
-    public static final double kTagDistanceThreshold = 0.06;
-    // The amount of rotational error alowed (degrees)
-    public static final double kTagRotationThreshold = 10;
-    // How far away the bot is before it starts slowing down (farther than this it goes full speed as defined by kVisionSpeedLimit)
-    public static final double kTagSlowdownDistance = 0.8;
-
-    // Camera names (name these a and b to annoy Tim)
-    public static final String kNoteCameraName = "Note Cam";
-    public static final String kTagCameraName = "Tag Cam";
-
-    // PID values for aligning to a note
-    public static final double kNoteP = 0.01;
-    public static final double kNoteI = 0;
-    public static final double kNoteD = 0;
+    public static double kRotP = 0.018;
+    public static double kRotI = 0.00001;
+    public static double kRotD = 0;
   }
 
   public static final class ModuleConstants {
@@ -310,7 +258,7 @@ public final class Constants {
     public static final double kDriveDeadband = 0.05;
     public static final double kTurnDeadband = 0.12;
     public static final double kTwistDeadband = 0.5;
-    
+
     public static final boolean kFieldRelative = true;
     public static final boolean kRateLimited = true;
   }
@@ -323,10 +271,6 @@ public final class Constants {
     public static final double kMaxAccelerationMetersPerSecondSquared = 3.0;
     public static final double kMaxAngularSpeedRadiansPerSecond = Math.PI;
     public static final double kMaxAngularSpeedRadiansPerSecondSquared = Math.PI;
-
-    public static final double kPXController = 1;
-    public static final double kPYController = 1;
-    public static final double kPThetaController = 1;
 
     //distance from robot center to furthest module
     public static final double kDriveBase = Units.inchesToMeters((Math.sqrt(Math.pow(DriveConstants.kTrackWidth, 2) 

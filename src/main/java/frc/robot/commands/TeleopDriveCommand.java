@@ -59,7 +59,7 @@ public class TeleopDriveCommand extends Command {
         // Check to see if the command was canceled by another command or if it ended itself
         if (interrupted) {
             // This will happen most of the time, e.g. when switching to vision
-            System.out.println("INTERRUPT!");
+            System.out.println("MANUAL INTERRUPT!");
         }
         else {
             // This happens when the driving mode switches off manual

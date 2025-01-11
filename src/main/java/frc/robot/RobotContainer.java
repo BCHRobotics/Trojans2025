@@ -19,12 +19,16 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.Constants.OIConstants;
 import frc.robot.Constants.ElevatorConstants.ElevatorPositions;
 import frc.robot.Constants.LEDConstants.LEDColor;
+import frc.robot.commands.AlignCenterCommand;
+import frc.robot.commands.HeadingLockDriveCommand;
 import frc.robot.commands.TeleopDriveCommand;
+import frc.robot.subsystems.Cameras;
 import frc.robot.subsystems.Drivetrain;
 import frc.utils.devices.AutoUtils;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
+import edu.wpi.first.wpilibj2.command.button.CommandPS5Controller;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 
 /*
@@ -36,22 +40,27 @@ import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 public class RobotContainer {
     // The robot's subsystems
     private final Drivetrain m_robotDrive = new Drivetrain();
+    private final Cameras m_cameras = new Cameras();
 
     // Driving controller
-    CommandXboxController m_mainController = new CommandXboxController(OIConstants.kMainControllerPort);
+    CommandPS5Controller m_mainController = new CommandPS5Controller(OIConstants.kMainControllerPort);
     CommandXboxController m_backupController = new CommandXboxController(OIConstants.kBackupControllerPort);
+
+    SendableChooser<String> controllerOptions;
 
     /**
      * The container for the robot. Contains subsystems, OI devices, and commands.
      */
     public RobotContainer() {
+        m_cameras.setDriveSubsystem(m_robotDrive);
+
         configureNamedCommands();
         
         // the input field for typing in the auto
         SmartDashboard.putString("Auto Command", "");
         
         // setting up a dropdown for switching between xbox and playstation
-        SendableChooser<String> controllerOptions = new SendableChooser<String>();
+        controllerOptions = new SendableChooser<String>();
         controllerOptions.addOption("Xbox Controller", "XBOX");
         controllerOptions.addOption("Playstation Controller", "PS");
         SmartDashboard.putData("Controller Select", controllerOptions);
@@ -61,19 +70,29 @@ public class RobotContainer {
     public void configureDriveMode(boolean isRedAlliance) {
         final double invert = isRedAlliance ? -1 : 1;
 
-        CommandXboxController controller = SmartDashboard.getData("Controller Select").toString() == "XBOX" ? m_mainController : m_backupController;
+        String controller = controllerOptions.getSelected();
         
         // If no other command is running on the drivetrain, then this manual driving command (driving via controller) is used
-        m_robotDrive.setDefaultCommand(new TeleopDriveCommand(
-            () -> -MathUtil.applyDeadband(controller.getLeftY() * invert, 0.05),
-            () -> -MathUtil.applyDeadband(controller.getLeftX() * invert, 0.05),
-            () -> -MathUtil.applyDeadband(controller.getRightX(), 0.05), // getLeftTriggerAxis()
+        if (controller == "XBOX") {
+            m_robotDrive.setDefaultCommand(new TeleopDriveCommand(
+            () -> -MathUtil.applyDeadband(m_backupController.getLeftY() * invert, 0.05),
+            () -> -MathUtil.applyDeadband(m_backupController.getLeftX() * invert, 0.05),
+            () -> -MathUtil.applyDeadband(m_backupController.getRightX(), 0.05),
             () -> OIConstants.kFieldRelative, () -> OIConstants.kRateLimited,
             m_robotDrive));
+        }
+        else {
+            m_robotDrive.setDefaultCommand(new TeleopDriveCommand(
+            () -> -MathUtil.applyDeadband(m_mainController.getLeftY() * invert, 0.05),
+            () -> -MathUtil.applyDeadband(m_mainController.getLeftX() * invert, 0.05),
+            () -> -MathUtil.applyDeadband(m_mainController.getRightX(), 0.05),
+            () -> OIConstants.kFieldRelative, () -> OIConstants.kRateLimited,
+            m_robotDrive));
+        }
         
         // Setup the commands associated with all buttons on the controller
         // Driver controller
-        configureButtonBindingsDriver(isRedAlliance, controller);
+        configureButtonBindingsDriver(isRedAlliance, controller == "XBOX");
 
         // Set the alliance to either red or blue (to invert controls if necessary)
         m_robotDrive.setAlliance(isRedAlliance);
@@ -90,20 +109,36 @@ public class RobotContainer {
      * Binding for driver xbox controller buttons
      * NOTE - Things are configured for the SHSM event, vision is (ofc) not being used for this
      */
-    private void configureButtonBindingsDriver(boolean isRedAlliance, CommandXboxController controller) {
-        // NOTE FOR SLOW/FAST MODE COMMANDS
-        // These commands don't have requirements else they interrupt the drive command (TeleopDriveCommand)
+    private void configureButtonBindingsDriver(boolean isRedAlliance, boolean useBackup) {
+        final double invert = isRedAlliance ? -1 : 1;
 
-        // Slow mode command (Left Bumper)
-        controller.leftBumper().onTrue(new InstantCommand(() -> m_robotDrive.setSlowMode(true)));
-        controller.leftBumper().onFalse(new InstantCommand(() -> m_robotDrive.setSlowMode(false)));
+        if (!useBackup) {
+            // NOTE FOR SLOW/FAST MODE COMMANDS
+            // These commands don't have requirements else they interrupt the drive command (TeleopDriveCommand)
 
-        // Fast mode command (Right Bumper)
-        controller.rightBumper().onTrue(new InstantCommand(() -> m_robotDrive.setFastMode(true)));
-        controller.rightBumper().onFalse(new InstantCommand(() -> m_robotDrive.setFastMode(false)));
-        
-        // Reset Gyro
-        controller.y().onTrue(new InstantCommand(() -> m_robotDrive.zeroHeading()));
+            // Slow mode command (Left Bumper)
+            m_mainController.L1().onTrue(new InstantCommand(() -> m_robotDrive.setSlowMode(true)));
+            m_mainController.L1().onFalse(new InstantCommand(() -> m_robotDrive.setSlowMode(false)));
+
+            // Fast mode command (Right Bumper)
+            m_mainController.R1().onTrue(new InstantCommand(() -> m_robotDrive.setFastMode(true)));
+            m_mainController.R1().onFalse(new InstantCommand(() -> m_robotDrive.setFastMode(false)));
+            
+            // Reset Gyro
+            m_mainController.triangle().onTrue(new InstantCommand(() -> m_robotDrive.zeroHeading()));
+
+            m_mainController.square().onTrue(new AlignCenterCommand(true, true, m_robotDrive, m_cameras));
+            m_mainController.circle().onTrue(new HeadingLockDriveCommand(
+                () -> -MathUtil.applyDeadband(m_mainController.getLeftY() * invert, 0.05),
+            () -> -MathUtil.applyDeadband(m_mainController.getLeftX() * invert, 0.05),
+            () -> -MathUtil.applyDeadband(m_mainController.getRightX(), 0.05),
+            () -> OIConstants.kFieldRelative, () -> OIConstants.kRateLimited,
+            m_robotDrive
+            ));
+        }
+        else {
+            // TODO: copy these over
+        }
     }
 
     /**
