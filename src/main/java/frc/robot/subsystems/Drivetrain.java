@@ -59,7 +59,7 @@ public class Drivetrain extends SubsystemBase {
       DriveConstants.kBackRightChassisAngularOffset);
 
   // The gyro sensor
-  private final AHRS m_gyro = new AHRS(NavXComType.kMXP_SPI);
+  public final AHRS m_gyro = new AHRS(NavXComType.kMXP_SPI);
 
   // Slew rate filter variables for controlling lateral acceleration
   private double m_currentRotation = 0.0;
