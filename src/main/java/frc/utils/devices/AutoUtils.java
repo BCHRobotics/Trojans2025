@@ -1,7 +1,13 @@
 package frc.utils.devices;
 
+import static edu.wpi.first.units.Units.RPM;
+
 import java.io.IOException;
+import java.net.FileNameMap;
+import java.nio.file.Path;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.LinkedList;
 import java.util.List;
 
 import org.json.simple.parser.ParseException;
@@ -123,27 +129,49 @@ public class AutoUtils {
 
                 // NOTE - the constraints defined for the first path will apply to ALL PATHS because they're combined,
                 // this means that you CANNOT define different constraints for the other paths
-                finalPath = PathPlannerPath.fromPathPoints(
-                    currentPath.getAllPathPoints(), 
+                finalPath = new PathPlannerPath(
+                    currentPath.getWaypoints(), 
+                    currentPath.getRotationTargets(),
+                    Collections.emptyList(),
+                    Collections.emptyList(),
+                    Collections.emptyList(),
                     currentPath.getGlobalConstraints(), 
-                    currentPath.getGoalEndState());
+                    currentPath.getIdealStartingState(), 
+                    currentPath.getGoalEndState(),
+                    false);
             }
             else {
                 // define what points are already a part of the final path and what ones are to be added
-                List<PathPoint> existingPoints = finalPath.getAllPathPoints();
-                List<PathPoint> newPoints = currentPath.getAllPathPoints();
+                List<Pose2d> existingPoses = finalPath.getPathPoses();
+                List<Pose2d> newPoses = currentPath.getPathPoses();
 
+                List<RotationTarget> rotationTargets = finalPath.getRotationTargets();
+                if (rotationTargets.size() == 0) {
+                    rotationTargets = new ArrayList<RotationTarget>();
+                }
+                rotationTargets.add(new RotationTarget(finalPath.getPathPoses().size() - 1, finalPath.getGoalEndState().rotation()));
+                for (int j = 0; j < currentPath.getRotationTargets().size(); j++) {
+                    rotationTargets.add(currentPath.getRotationTargets().get(j));
+                }
+                    
                 // loop through all new points and throw them on top of the existing points in the list
                 // NOTE - we SKIP THE FIRST POINT because it should already be in the list, the end state of the last path
-                for (int j = 1; j < newPoints.size(); j++) {
-                    existingPoints.add(newPoints.get(j));
+                for (int j = 1; j < newPoses.size(); j++) {
+                    Pose2d poseToAdd = newPoses.get(j);
+                    existingPoses.add(poseToAdd);
                 }
 
                 // re-construct the path from all the points
-                finalPath = PathPlannerPath.fromPathPoints(
-                    existingPoints, 
-                finalPath.getGlobalConstraints(), 
-                currentPath.getGoalEndState());
+                finalPath = new PathPlannerPath(
+                    PathPlannerPath.waypointsFromPoses(existingPoses),
+                    rotationTargets,
+                    Collections.emptyList(),
+                    Collections.emptyList(),
+                    Collections.emptyList(),
+                    finalPath.getGlobalConstraints(), 
+                    finalPath.getIdealStartingState(), 
+                    currentPath.getGoalEndState(), 
+                    false);
             }
         }
 

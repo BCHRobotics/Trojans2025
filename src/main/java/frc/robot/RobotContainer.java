@@ -37,41 +37,43 @@ public class RobotContainer {
     // The robot's subsystems
     private final Drivetrain m_robotDrive = new Drivetrain();
 
-    // Flightstick controller
-    //CommandJoystick m_driverFlightstickController = new CommandJoystick(OIConstants.kFlightstickPort);
     // Driving controller
-    CommandXboxController m_driverController = new CommandXboxController(OIConstants.kDrivingControllerXBoxPort);
-    // Operator controller
-
-    // The auto chooser
-    private final SendableChooser<Command> autoChooser;
+    CommandXboxController m_mainController = new CommandXboxController(OIConstants.kMainControllerPort);
+    CommandXboxController m_backupController = new CommandXboxController(OIConstants.kBackupControllerPort);
 
     /**
      * The container for the robot. Contains subsystems, OI devices, and commands.
      */
     public RobotContainer() {
         configureNamedCommands();
-
-        // Build an auto chooser. This will use Commands.none() as the default option.
-        autoChooser = AutoBuilder.buildAutoChooser();
-        SmartDashboard.putData("Auto Chooser", autoChooser);
+        
+        // the input field for typing in the auto
+        SmartDashboard.putString("Auto Command", "");
+        
+        // setting up a dropdown for switching between xbox and playstation
+        SendableChooser<String> controllerOptions = new SendableChooser<String>();
+        controllerOptions.addOption("Xbox Controller", "XBOX");
+        controllerOptions.addOption("Playstation Controller", "PS");
+        SmartDashboard.putData("Controller Select", controllerOptions);
     }
 
     // Sets up the drivetrain for teleoperated driving
     public void configureDriveMode(boolean isRedAlliance) {
         final double invert = isRedAlliance ? -1 : 1;
+
+        CommandXboxController controller = SmartDashboard.getData("Controller Select").toString() == "XBOX" ? m_mainController : m_backupController;
         
         // If no other command is running on the drivetrain, then this manual driving command (driving via controller) is used
         m_robotDrive.setDefaultCommand(new TeleopDriveCommand(
-            () -> -MathUtil.applyDeadband(m_driverController.getLeftY() * invert, 0.05),
-            () -> -MathUtil.applyDeadband(m_driverController.getLeftX() * invert, 0.05),
-            () -> -MathUtil.applyDeadband(m_driverController.getLeftTriggerAxis(), 0.05),
+            () -> -MathUtil.applyDeadband(controller.getLeftY() * invert, 0.05),
+            () -> -MathUtil.applyDeadband(controller.getLeftX() * invert, 0.05),
+            () -> -MathUtil.applyDeadband(controller.getRightX(), 0.05), // getLeftTriggerAxis()
             () -> OIConstants.kFieldRelative, () -> OIConstants.kRateLimited,
             m_robotDrive));
         
         // Setup the commands associated with all buttons on the controller
         // Driver controller
-        configureButtonBindingsDriver(isRedAlliance);
+        configureButtonBindingsDriver(isRedAlliance, controller);
 
         // Set the alliance to either red or blue (to invert controls if necessary)
         m_robotDrive.setAlliance(isRedAlliance);
@@ -82,28 +84,26 @@ public class RobotContainer {
      * (used during autos)
      */
     public void configureNamedCommands() {
-        // Enabling and disabling note vision in auto
     }
 
     /**
      * Binding for driver xbox controller buttons
-     * 
      * NOTE - Things are configured for the SHSM event, vision is (ofc) not being used for this
      */
-    private void configureButtonBindingsDriver(boolean isRedAlliance) {
+    private void configureButtonBindingsDriver(boolean isRedAlliance, CommandXboxController controller) {
         // NOTE FOR SLOW/FAST MODE COMMANDS
         // These commands don't have requirements else they interrupt the drive command (TeleopDriveCommand)
 
         // Slow mode command (Left Bumper)
-        this.m_driverController.leftBumper().onTrue(new InstantCommand(() -> m_robotDrive.setSlowMode(true)));
-        this.m_driverController.leftBumper().onFalse(new InstantCommand(() -> m_robotDrive.setSlowMode(false)));
+        controller.leftBumper().onTrue(new InstantCommand(() -> m_robotDrive.setSlowMode(true)));
+        controller.leftBumper().onFalse(new InstantCommand(() -> m_robotDrive.setSlowMode(false)));
 
         // Fast mode command (Right Bumper)
-        this.m_driverController.rightBumper().onTrue(new InstantCommand(() -> m_robotDrive.setFastMode(true)));
-        this.m_driverController.rightBumper().onFalse(new InstantCommand(() -> m_robotDrive.setFastMode(false)));
+        controller.rightBumper().onTrue(new InstantCommand(() -> m_robotDrive.setFastMode(true)));
+        controller.rightBumper().onFalse(new InstantCommand(() -> m_robotDrive.setFastMode(false)));
         
         // Reset Gyro
-        this.m_driverController.y().onTrue(new InstantCommand(() -> m_robotDrive.zeroHeading()));
+        controller.y().onTrue(new InstantCommand(() -> m_robotDrive.zeroHeading()));
     }
 
     /**
@@ -115,9 +115,8 @@ public class RobotContainer {
      * @throws FileVersionException 
      */ 
     public Command getAutonomousCommand() throws FileVersionException, IOException, ParseException {
-        //return new PathPlannerAuto("Example Auto");
-
-        return AutoUtils.BuildAutoFromCommands(AutoUtils.SeparateCommandString("1,2,3"), m_robotDrive);
+        // using the string provided by the user to build and run an auto
+        return AutoUtils.BuildAutoFromCommands(AutoUtils.SeparateCommandString(SmartDashboard.getString("Auto Command", "")), m_robotDrive);
     }
 
     /**
