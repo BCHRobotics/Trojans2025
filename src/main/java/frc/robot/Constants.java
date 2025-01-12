@@ -4,16 +4,15 @@
 
 package frc.robot;
 
-import com.pathplanner.lib.config.ModuleConfig;
 import com.pathplanner.lib.config.PIDConstants;
-import com.pathplanner.lib.config.RobotConfig;
 
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
-import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.math.util.Units;
 import frc.utils.CameraTransform;
+import frc.utils.TagTransform;
+import frc.utils.devices.VisionUtils;
 
 
 /**
@@ -80,100 +79,6 @@ public final class Constants {
     public static final boolean kGyroReversed = true;
   }
 
-  public static final class ElevatorConstants {
-    public static final int kLeftElevatorMotorCanId = 20;
-    public static final int kRightElevatorMotorCanId = 21;
-
-    public static final int kTopElevatorLimitSwitchPort = 5;
-    public static final int kBottomElevatorLimitSwitchPort = 6;
-
-    public static final double kPThetaController = 10;
-    public static final double kIThetaController = 0;
-    public static final double kDThetaController = 0;
-
-    public static final double kMaxSpeedMetersPerSecond = 3.0;
-    public static final double kMaxAccelerationMetersPerSecondSquared = 3.0;
-
-    public static final double kSVolts = 0.096656;
-    public static final double kGVolts = 0.1647;
-    public static final double kVVolts = 0.0021784;
-    public static final double kAVolts = 0.00019749;
-
-    //20:1 from gearbox to output reduction
-    //18 tooth
-    //1.432in
-    public static final double kElevatorMotorReduction = 20;
-    public static final double kElevatorWheelPitchDiameterInches = 1.432;
-    public static final double kElevatorMotorCPR = 42;
-
-    public static final double kElevatorPositionConversionFactor = 
-                        (kElevatorWheelPitchDiameterInches * Math.PI) / 
-                        (kElevatorMotorReduction * kElevatorMotorCPR);
-      
-    public enum ElevatorPositions {
-      AMP(0.39),
-      SOURCE(0.22),
-      INTAKE(-0.02);
-  
-      private final double goal;
-      ElevatorPositions(double goal) {
-          this.goal = goal;
-      }
-  
-      public double getGoal() {
-          return goal;
-      }
-    }
-  }                      
-  
-  public static final class MechanismConstants {
-    public static final int kBottomBeltMotorCanId = 33;
-    public static final int kTopBeltMotorCanId = 32;
-    public static final int kAmpMotorCanId = 31;
-    public static final int kSourceMotorCanId = 30;
-
-    public static final int kBottomSensorChannel = 4;
-    public static final int kMiddleSensorChannel = 5;
-    public static final int kTopSensorChannel = 6;
-  }
-
-  public static final class LEDConstants {
-    /*
-    * LED Colour Table
-    * 
-    *          R       G       B
-    * White:   255,    255,    255
-    * Red:     255,    0,      0
-    * Green:   0,      255,    0
-    * Blue:    0,      0,      255
-    * Yellow:  255,    255,    0
-    * Purple:  255,    0,      255
-    * Cyan:    0,      255,    255
-    */
-    public enum LEDColor {
-      WHITE(new boolean[]{true, true, true}),
-      RED(new boolean[]{true, false, false}),
-      GREEN(new boolean[]{false, true, false}),
-      BLUE(new boolean[]{false, false, true}),
-      YELLOW(new boolean[]{true, true, false}),
-      PURPLE(new boolean[]{true, false, true}),
-      CYAN(new boolean[]{false, true, true}),
-      OFF(new boolean[]{false, false, false});
-  
-      private final boolean[] values;
-      LEDColor(boolean[] values) {
-          this.values = values;
-      }
-  
-      public boolean[] getArray() {
-          return values;
-      }
-    }
-
-    public static final int kRedLEDPort = 8;
-    public static final int kGreenLEDPort = 9;
-    public static final int kBlueLEDPort = 7;
-  }
   public static final class VisionConstants{
     // camera names, transforms, etc.
     public static final String[] cameraNames = new String[] {"Front","Back"};
@@ -183,11 +88,42 @@ public final class Constants {
       new CameraTransform(0, 0, 180)
     };
 
-    public static final double[] tagHeadings = new double[] {
+    // these are the headings we're using for vision testing
+    public static final double[] testTagHeadings = new double[] {
       0,
       0,
       0,
       180,
+    };  
+
+    // these are the actual ones for 2025
+    // TagTransform class for holding position, heading, y-rot, etc.
+
+    // since First decided to provide units in inches, I've left the raw units here
+    // and just decided to make a function to correct them
+    public static final TagTransform[] tagTransforms = new TagTransform[] {
+      VisionUtils.correctTagUnits(new TagTransform(657.37, 25.80, 58.50, 126, 0)), // 1
+      VisionUtils.correctTagUnits(new TagTransform(657.37, 291.20, 58.50, 234, 0)), // 2
+      VisionUtils.correctTagUnits(new TagTransform(455.15, 317.15, 51.25, 270, 0)), // 3
+      VisionUtils.correctTagUnits(new TagTransform(365.20, 241.64, 73.54, 0, 30)), // 4
+      VisionUtils.correctTagUnits(new TagTransform(365.20, 75.39, 12.13, 0, 30)), // 5
+      VisionUtils.correctTagUnits(new TagTransform(530.49, 130.17, 12.13, 300, 0)), // 6
+      VisionUtils.correctTagUnits(new TagTransform(546.87, 158.50, 12.13, 0, 0)), // 7
+      VisionUtils.correctTagUnits(new TagTransform(530.49, 186.83, 12.13, 60, 0)), // 8
+      VisionUtils.correctTagUnits(new TagTransform(497.77, 186.83, 12.13, 120, 0)), // 9
+      VisionUtils.correctTagUnits(new TagTransform(481.39, 158.50, 12.13, 180, 0)), // 10
+      VisionUtils.correctTagUnits(new TagTransform(497.77, 130.17, 12.13, 240, 0)), // 11
+      VisionUtils.correctTagUnits(new TagTransform(33.51, 25.80, 58.50, 54, 0)), // 12
+      VisionUtils.correctTagUnits(new TagTransform(33.51, 291.20, 58.50, 306, 0)), // 13
+      VisionUtils.correctTagUnits(new TagTransform(325.68, 241.64, 73.54, 180, 30)), // 14
+      VisionUtils.correctTagUnits(new TagTransform(325.68, 75.39, 73.54, 180, 30)), // 15
+      VisionUtils.correctTagUnits(new TagTransform(235.73, -0.15, 51.25, 90, 0)), // 16
+      VisionUtils.correctTagUnits(new TagTransform(160.39, 130.17, 12.13, 240, 0)), // 17
+      VisionUtils.correctTagUnits(new TagTransform(144.00, 158.50, 12.13, 180, 0)), // 18
+      VisionUtils.correctTagUnits(new TagTransform(160.39, 186.83, 12.13, 120, 0)), // 19
+      VisionUtils.correctTagUnits(new TagTransform(193.10, 186.83, 12.13, 60, 0)), // 20
+      VisionUtils.correctTagUnits(new TagTransform(209.49, 158.50, 12.13, 0, 0)), // 21
+      VisionUtils.correctTagUnits(new TagTransform(193.10, 130.17, 12.13, 300, 0)), // 22
     };
 
     public static double kAlignP = 0.25;

@@ -1,38 +1,30 @@
 package frc.utils.devices;
 
-import static edu.wpi.first.units.Units.RPM;
-
 import java.io.IOException;
-import java.net.FileNameMap;
-import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.LinkedList;
 import java.util.List;
 
 import org.json.simple.parser.ParseException;
 
-import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.commands.FollowPathCommand;
 import com.pathplanner.lib.config.RobotConfig;
 import com.pathplanner.lib.controllers.PPHolonomicDriveController;
-import com.pathplanner.lib.controllers.PPLTVController;
 import com.pathplanner.lib.path.PathPlannerPath;
-import com.pathplanner.lib.path.PathPoint;
 import com.pathplanner.lib.path.RotationTarget;
-import com.pathplanner.lib.path.Waypoint;
 import com.pathplanner.lib.util.FileVersionException;
 
 import edu.wpi.first.math.geometry.Pose2d;
-import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.math.geometry.Transform2d;
-import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import frc.robot.Constants;
 import frc.robot.subsystems.Drivetrain;
 
+/*
+ * This script is for helper functions related to autos
+ * Only public static functions in here
+ */
 public class AutoUtils {
 
     // PROCESSING AUTO COMMANDS
@@ -219,62 +211,5 @@ public class AutoUtils {
         }
 
         return config;
-    }
-
-    // MATH STUFF
-    // ______________________________________________________________________________________________
-
-    /**
-     * 
-     * @param inputTransform the input vector, to be rotated
-     * @param angle the angle of the rotation in DEGREES 
-     * @return the vector with the rotation applied
-     */
-    public static Transform2d applyRotationMatrix(Transform2d inputTransform, double angle) {
-        double newX = inputTransform.getX() * Math.cos(angle * (Math.PI / 180)) + inputTransform.getY() * -Math.sin(angle * (Math.PI / 180));
-        double newY = inputTransform.getX() * Math.sin(angle * (Math.PI / 180)) + inputTransform.getY() * Math.cos(angle * (Math.PI / 180));
-
-        return new Transform2d(newX, newY, new Rotation2d());
-    }
-
-    /**
-     * Projects a vector represented by a Transform2d class onto another Transform2d class
-     * @param a the vector that is being projected
-     * @param b the vector that it's being projected onto
-     * @return the resulting projected vector
-     */
-    public static Transform2d projectOntoVector(Transform2d a, Transform2d b) {
-        double dot = dotProduct(a, b);
-        double mag = magnitude(b);
-        
-        return b.times(dot / (mag * mag));
-    }
-
-    /**
-     * Calculates the dot product of two vectors, as Transform2d classes
-     * @param a input vector
-     * @param b input vector
-     * @return the dot product of the two vectors
-     */
-    public static double dotProduct(Transform2d a, Transform2d b) {
-        return a.getX() * b.getX() + a.getY() * b.getY();
-    }
-
-    /**
-     * Calculates the magnitude of a vector, as a Transform2d class
-     * @param a the input vector
-     * @return the magnitude (length) of the vector
-     */
-    public static double magnitude(Transform2d a) {
-        return Math.sqrt(a.getX() * a.getX() + a.getY() * a.getY());
-    } 
-
-    /**
-     * Returns a normalized vector (length of 1) that points in the direction the robot is facing
-     * @param heading the heading in DEGREES of the robot
-     * @return the heading, as a normalized vector
-     */
-    public static Transform2d getHeadingVector(double heading) {
-        return applyRotationMatrix(new Transform2d(1, 0, new Rotation2d()), heading);
     }
 }

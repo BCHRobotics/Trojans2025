@@ -1,8 +1,5 @@
 package frc.robot.commands;
 
-import java.lang.annotation.Target;
-import java.util.function.BooleanSupplier;
-
 import frc.robot.subsystems.Cameras;
 import frc.robot.subsystems.Drivetrain;
 import edu.wpi.first.math.MathUtil;
@@ -10,13 +7,10 @@ import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Transform2d;
-import edu.wpi.first.math.geometry.Translation2d;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 
 import frc.robot.Constants.DriveConstants.DriveModes;
 
-import frc.robot.Constants.AutoConstants;
 import frc.robot.Constants.VisionConstants;
 
 
@@ -63,11 +57,13 @@ public class AlignCenterCommand extends Command{
             double commandedX = pid.calculate(-(tagOffset.getX() - 1), 0);
             double commandedY = pid.calculate(-tagOffset.getY(), 0);
 
+            // this rotation thing doesn't work rn
             double commandedRot = pidRot.calculate(
-                Rotation2d.fromDegrees(VisionConstants.tagHeadings[4-1]).
+                Rotation2d.fromDegrees(VisionConstants.testTagHeadings[4-1]).
                 minus(Rotation2d.fromDegrees(driveSubsystem.getHeading())).
                 minus(Rotation2d.fromDegrees(180))
                 .getDegrees(), 0);
+            // -------
 
             commandedX = MathUtil.clamp(commandedX, -0.1, 0.1);
             commandedY = MathUtil.clamp(commandedY, -0.1, 0.1);

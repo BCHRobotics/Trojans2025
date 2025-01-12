@@ -20,11 +20,15 @@ public class HeadingLockDriveCommand extends Command{
     DoubleSupplier commandY;
     DoubleSupplier commandRot;
 
+    // these constants work okay, but they also kind of suck
     PIDController pid = new PIDController(VisionConstants.kRotP,VisionConstants.kRotI,VisionConstants.kRotD);
 
     // These two are settings, whether to use ratelimiting and whether to interpret the commands as FS (true) or LS (false)
     BooleanSupplier isFieldRelative;
     BooleanSupplier isRateLimited;
+
+    private boolean hasPressedRotationJoystick;
+    private double targetAngle;
 
     public HeadingLockDriveCommand(DoubleSupplier xSpeed, DoubleSupplier ySpeed, DoubleSupplier rotSpeed, BooleanSupplier fieldRelative, BooleanSupplier rateLimit, Drivetrain subsystem) {
         // Assign the variables that point to input values
@@ -47,26 +51,38 @@ public class HeadingLockDriveCommand extends Command{
         driveSubsystem.setDriveMode(DriveModes.HEADINGLOCK);
         // Tell the driver that manual driving has been enabled
         System.out.println("HEADING LOCK ENGAGED");
+
+        targetAngle = 0;
     }
 
     @Override
     public void execute() {
-        driveSubsystem.drive(commandX.getAsDouble(), commandY.getAsDouble(), pid.calculate(driveSubsystem.getHeading(), 0), isFieldRelative.getAsBoolean(), isRateLimited.getAsBoolean());
+        driveSubsystem.drive(
+            commandX.getAsDouble(), 
+            commandY.getAsDouble(), 
+            pid.calculate(driveSubsystem.getHeading(), targetAngle), 
+            isFieldRelative.getAsBoolean(), 
+            isRateLimited.getAsBoolean());
+
+        if (Math.abs(commandRot.getAsDouble()) > 0.25 && !hasPressedRotationJoystick) {
+            hasPressedRotationJoystick = true;
+            targetAngle += 360/6;
+            if (targetAngle > 360) {
+                targetAngle -= 360;
+            }
+        }
+        if (Math.abs(commandRot.getAsDouble()) < 0.25 ) {
+            hasPressedRotationJoystick = false;
+        }
     }
 
     @Override
     public void end(boolean interrupted) {
         // Check to see if the command was canceled by another command or if it ended itself
         if (interrupted) {
-            // This will happen most of the time, e.g. when switching to vision
             System.out.println("HEADING LOCK INTERRUPT!");
         }
         else {
-            // This happens when the driving mode switches off manual
-            // Doesn't usually happen, for example when a vision command is triggered 
-            // it is setup before the drive mode is set
-            // So the program interrupts this command (because of the new one)
-            // before it realizes the driveMode isn't manual anymore
             System.out.println("HEADING LOCK OFF");
         }
     }
