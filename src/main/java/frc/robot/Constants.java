@@ -44,9 +44,9 @@ public final class Constants {
     public static final double kMinSpeedMetersPerSecond = 0.9; // 1.6
     public static final double kMaxAngularSpeed = 2 * Math.PI; // radians per second
 
-    public static final double kDirectionSlewRate = 6; // radians per second
-    public static final double kMagnitudeSlewRate = 7; // percent per second (1 = 100%) // 3.6
-    public static final double kRotationalSlewRate = 3.5; // percent per second (1 = 100%) // 3.0
+    public static final double kDirectionSlewRate = 3; // radians per second
+    public static final double kMagnitudeSlewRate = 3.5; // percent per second (1 = 100%) // 3.6
+    public static final double kRotationalSlewRate = 2; // percent per second (1 = 100%) // 3.0
 
     // aggressive rate limits
     // public static final double kDirectionSlewRate = 6;
