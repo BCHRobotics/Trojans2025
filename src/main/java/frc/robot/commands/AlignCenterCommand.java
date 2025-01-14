@@ -59,7 +59,7 @@ public class AlignCenterCommand extends Command{
 
             // this rotation thing doesn't work rn
             double commandedRot = pidRot.calculate(
-                Rotation2d.fromDegrees(VisionConstants.tagHeadings[3]).
+                Rotation2d.fromDegrees(VisionConstants.testTagHeadings[3]).
                 minus(Rotation2d.fromDegrees(driveSubsystem.getHeading())).
                 minus(Rotation2d.fromDegrees(180))
                 .getDegrees(), 0);
