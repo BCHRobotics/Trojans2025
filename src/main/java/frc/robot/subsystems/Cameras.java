@@ -60,6 +60,14 @@ public class Cameras extends SubsystemBase {
         }
     }
 
+    // public Pose2d estimateRobotPose() {
+    //     Transform2d[] fieldRelativeOffsets = getAllFieldRelativeOffsets();
+    // }
+
+    // public Transform2d[] getAllFieldRelativeOffsets() {
+
+    // }
+
     public void printToDashboard() {
         //SmartDashboard.putBoolean("Tag Visible", canSeeTag(4));
 

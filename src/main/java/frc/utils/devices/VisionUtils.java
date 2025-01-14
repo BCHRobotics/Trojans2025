@@ -90,7 +90,7 @@ public class VisionUtils {
         double cameraHeading = constructCameraHeading(tagId, rawOffset.getRotation().getZ()).getRadians();
 
         Transform2d projectedOffset = projectOntoHorizontalPlane(rawOffset);
-        Transform2d offsetWithRotationMatrix = applyRotationMatrix(projectedOffset, -cameraHeading);
+        Transform2d offsetWithRotationMatrix = applyRotationMatrix(projectedOffset, cameraHeading);
 
         Transform2d fieldOrientedOffset = correctRotation(offsetWithRotationMatrix, cameraHeading);
 

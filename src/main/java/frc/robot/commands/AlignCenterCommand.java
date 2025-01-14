@@ -57,18 +57,16 @@ public class AlignCenterCommand extends Command{
             double commandedX = pid.calculate(-(tagOffset.getX() - 1), 0);
             double commandedY = pid.calculate(-tagOffset.getY(), 0);
 
-            // this rotation thing doesn't work rn
             double commandedRot = pidRot.calculate(
                 Rotation2d.fromDegrees(VisionConstants.testTagHeadings[3]).
                 minus(Rotation2d.fromDegrees(driveSubsystem.getHeading())).
-                minus(Rotation2d.fromDegrees(180))
+                plus(Rotation2d.fromDegrees(180))
                 .getDegrees(), 0);
-            // -------
 
             commandedX = MathUtil.clamp(commandedX, -0.1, 0.1);
             commandedY = MathUtil.clamp(commandedY, -0.1, 0.1);
 
-            driveSubsystem.drive(commandedX, commandedY, 0, isFieldRelative, isRateLimited);
+            driveSubsystem.drive(commandedX, commandedY, -commandedRot, isFieldRelative, isRateLimited);
         }
    }
 

@@ -131,7 +131,25 @@ public class RobotContainer {
             ));
         }
         else {
-            // TODO: copy these over
+            // Reset Gyro
+            m_backupController.y().onTrue(new InstantCommand(() -> m_robotDrive.zeroHeading()));
+
+            m_backupController.x().onTrue(new AlignCenterCommand(true, true, m_robotDrive, m_cameras));
+            m_backupController.b().onTrue(new HeadingLockDriveCommand(
+                () -> -MathUtil.applyDeadband(m_backupController.getLeftY() * invert, 0.05),
+            () -> -MathUtil.applyDeadband(m_backupController.getLeftX() * invert, 0.05),
+            () -> -MathUtil.applyDeadband(m_backupController.getRightX(), 0.05),
+            () -> OIConstants.kFieldRelative, () -> OIConstants.kRateLimited,
+            m_robotDrive
+            ));
+
+            // Slow mode command (Left Bumper)
+            m_backupController.leftBumper().onTrue(new InstantCommand(() -> m_robotDrive.setSlowMode(true)));
+            m_backupController.leftBumper().onFalse(new InstantCommand(() -> m_robotDrive.setSlowMode(false)));
+
+            // Fast mode command (Right Bumper)
+            m_backupController.rightBumper().onTrue(new InstantCommand(() -> m_robotDrive.setFastMode(true)));
+            m_backupController.rightBumper().onFalse(new InstantCommand(() -> m_robotDrive.setFastMode(false)));
         }
     }
 
