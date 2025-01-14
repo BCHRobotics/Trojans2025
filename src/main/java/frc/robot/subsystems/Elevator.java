@@ -14,7 +14,6 @@ import frc.robot.Constants.ElevatorConstants;
 
 
 public class Elevator extends SubsystemBase{
-    
 
     private final SparkMax kLeftMotor;
     private final SparkMax kRightMotor;
