@@ -14,10 +14,9 @@ import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.Constants.OIConstants;
-import frc.robot.commands.AlignCenterCommand;
-import frc.robot.commands.HeadingLockDriveCommand;
+
 import frc.robot.commands.TeleopDriveCommand;
-import frc.robot.subsystems.Cameras;
+
 import frc.robot.subsystems.Drivetrain;
 import frc.utils.devices.AutoUtils;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -34,7 +33,7 @@ import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 public class RobotContainer {
     // The robot's subsystems
     private final Drivetrain m_robotDrive = new Drivetrain();
-    private final Cameras m_cameras = new Cameras();
+ 
 
     // Driving controller
     CommandPS5Controller m_mainController = new CommandPS5Controller(OIConstants.kMainControllerPort);
@@ -46,8 +45,7 @@ public class RobotContainer {
      * The container for the robot. Contains subsystems, OI devices, and commands.
      */
     public RobotContainer() {
-        m_cameras.setDriveSubsystem(m_robotDrive);
-
+    
         configureNamedCommands();
         
         // the input field for typing in the auto
@@ -121,14 +119,6 @@ public class RobotContainer {
             // Reset Gyro
             m_mainController.triangle().onTrue(new InstantCommand(() -> m_robotDrive.zeroHeading()));
 
-            m_mainController.square().onTrue(new AlignCenterCommand(true, true, m_robotDrive, m_cameras));
-            m_mainController.circle().onTrue(new HeadingLockDriveCommand(
-                () -> -MathUtil.applyDeadband(m_mainController.getLeftY() * invert, 0.05),
-            () -> -MathUtil.applyDeadband(m_mainController.getLeftX() * invert, 0.05),
-            () -> -MathUtil.applyDeadband(m_mainController.getRightX(), 0.05),
-            () -> OIConstants.kFieldRelative, () -> OIConstants.kRateLimited,
-            m_robotDrive
-            ));
         }
         else {
             // TODO: copy these over
