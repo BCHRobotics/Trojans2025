@@ -68,7 +68,7 @@ public class AlignCenterCommand extends Command{
             commandedX = MathUtil.clamp(commandedX, -0.1, 0.1);
             commandedY = MathUtil.clamp(commandedY, -0.1, 0.1);
 
-            driveSubsystem.drive(commandedX, commandedY, commandedRot, isFieldRelative, isRateLimited);
+            driveSubsystem.drive(commandedX, commandedY, 0, isFieldRelative, isRateLimited);
         }
    }
 

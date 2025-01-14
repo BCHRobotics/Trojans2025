@@ -41,7 +41,7 @@ public class AutoUtils {
     // This function takes in that string and returns an array with the separated commands
     // The elements in the array can then be used to get paths and assemble an auto
     // Basically, this removes commas
-    public static String[] SeparateCommandString(String _commandString) {
+    public static String[] separateCommandString(String _commandString) {
         // make sure the string isn't empty or null or anything before continuing
         if (_commandString.length() == 0) {return null;}
 
@@ -97,6 +97,10 @@ public class AutoUtils {
         // return all our commands
         return commands;
     }
+
+    // public static Command actuallyBuildAutoFromCommands(String _commandString, Drivetrain subsystem) {
+
+    // }
 
     // Make an auto using a string[] of commands
     // NOTE - for now each command is just the name of a path,

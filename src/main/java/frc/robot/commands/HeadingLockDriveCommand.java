@@ -4,6 +4,7 @@ import java.util.function.BooleanSupplier;
 import java.util.function.DoubleSupplier;
 
 import edu.wpi.first.math.controller.PIDController;
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.Constants.DriveConstants.DriveModes;
 import frc.robot.Constants.VisionConstants;
@@ -28,7 +29,7 @@ public class HeadingLockDriveCommand extends Command{
     BooleanSupplier isRateLimited;
 
     private boolean hasPressedRotationJoystick;
-    private double targetAngle;
+    private Rotation2d targetAngle;
 
     public HeadingLockDriveCommand(DoubleSupplier xSpeed, DoubleSupplier ySpeed, DoubleSupplier rotSpeed, BooleanSupplier fieldRelative, BooleanSupplier rateLimit, Drivetrain subsystem) {
         // Assign the variables that point to input values
@@ -52,7 +53,7 @@ public class HeadingLockDriveCommand extends Command{
         // Tell the driver that manual driving has been enabled
         System.out.println("HEADING LOCK ENGAGED");
 
-        targetAngle = 0;
+        targetAngle = Rotation2d.fromDegrees(0);
     }
 
     @Override
@@ -60,16 +61,17 @@ public class HeadingLockDriveCommand extends Command{
         driveSubsystem.drive(
             commandX.getAsDouble(), 
             commandY.getAsDouble(), 
-            pid.calculate(driveSubsystem.getHeading(), targetAngle), 
+            pid.calculate(driveSubsystem.getHeading(), targetAngle.getDegrees()), 
             isFieldRelative.getAsBoolean(), 
             isRateLimited.getAsBoolean());
 
-        if (Math.abs(commandRot.getAsDouble()) > 0.25 && !hasPressedRotationJoystick) {
+        if (commandRot.getAsDouble() > 0.25 && !hasPressedRotationJoystick) {
             hasPressedRotationJoystick = true;
-            targetAngle += 360/6;
-            if (targetAngle > 360) {
-                targetAngle -= 360;
-            }
+            targetAngle = Rotation2d.fromDegrees(targetAngle.getDegrees() + 360/6);
+        }
+        if (commandRot.getAsDouble() < -0.25 && !hasPressedRotationJoystick) {
+            hasPressedRotationJoystick = true;
+            targetAngle = Rotation2d.fromDegrees(targetAngle.getDegrees() - 360/6);
         }
         if (Math.abs(commandRot.getAsDouble()) < 0.25 ) {
             hasPressedRotationJoystick = false;

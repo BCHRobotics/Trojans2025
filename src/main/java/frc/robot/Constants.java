@@ -81,11 +81,10 @@ public final class Constants {
 
   public static final class VisionConstants{
     // camera names, transforms, etc.
-    public static final String[] cameraNames = new String[] {"Front","Back"};
+    public static final String[] cameraNames = new String[] {"Front"};
     public static final CameraTransform[] cameraOffsets = 
     new CameraTransform[] {
       new CameraTransform(0, 0, 0),
-      new CameraTransform(0, 0, 180)
     };
 
     // these are the headings we're using for vision testing

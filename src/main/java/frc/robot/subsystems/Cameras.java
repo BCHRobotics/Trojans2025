@@ -61,7 +61,7 @@ public class Cameras extends SubsystemBase {
     }
 
     public void printToDashboard() {
-        SmartDashboard.putBoolean("Tag Visible", canSeeTag(4));
+        //SmartDashboard.putBoolean("Tag Visible", canSeeTag(4));
 
         // if (getTagTestPosition(4) != null) {
         //     SmartDashboard.putNumber("Tag X", getTagTestPosition(4).getX());
@@ -94,6 +94,7 @@ public class Cameras extends SubsystemBase {
         int cameraIndex = -1;
 
         for (int i = 0; i < results.length; i++) {
+            if (results[i]==null){continue;}
             for (int j = 0; j < results[i].getTargets().size(); j++) {
                 if (results[i].getTargets().get(j).fiducialId == tagId) {
                     rawOffset = results[i].getTargets().get(j).getBestCameraToTarget();
