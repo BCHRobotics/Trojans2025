@@ -84,15 +84,6 @@ public final class Constants {
     public static final boolean kGyroReversed = true;
   }
 
-  public static final class ElevatorConstants {
-    public static final double elevatorP = 0;
-    public static final double elevatorI = 0;
-    public static final double elevatorD = 0;
-
-    public static final int kLeftElevatorMotorCanId = 0;
-    public static final int kRightElevatorMotorCanId = 0;
-  }
-
   public static final class VisionConstants{
     // camera names, transforms, etc.
     public static final String[] cameraNames = new String[] {"Front"};

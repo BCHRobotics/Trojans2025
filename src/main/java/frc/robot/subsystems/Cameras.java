@@ -1,5 +1,6 @@
 package frc.robot.subsystems;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import org.photonvision.PhotonCamera;
@@ -64,9 +65,17 @@ public class Cameras extends SubsystemBase {
     //     Transform2d[] fieldRelativeOffsets = getAllFieldRelativeOffsets();
     // }
 
-    // public Transform2d[] getAllFieldRelativeOffsets() {
+    public Transform2d[] getAllFieldRelativeOffsets() {
+        ArrayList<Transform2d> toReturn = new ArrayList<Transform2d>();
 
-    // }
+        for (int i = 0; i < tagCount; i++) {
+            if (getFieldOrientedTagOffset(i) != null) {
+                toReturn.add(getFieldOrientedTagOffset(i));
+            }
+        }
+
+        return toReturn.toArray(new Transform2d[toReturn.size()]);
+    }
 
     public void printToDashboard() {
         //SmartDashboard.putBoolean("Tag Visible", canSeeTag(4));
