@@ -1,5 +1,6 @@
 package frc.robot.subsystems;
 
+import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -55,11 +56,21 @@ public class Cameras extends SubsystemBase {
     }
 
     public void updateTagTestPositions() {
-        for (int i = 0; i < 16; i++) {
+        for (int i = 0; i < tagCount; i++) {
             Transform2d fieldOffset = getFieldOrientedTagOffset(i);
             if (fieldOffset == null) {continue;}
             tagTestPositions[i] = driveSubsystem.getPose().plus(fieldOffset);
         }
+    }
+
+    public boolean canSeeAnyTags() {
+        for (int i = 0; i < tagCount; i++) {
+            if (canSeeTag(i)) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     public Pose2d estimateRobotPose() {
@@ -88,6 +99,12 @@ public class Cameras extends SubsystemBase {
 
     public void printToDashboard() {
         //SmartDashboard.putBoolean("Tag Visible", canSeeTag(4));
+
+        SmartDashboard.putNumber("odometry x", driveSubsystem.getPose().getX());
+        SmartDashboard.putNumber("odometry y", driveSubsystem.getPose().getY());
+
+        SmartDashboard.putNumber("camera x", estimateRobotPose().getX());
+        SmartDashboard.putNumber("camera y", estimateRobotPose().getY());
 
         // if (getTagTestPosition(4) != null) {
         //     SmartDashboard.putNumber("Tag X", getTagTestPosition(4).getX());

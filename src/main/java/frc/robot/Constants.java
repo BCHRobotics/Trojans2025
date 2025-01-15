@@ -10,9 +10,12 @@ import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.math.util.Units;
+import frc.utils.AutoPOI;
 import frc.utils.CameraTransform;
 import frc.utils.TagTransform;
 import frc.utils.devices.VisionUtils;
+import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Rotation2d;
 
 
 /**
@@ -98,6 +101,20 @@ public final class Constants {
       0,
       0,
       180,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
     };  
 
     // these are the actual ones for 2025
@@ -219,6 +236,23 @@ public final class Constants {
     // Constraint for the motion profiled robot angle controller
     public static final TrapezoidProfile.Constraints kThetaControllerConstraints = new TrapezoidProfile.Constraints(
         kMaxAngularSpeedRadiansPerSecond, kMaxAngularSpeedRadiansPerSecondSquared);
+
+    // POI syntax:
+    // Start_ (1, 2, 3, 4, 5, 6) -> fallback starting positions
+    // Reef_ (1, 2, 3, 4, 5, 6) -> sides of the reef
+    // Station_ (1, 2) -> coral stations
+
+    public static final AutoPOI[] fallpackPositions = new AutoPOI[] {
+      // blue
+      new AutoPOI(new Pose2d(7.780, 7.274, new Rotation2d()), "Start1"),
+      new AutoPOI(new Pose2d(7.780, 6.171, new Rotation2d()), "Start1"),
+      new AutoPOI(new Pose2d(7.780, 5.056, new Rotation2d()), "Start1"),
+
+      // red
+      new AutoPOI(new Pose2d(7.780, 3.018, new Rotation2d()), "Start1"),
+      new AutoPOI(new Pose2d(7.780, 1.903, new Rotation2d()), "Start1"),
+      new AutoPOI(new Pose2d(7.780, 0.800, new Rotation2d()), "Start1"),
+    };
   }
 
   public static final class NeoMotorConstants {

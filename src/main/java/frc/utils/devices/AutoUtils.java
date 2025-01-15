@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import org.ejml.data.CMatrix;
 import org.json.simple.parser.ParseException;
 
 import com.pathplanner.lib.commands.FollowPathCommand;
@@ -19,7 +20,10 @@ import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import frc.robot.Constants;
+import frc.robot.Constants.AutoConstants;
+import frc.robot.subsystems.Cameras;
 import frc.robot.subsystems.Drivetrain;
+import frc.utils.AutoPOI;
 
 /*
  * This script is for helper functions related to autos
@@ -98,9 +102,85 @@ public class AutoUtils {
         return commands;
     }
 
-    // public static Command actuallyBuildAutoFromCommands(String _commandString, Drivetrain subsystem) {
+    // scoring command syntax:
+    // SCORE_(LEFT/RIGHT)_(LEVEL)_(SIDE)
+    // e.g. SCORE_LEFT_L4_S4
 
-    // }
+    // loading command syntax:
+    // LOAD_(STATION NUMBER)
+    // e.g. LOAD_CS1
+
+    // going in a straight line (construct path class)
+    // unless there is a path defined already (path file)
+
+    // also, using pose estimation to figure out starting position
+    // unless tags cannot be seen, in which case use a fallback position
+    // TODO: maybe make pose estimation/fallback a boolean passed into the function, instead of checking vision
+    // do this ^^ to allow humans to make the call
+
+    public static Command actuallyBuildAutoFromCommands(String _commandString, Drivetrain driveSubsystem, Cameras cameraSubsystem, int fallbackStartingPose) {
+        String[] commands = separateCommandString(_commandString);
+        Pose2d startingPose = null;
+
+        AutoPOI oldPOI = new AutoPOI();
+
+        if (cameraSubsystem.canSeeAnyTags()) {
+            // we can see at least one tag, so pose estimation is possible
+            startingPose = cameraSubsystem.estimateRobotPose();
+        }
+        else {
+            // we cannot see any tags, so all we can do is use the fallback pose
+            startingPose = AutoConstants.fallpackPositions[fallbackStartingPose].position;
+            oldPOI.name = AutoConstants.fallpackPositions[fallbackStartingPose].name;
+        }
+
+        // reset odometry to where cameras think we are or the fallback pose
+        final Pose2d commandedStartingPose = startingPose;
+        Command autoCommand = Commands.runOnce(() -> driveSubsystem.resetOdometry(commandedStartingPose));
+
+        PathPlannerPath finalPath = null;
+
+        // looping through the commands and adding them one by one to the path
+        // NOTE - we are ending up with one path, essentially "baking" everything together to make it smoother
+        for (int i = 0; i < commands.length; i++) {
+            AutoPOI newPOI = new AutoPOI();
+            newPOI.name = getPOINameFromCommand(commands[i]);
+
+            if (i == 0) {
+                
+            }
+        }
+
+        return autoCommand;
+    }
+
+    // leave this here:
+    // SCORE_LEFT_L1_S4
+    // LOAD_CS1
+
+    public static String getPOINameFromCommand(String command) {
+        if (getCommandType(command) == "SCORE") {
+            return "Reef" + Integer.parseInt(String.valueOf(command.charAt(15)));
+        }
+        else if (getCommandType(command) == "LOAD") {
+            return "Station" + Integer.parseInt(String.valueOf(command.charAt(7)));
+        }
+
+        System.err.println("ERROR: that auto command type doesn't exist or hasn't been implemented!");
+        return "";
+    }
+
+    public static String getCommandType(String command) {
+        if (command.substring(0, 5) == "SCORE") {
+            return "SCORE";
+        }
+        else if (command.substring(0, 4) == "LOAD") {
+            return "LOAD";
+        }
+        
+        System.err.println("ERROR: that auto command type doesn't exist or hasn't been implemented!");
+        return "";
+    }
 
     // Make an auto using a string[] of commands
     // NOTE - for now each command is just the name of a path,
