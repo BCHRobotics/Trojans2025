@@ -30,13 +30,6 @@ public class Elevator extends SubsystemBase{
 
     private final RelativeEncoder kLeftEncoder;
 
-    private PIDController controller = new PIDController(
-        Constants.ElevatorConstants.elevatorP,
-        Constants.ElevatorConstants.elevatorI,
-        Constants.ElevatorConstants.elevatorD
-        );
-
-
     public Elevator(){
         this.kLeftMotor = new SparkMax(ElevatorConstants.kLeftElevatorMotorCanId, MotorType.kBrushless);
         this.kRightMotor = new SparkMax(ElevatorConstants.kRightElevatorMotorCanId, MotorType.kBrushless);
@@ -50,8 +43,13 @@ public class Elevator extends SubsystemBase{
         kLeftConfig.idleMode(IdleMode.kBrake);
         kLeftConfig.idleMode(IdleMode.kBrake);
 
-        kLeftConfig.closedLoop.feedbackSensor(FeedbackSensor.kPrimaryEncoder).pid(0.0, 0.0, 0.0);
-        kRightConfig.closedLoop.feedbackSensor(FeedbackSensor.kPrimaryEncoder).pid(0.0, 0.0, 0.0);
+        kLeftConfig.closedLoop.feedbackSensor(FeedbackSensor.kPrimaryEncoder).pid(
+            Constants.ElevatorConstants.elevatorP,
+            Constants.ElevatorConstants.elevatorI,
+            Constants.ElevatorConstants.elevatorD);
+        kRightConfig.closedLoop.feedbackSensor(FeedbackSensor.kPrimaryEncoder).pid(Constants.ElevatorConstants.elevatorP,
+            Constants.ElevatorConstants.elevatorI,
+            Constants.ElevatorConstants.elevatorD);
 
         this.kLeftMotor.configure(kLeftConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
         this.kRightMotor.configure(kRightConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
