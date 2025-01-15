@@ -8,6 +8,7 @@ import org.photonvision.targeting.PhotonPipelineResult;
 import org.photonvision.targeting.PhotonTrackedTarget;
 
 import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -61,9 +62,17 @@ public class Cameras extends SubsystemBase {
         }
     }
 
-    // public Pose2d estimateRobotPose() {
-    //     Transform2d[] fieldRelativeOffsets = getAllFieldRelativeOffsets();
-    // }
+    public Pose2d estimateRobotPose() {
+        Transform2d[] fieldRelativeOffsets = getAllFieldRelativeOffsets();
+        Pose2d finalPose = new Pose2d(0, 0, new Rotation2d());
+
+        for (int i = 0; i < fieldRelativeOffsets.length; i++) {
+            finalPose.plus(tagTestPositions[i].minus(new Pose2d(fieldRelativeOffsets[i].getX(), fieldRelativeOffsets[i].getY(), new Rotation2d())));
+        }
+        finalPose.div(fieldRelativeOffsets.length);
+
+        return finalPose;
+    }
 
     public Transform2d[] getAllFieldRelativeOffsets() {
         ArrayList<Transform2d> toReturn = new ArrayList<Transform2d>();
