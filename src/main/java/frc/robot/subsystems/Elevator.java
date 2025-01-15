@@ -63,8 +63,7 @@ public class Elevator extends SubsystemBase{
         this.kRightMotor.configure(kRightConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
     }
 
-    private void setLeftMotorSpeed(double speed, double pos) {
-        double desiredSpeed = speed;
+    private void setLeftMotorSpeed(double pos) {
         // kLeftController.calculate(kLeftEncoder.getPosition(), pos);
         kLeftController.setReference(pos, SparkBase.ControlType.kMAXMotionPositionControl);
     }
