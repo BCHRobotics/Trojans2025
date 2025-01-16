@@ -28,6 +28,9 @@ public class Elevator extends SubsystemBase{
     private final SparkMaxConfig kLeftConfig = new SparkMaxConfig();
     private final SparkMaxConfig kRightConfig = new SparkMaxConfig();
 
+    private final double maxVelocity = 1; // This is in rpm
+    private final double maxAcceleration = 1; // This is in rpm/second
+
     // private final RelativeEncoder kLeftEncoder;
 
     private final SparkClosedLoopController kLeftController;
@@ -56,6 +59,16 @@ public class Elevator extends SubsystemBase{
         kRightConfig.closedLoop.feedbackSensor(FeedbackSensor.kPrimaryEncoder).pid(Constants.ElevatorConstants.elevatorP,
             Constants.ElevatorConstants.elevatorI,
             Constants.ElevatorConstants.elevatorD);
+
+        kLeftConfig.closedLoop.maxMotion
+            .maxVelocity(maxVelocity)
+            .maxAcceleration(maxAcceleration);
+
+        kRightConfig.closedLoop.maxMotion
+            .maxVelocity(maxVelocity)
+            .maxAcceleration(maxAcceleration);
+           
+        
 
         this.kLeftMotor.configure(kLeftConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
         this.kRightMotor.configure(kRightConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
