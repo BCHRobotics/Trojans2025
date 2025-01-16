@@ -147,8 +147,8 @@ public final class Constants {
       VisionUtils.correctTagUnits(new TagTransform(193.10, 130.17, 12.13, 300, 0)), // 22
     };
 
-    public static double kAlignP = 0.25;
-    public static double kAlignI = 0;
+    public static double kAlignP = 1;
+    public static double kAlignI = 0.05;
     public static double kAlignD = 0;
 
     public static double kRotP = 0.018;

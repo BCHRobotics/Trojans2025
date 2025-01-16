@@ -100,11 +100,11 @@ public class Cameras extends SubsystemBase {
     public void printToDashboard() {
         //SmartDashboard.putBoolean("Tag Visible", canSeeTag(4));
 
-        SmartDashboard.putNumber("odometry x", driveSubsystem.getPose().getX());
-        SmartDashboard.putNumber("odometry y", driveSubsystem.getPose().getY());
+        // SmartDashboard.putNumber("odometry x", driveSubsystem.getPose().getX());
+        // SmartDashboard.putNumber("odometry y", driveSubsystem.getPose().getY());
 
-        SmartDashboard.putNumber("camera x", estimateRobotPose().getX());
-        SmartDashboard.putNumber("camera y", estimateRobotPose().getY());
+        // SmartDashboard.putNumber("camera x", estimateRobotPose().getX());
+        // SmartDashboard.putNumber("camera y", estimateRobotPose().getY());
 
         // if (getTagTestPosition(4) != null) {
         //     SmartDashboard.putNumber("Tag X", getTagTestPosition(4).getX());
