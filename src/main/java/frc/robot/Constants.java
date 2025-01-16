@@ -86,19 +86,21 @@ public final class Constants {
   }
 
   public static final class ElevatorConstants {
-    public static final double elevatorP = 0;
+    public static final double elevatorP = 0.5;
     public static final double elevatorI = 0;
     public static final double elevatorD = 0;
 
     public static final int kLeftElevatorMotorCanId = 0;
     public static final int kRightElevatorMotorCanId = 0;
 
+    // creating hashmap to store elevator positions
     public static final HashMap<String, Double> ElevatorPositions = new HashMap<String, Double>();
 
     // To be changed to actual values
     //  Will need to figure out precise elevator positions for the top, middle and bottom relative to encoder positions
     // Need to know gear ratio to figure out how many rotations correspond to the different positions
     
+    // adding elements to the hashmap, values are currenlty at 0.0 as a placeholder (need to get gear ratios)
     static {
         ElevatorPositions.put("Bottom", 0.0);
         ElevatorPositions.put("Middle", 0.0);

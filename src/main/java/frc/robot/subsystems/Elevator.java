@@ -68,8 +68,6 @@ public class Elevator extends SubsystemBase{
             .maxVelocity(maxVelocity)
             .maxAcceleration(maxAcceleration);
            
-        
-
         this.kLeftMotor.configure(kLeftConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
         this.kRightMotor.configure(kRightConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
     }
