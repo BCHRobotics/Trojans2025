@@ -93,16 +93,16 @@ public final class Constants {
     public static final int kLeftElevatorMotorCanId = 0;
     public static final int kRightElevatorMotorCanId = 0;
 
-    public static final HashMap<String, Double> ElevatorPosition = new HashMap<String, Double>();
+    public static final HashMap<String, Double> ElevatorPositions = new HashMap<String, Double>();
 
     // To be changed to actual values
     //  Will need to figure out precise elevator positions for the top, middle and bottom relative to encoder positions
     // Need to know gear ratio to figure out how many rotations correspond to the different positions
     
     static {
-        ElevatorPosition.put("Bottom", 0.0);
-        ElevatorPosition.put("Middle", 0.0);
-        ElevatorPosition.put("Top", 0.0);
+        ElevatorPositions.put("Bottom", 0.0);
+        ElevatorPositions.put("Middle", 0.0);
+        ElevatorPositions.put("Top", 0.0);
     }
     
   }

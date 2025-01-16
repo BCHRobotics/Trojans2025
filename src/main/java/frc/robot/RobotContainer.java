@@ -14,11 +14,13 @@ import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.Constants.OIConstants;
+import frc.robot.Constants.ElevatorConstants;
 import frc.robot.commands.AlignCenterCommand;
 import frc.robot.commands.HeadingLockDriveCommand;
 import frc.robot.commands.TeleopDriveCommand;
 import frc.robot.subsystems.Cameras;
 import frc.robot.subsystems.Drivetrain;
+import frc.robot.subsystems.Elevator;
 import frc.utils.devices.AutoUtils;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
@@ -35,6 +37,7 @@ public class RobotContainer {
     // The robot's subsystems
     private final Drivetrain m_robotDrive = new Drivetrain();
     private final Cameras m_cameras = new Cameras();
+    private final Elevator m_elevator = new Elevator();
 
     // Driving controller
     CommandPS5Controller m_mainController = new CommandPS5Controller(OIConstants.kMainControllerPort);
@@ -129,6 +132,10 @@ public class RobotContainer {
             () -> OIConstants.kFieldRelative, () -> OIConstants.kRateLimited,
             m_robotDrive
             ));
+
+            m_mainController.povUp().onTrue(new InstantCommand(() -> m_elevator.moveToPosition(ElevatorConstants.ElevatorPositions.get("Top"))));
+            m_mainController.povLeft().onTrue(new InstantCommand(() -> m_elevator.moveToPosition(ElevatorConstants.ElevatorPositions.get("Bottom"))));
+            m_mainController.povDown().onTrue(new InstantCommand(() -> m_elevator.moveToPosition(ElevatorConstants.ElevatorPositions.get("Middle"))));
         }
         else {
             // Reset Gyro

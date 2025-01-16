@@ -1,6 +1,5 @@
 package frc.robot.subsystems;
 
-import com.revrobotics.RelativeEncoder;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
 import com.revrobotics.spark.SparkBase;
 import com.revrobotics.spark.SparkBase.PersistMode;
@@ -10,10 +9,9 @@ import com.revrobotics.spark.SparkMax;
 import com.revrobotics.spark.config.ClosedLoopConfig.FeedbackSensor;
 import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
 import com.revrobotics.spark.config.SparkMaxConfig;
-import com.revrobotics.spark.config.ClosedLoopConfig;
 import com.revrobotics.spark.SparkClosedLoopController;
 
-import edu.wpi.first.math.controller.PIDController;
+import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 import frc.robot.Constants.ElevatorConstants;
@@ -63,11 +61,17 @@ public class Elevator extends SubsystemBase{
         this.kRightMotor.configure(kRightConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
     }
 
-    private void setLeftMotorSpeed(double pos) {
+    private void setLeftMotorPos(double pos) {
         // kLeftController.calculate(kLeftEncoder.getPosition(), pos);
         kLeftController.setReference(pos, SparkBase.ControlType.kMAXMotionPositionControl);
     }
 
- 
+    public Command moveToPosition(double pos) {
+        return this.runOnce(() -> setLeftMotorPos(pos));
+    }
+
+    public Command cancelElevatorCommands() {
+        return this.runOnce(() -> this.kLeftMotor.stopMotor());
+    }
 }
 
