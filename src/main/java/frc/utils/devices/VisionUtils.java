@@ -61,7 +61,7 @@ public class VisionUtils {
     }
 
     /*
-    * This function shouldn't exist
+    * This function maybe shouldn't exist
     */
     public static Transform2d correctRotation(Transform2d inputOffset, double cameraHeading) {
         return new Transform2d(inputOffset.getX(), inputOffset.getY(), inputOffset.getRotation().plus(Rotation2d.fromRadians(cameraHeading)));
@@ -87,13 +87,19 @@ public class VisionUtils {
      * @return The 2D field oriented offset from the tag
      */
     public static Transform2d rawToFieldOriented(int tagId, Transform3d rawOffset, CameraTransform camTransform) {
+        // first, we figure out where the camera is facing based on the static tag heading and the offset
+        // this allows us to get a robot heading without the gyro, and is important for pose estimation
         double cameraHeading = constructCameraHeading(tagId, rawOffset.getRotation().getZ()).getRadians();
 
+        // just getting rid of the z (height) component of the raw offset and the x and y rotation (z heading stays)
         Transform2d projectedOffset = projectOntoHorizontalPlane(rawOffset);
+        // apply the rotation matrix to switch from robot-relative to field relative
         Transform2d offsetWithRotationMatrix = applyRotationMatrix(projectedOffset, cameraHeading);
 
+        // not sure if this is necessary, either way this variable isn't being used rn
         Transform2d fieldOrientedOffset = correctRotation(offsetWithRotationMatrix, cameraHeading);
 
+        // return the transformed vector
         return fieldOrientedOffset;
     }
 }

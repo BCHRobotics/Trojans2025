@@ -147,10 +147,13 @@ public final class Constants {
       VisionUtils.correctTagUnits(new TagTransform(193.10, 130.17, 12.13, 300, 0)), // 22
     };
 
+    // the constants used for moving the bot towards the apriltag during vision alignment
+    // NOTE - y axis doesn't go through PID, this is only for x
     public static double kAlignP = 1;
     public static double kAlignI = 0.05;
     public static double kAlignD = 0;
 
+    // the constants used for rotation alignment (heading lock and vision alignment)
     public static double kRotP = 0.018;
     public static double kRotI = 0.00001;
     public static double kRotD = 0;

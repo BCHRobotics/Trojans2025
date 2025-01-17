@@ -5,7 +5,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import org.ejml.data.CMatrix;
 import org.json.simple.parser.ParseException;
 
 import com.pathplanner.lib.commands.FollowPathCommand;
@@ -147,7 +146,7 @@ public class AutoUtils {
             newPOI.name = getPOINameFromCommand(commands[i]);
 
             if (i == 0) {
-                
+                // I swear I will finish this function soon - Max
             }
         }
 
