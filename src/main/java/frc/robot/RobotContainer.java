@@ -139,10 +139,10 @@ public class RobotContainer {
         }
         else {
             // Reset Gyro
-            m_backupController.y().onTrue(new InstantCommand(() -> m_robotDrive.zeroHeading()));
+            m_backupController.povUp().onTrue(new InstantCommand(() -> m_robotDrive.zeroHeading()));
 
-            m_backupController.x().onTrue(new AlignCenterCommand(true, true, m_robotDrive, m_cameras));
-            m_backupController.b().onTrue(new HeadingLockDriveCommand(
+            m_backupController.povDown().onTrue(new AlignCenterCommand(true, true, m_robotDrive, m_cameras));
+            m_backupController.povLeft().onTrue(new HeadingLockDriveCommand(
                 () -> -MathUtil.applyDeadband(m_backupController.getLeftY() * invert, 0.05),
             () -> -MathUtil.applyDeadband(m_backupController.getLeftX() * invert, 0.05),
             () -> -MathUtil.applyDeadband(m_backupController.getRightX(), 0.05),
