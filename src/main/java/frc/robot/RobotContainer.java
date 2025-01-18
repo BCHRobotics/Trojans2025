@@ -139,10 +139,10 @@ public class RobotContainer {
         }
         else {
             // Reset Gyro
-            m_backupController.y().onTrue(new InstantCommand(() -> m_robotDrive.zeroHeading()));
+            m_backupController.povUp().onTrue(new InstantCommand(() -> m_robotDrive.zeroHeading()));
 
-            m_backupController.x().onTrue(new AlignCenterCommand(true, true, m_robotDrive, m_cameras));
-            m_backupController.b().onTrue(new HeadingLockDriveCommand(
+            m_backupController.povDown().onTrue(new AlignCenterCommand(true, true, m_robotDrive, m_cameras));
+            m_backupController.povLeft().onTrue(new HeadingLockDriveCommand(
                 () -> -MathUtil.applyDeadband(m_backupController.getLeftY() * invert, 0.05),
             () -> -MathUtil.applyDeadband(m_backupController.getLeftX() * invert, 0.05),
             () -> -MathUtil.applyDeadband(m_backupController.getRightX(), 0.05),
@@ -158,9 +158,9 @@ public class RobotContainer {
             m_backupController.rightBumper().onTrue(new InstantCommand(() -> m_robotDrive.setFastMode(true)));
             m_backupController.rightBumper().onFalse(new InstantCommand(() -> m_robotDrive.setFastMode(false)));
 
-            m_backupController.povUp().onTrue(new InstantCommand(() -> m_elevator.moveToPosition(ElevatorConstants.ElevatorPositions.get("Top"))));
-            m_backupController.povLeft().onTrue(new InstantCommand(() -> m_elevator.moveToPosition(ElevatorConstants.ElevatorPositions.get("Bottom"))));
-            m_backupController.povDown().onTrue(new InstantCommand(() -> m_elevator.moveToPosition(ElevatorConstants.ElevatorPositions.get("Middle"))));
+            m_backupController.b().onTrue(new InstantCommand(() -> m_elevator.moveToPosition(ElevatorConstants.ElevatorPositions.get("Top"))));
+            m_backupController.a().onTrue(new InstantCommand(() -> m_elevator.moveToPosition(ElevatorConstants.ElevatorPositions.get("Bottom"))));
+            m_backupController.x().onTrue(new InstantCommand(() -> m_elevator.moveToPosition(ElevatorConstants.ElevatorPositions.get("Middle"))));
         }
     }
 
