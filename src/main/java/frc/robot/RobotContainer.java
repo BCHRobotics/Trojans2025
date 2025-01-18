@@ -133,9 +133,9 @@ public class RobotContainer {
             m_robotDrive
             ));
 
-            m_mainController.povUp().onTrue(new InstantCommand(() -> m_elevator.moveToPosition(ElevatorConstants.ElevatorPositions.get("Top"))));
-            m_mainController.povLeft().onTrue(new InstantCommand(() -> m_elevator.moveToPosition(ElevatorConstants.ElevatorPositions.get("Bottom"))));
-            m_mainController.povDown().onTrue(new InstantCommand(() -> m_elevator.moveToPosition(ElevatorConstants.ElevatorPositions.get("Middle"))));
+            //m_mainController.povUp().onTrue(new InstantCommand(() -> m_elevator.moveToPosition(ElevatorConstants.ElevatorPositions.get("Top"))));
+            //m_mainController.povLeft().onTrue(new InstantCommand(() -> m_elevator.moveToPosition(ElevatorConstants.ElevatorPositions.get("Bottom"))));
+            //m_mainController.povDown().onTrue(new InstantCommand(() -> m_elevator.moveToPosition(ElevatorConstants.ElevatorPositions.get("Middle"))));
         }
         else {
             // Reset Gyro
@@ -157,13 +157,18 @@ public class RobotContainer {
             // Fast mode command (Right Bumper)
             m_backupController.rightBumper().onTrue(new InstantCommand(() -> m_robotDrive.setFastMode(true)));
             m_backupController.rightBumper().onFalse(new InstantCommand(() -> m_robotDrive.setFastMode(false)));
-
-            m_backupController.x().onTrue(new InstantCommand(() -> m_elevator.moveToPosition(ElevatorConstants.ElevatorPositions.get("Top"))));
-            m_backupController.y().onTrue(new InstantCommand(() -> m_elevator.moveToPosition(ElevatorConstants.ElevatorPositions.get("Bottom"))));
-            m_backupController.a().onTrue(new InstantCommand(() -> m_elevator.moveToPosition(ElevatorConstants.ElevatorPositions.get("Middle"))));
+            // testing motor moving
+            m_backupController.x().whileTrue(m_elevator.moveToPosition(ElevatorConstants.ElevatorPositions.get("Top")));
+            //m_backupController.x().onFalse(m_elevator.cancelElevatorCommands());
+            m_backupController.y().whileTrue(m_elevator.moveToPosition(ElevatorConstants.ElevatorPositions.get("Bottom")));
+            m_backupController.a().whileTrue(m_elevator.moveToPosition(ElevatorConstants.ElevatorPositions.get("Middle")));
+            m_backupController.b().whileTrue(m_elevator.cancelElevatorCommands());
         }
     }
-
+    
+    public Elevator get_Elevator(){
+        return this.m_elevator;
+    }
     /**
      * Use this to pass the autonomous command to the main {@link Robot} class.
      *

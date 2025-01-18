@@ -29,8 +29,8 @@ public class Elevator extends SubsystemBase{
     private final SparkMaxConfig kLeftConfig = new SparkMaxConfig();
     private final SparkMaxConfig kRightConfig = new SparkMaxConfig();
 
-    private final double maxVelocity = 100; // This is in rpm
-    private final double maxAcceleration = 100; // This is in rpm/second
+    private final double maxVelocity = 1000; // This is in rpm
+    private final double maxAcceleration = 1000; // This is in rpm/second
 
     // private final RelativeEncoder kLeftEncoder;
 
@@ -54,22 +54,26 @@ public class Elevator extends SubsystemBase{
 
         this.kLeftController = kLeftMotor.getClosedLoopController();
 
+
         this.kLeftConfig.closedLoop.feedbackSensor(FeedbackSensor.kPrimaryEncoder).pid(
             Constants.ElevatorConstants.elevatorP,
             Constants.ElevatorConstants.elevatorI,
             Constants.ElevatorConstants.elevatorD);
 
-        this.kRightConfig.closedLoop.feedbackSensor(FeedbackSensor.kPrimaryEncoder).pid(Constants.ElevatorConstants.elevatorP,
+        this.kRightConfig.closedLoop.feedbackSensor(FeedbackSensor.kPrimaryEncoder).pid(
+            Constants.ElevatorConstants.elevatorP,
             Constants.ElevatorConstants.elevatorI,
             Constants.ElevatorConstants.elevatorD);
 
         this.kLeftConfig.closedLoop.maxMotion
             .maxVelocity(maxVelocity)
-            .maxAcceleration(maxAcceleration);
+            .maxAcceleration(maxAcceleration)
+            .allowedClosedLoopError(2);
 
         this.kRightConfig.closedLoop.maxMotion
             .maxVelocity(maxVelocity)
-            .maxAcceleration(maxAcceleration);
+            .maxAcceleration(maxAcceleration)
+            .allowedClosedLoopError(2);
            
         this.kLeftMotor.configure(kLeftConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
         this.kRightMotor.configure(kRightConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
@@ -82,18 +86,23 @@ public class Elevator extends SubsystemBase{
         this.kLeftController.setReference(pos, SparkBase.ControlType.kMAXMotionPositionControl);
     }
 
+    //public Command moveToPosition(double pos) {
     public Command moveToPosition(double pos) {
+        //return this.runOnce(() -> setLeftMotorPos(pos));
         return this.runOnce(() -> setLeftMotorPos(pos));
     }
 
-    public void cancelElevatorCommands() {
+    public Command cancelElevatorCommands() {
         this.kLeftMotor.stopMotor();
+        return this.runOnce(() -> setLeftMotorPos(0.0));
     }
 
+    
     @Override
     public void periodic() {
         // This method will be called once per scheduler run
         SmartDashboard.putNumber("Encoder Position", this.position);
+        //setLeftMotorPos(10);
     }
     
 }
