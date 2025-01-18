@@ -89,7 +89,7 @@ public class RobotContainer {
         
         // Setup the commands associated with all buttons on the controller
         // Driver controller
-        configureButtonBindingsDriver(isRedAlliance, controller == "XBOX");
+        configureButtonBindingsDriver(isRedAlliance,true);
 
         // Set the alliance to either red or blue (to invert controls if necessary)
         m_robotDrive.setAlliance(isRedAlliance);
@@ -157,6 +157,10 @@ public class RobotContainer {
             // Fast mode command (Right Bumper)
             m_backupController.rightBumper().onTrue(new InstantCommand(() -> m_robotDrive.setFastMode(true)));
             m_backupController.rightBumper().onFalse(new InstantCommand(() -> m_robotDrive.setFastMode(false)));
+
+            m_backupController.povUp().onTrue(new InstantCommand(() -> m_elevator.moveToPosition(ElevatorConstants.ElevatorPositions.get("Top"))));
+            m_backupController.povLeft().onTrue(new InstantCommand(() -> m_elevator.moveToPosition(ElevatorConstants.ElevatorPositions.get("Bottom"))));
+            m_backupController.povDown().onTrue(new InstantCommand(() -> m_elevator.moveToPosition(ElevatorConstants.ElevatorPositions.get("Middle"))));
         }
     }
 

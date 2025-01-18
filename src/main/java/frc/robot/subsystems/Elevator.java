@@ -59,7 +59,8 @@ public class Elevator extends SubsystemBase{
             Constants.ElevatorConstants.elevatorI,
             Constants.ElevatorConstants.elevatorD);
 
-        this.kRightConfig.closedLoop.feedbackSensor(FeedbackSensor.kPrimaryEncoder).pid(Constants.ElevatorConstants.elevatorP,
+        this.kRightConfig.closedLoop.feedbackSensor(FeedbackSensor.kPrimaryEncoder).pid(
+            Constants.ElevatorConstants.elevatorP,
             Constants.ElevatorConstants.elevatorI,
             Constants.ElevatorConstants.elevatorD);
 
