@@ -11,6 +11,7 @@ import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
 import com.revrobotics.spark.config.SparkMaxConfig;
 import com.revrobotics.spark.SparkClosedLoopController;
 
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
@@ -28,8 +29,8 @@ public class Elevator extends SubsystemBase{
     private final SparkMaxConfig kLeftConfig = new SparkMaxConfig();
     private final SparkMaxConfig kRightConfig = new SparkMaxConfig();
 
-    private final double maxVelocity = 1; // This is in rpm
-    private final double maxAcceleration = 1; // This is in rpm/second
+    private final double maxVelocity = 100; // This is in rpm
+    private final double maxAcceleration = 100; // This is in rpm/second
 
     // private final RelativeEncoder kLeftEncoder;
 
@@ -84,5 +85,6 @@ public class Elevator extends SubsystemBase{
     public Command cancelElevatorCommands() {
         return this.runOnce(() -> this.kLeftMotor.stopMotor());
     }
+    
 }
 

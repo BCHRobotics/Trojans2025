@@ -41,10 +41,10 @@ public class Cameras extends SubsystemBase {
 
     @Override
     public void periodic() {
-        updateCameraResults();
+        //updateCameraResults();
         printToDashboard();
 
-        updateTagTestPositions();
+        //updateTagTestPositions();
     }
 
     public Pose2d getTagTestPosition(int tagId) {
