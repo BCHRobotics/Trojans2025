@@ -86,12 +86,12 @@ public final class Constants {
   }
 
   public static final class ElevatorConstants {
-    public static final double elevatorP = 0.5;
-    public static final double elevatorI = 0;
-    public static final double elevatorD = 0;
+    public static final double elevatorP = 0.1;
+    public static final double elevatorI = 0.0;
+    public static final double elevatorD = 0.0;
 
-    public static final int kLeftElevatorMotorCanId = 0;
-    public static final int kRightElevatorMotorCanId = 0;
+    public static final int kLeftElevatorMotorCanId = 20;
+    public static final int kRightElevatorMotorCanId = 31;
 
     // creating hashmap to store elevator positions
     public static final HashMap<String, Double> ElevatorPositions = new HashMap<String, Double>();
@@ -102,9 +102,9 @@ public final class Constants {
     
     // adding elements to the hashmap, values are currenlty at 0.0 as a placeholder (need to get gear ratios)
     static {
-        ElevatorPositions.put("Bottom", 0.0);
-        ElevatorPositions.put("Middle", 0.0);
-        ElevatorPositions.put("Top", 0.0);
+        ElevatorPositions.put("Bottom", 30.0);
+        ElevatorPositions.put("Middle", 20.0);
+        ElevatorPositions.put("Top", 10.0);
     }
     
   }
@@ -224,6 +224,7 @@ public final class Constants {
     public static final double kTurnDeadband = 0.12;
     public static final double kTwistDeadband = 0.5;
 
+    
     public static final boolean kFieldRelative = true;
     public static final boolean kRateLimited = true;
   }

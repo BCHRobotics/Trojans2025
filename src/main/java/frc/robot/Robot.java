@@ -23,9 +23,7 @@ import edu.wpi.first.wpilibj2.command.CommandScheduler;
  */
 public class Robot extends TimedRobot {
   private Command m_autonomousCommand;
-
   private RobotContainer m_robotContainer;
-
   public static boolean isRed;
 
   /**
@@ -59,6 +57,7 @@ public class Robot extends TimedRobot {
   /** This function is called once each time the robot enters Disabled mode. */
   @Override
   public void disabledInit() {
+    m_robotContainer.get_Elevator().cancelElevatorCommands();
   }
 
   /** This function is called periodically during Disabled mode. */
