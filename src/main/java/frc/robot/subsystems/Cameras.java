@@ -11,9 +11,10 @@ import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.math.geometry.Transform3d;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.VisionConstants;
-import frc.utils.devices.VisionUtils;
+import frc.utils.VisionUtils;
 
 public class Cameras extends SubsystemBase {
     // the cameras, it's an array cuz we're gonna have like 5 and that's too many variables
@@ -33,6 +34,7 @@ public class Cameras extends SubsystemBase {
     // USEFUL IF THE COPROCESSOR ISN'T PLUGGED IN!!!
     // -----
     private boolean isVisionActive = true;
+    private boolean useTagTestPositions = true;
     // ----
     
     public Cameras() {
@@ -43,7 +45,7 @@ public class Cameras extends SubsystemBase {
 
         results = new PhotonPipelineResult[cameras.length];
 
-        tagTestPositions = new Pose2d[tagCount];
+        tagTestPositions = new Pose2d[tagCount+1];
     }
 
     // since the cameras need to pull (odometry) data from the drivetrain,
@@ -147,6 +149,14 @@ public class Cameras extends SubsystemBase {
         // SmartDashboard.putNumber("camera x", estimateRobotPose().getX());
         // SmartDashboard.putNumber("camera y", estimateRobotPose().getY());
 
+        SmartDashboard.putNumber("odometry x", driveSubsystem.getPose().getX());
+        SmartDashboard.putNumber("odometry y", driveSubsystem.getPose().getY());
+        SmartDashboard.putNumber("odometry rot", driveSubsystem.getHeading());
+
+        if (canSeeTag(2) && tagTestPositions[2] != null) {
+            logTag(2);
+        }
+
         // if (getTagTestPosition(4) != null) {
         //     SmartDashboard.putNumber("Tag X", getTagTestPosition(4).getX());
         //     SmartDashboard.putNumber("Tag Y", getTagTestPosition(4).getY());
@@ -159,6 +169,12 @@ public class Cameras extends SubsystemBase {
         //     SmartDashboard.putNumber("Pose X", driveSubsystem.getPose().getX());
         //     SmartDashboard.putNumber("Pose Y", driveSubsystem.getPose().getY());
         // }
+    }
+
+    public void logTag(int index) {
+        SmartDashboard.putNumber("tag x", tagTestPositions[index].getX());
+        SmartDashboard.putNumber("tag y",tagTestPositions[index].getY());
+        SmartDashboard.putNumber("tag rot",tagTestPositions[index].getRotation().getDegrees());
     }
 
     /*

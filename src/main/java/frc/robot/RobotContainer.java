@@ -19,7 +19,7 @@ import frc.robot.commands.HeadingLockDriveCommand;
 import frc.robot.commands.TeleopDriveCommand;
 import frc.robot.subsystems.Cameras;
 import frc.robot.subsystems.Drivetrain;
-import frc.utils.devices.AutoUtils;
+import frc.utils.AutoUtils;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandPS5Controller;

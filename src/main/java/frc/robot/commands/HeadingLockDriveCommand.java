@@ -10,6 +10,10 @@ import frc.robot.Constants.DriveConstants.DriveModes;
 import frc.robot.Constants.VisionConstants;
 import frc.robot.subsystems.Drivetrain;
 
+/*
+ * the whole essence of this command is to use PIDs to keep the robot facing a certain direction,
+ * while driving normally
+ */
 public class HeadingLockDriveCommand extends Command{
     // This command needs to command the drivetrain, so we have a references here
     private Drivetrain driveSubsystem;
@@ -37,6 +41,7 @@ public class HeadingLockDriveCommand extends Command{
         commandY = ySpeed;
         commandRot = rotSpeed;
         
+        // boolean variables used for the drive function
         isFieldRelative = fieldRelative;
         isRateLimited = rateLimit;
 
@@ -50,7 +55,7 @@ public class HeadingLockDriveCommand extends Command{
     public void initialize() {
         // Set the drive mode
         driveSubsystem.setDriveMode(DriveModes.HEADINGLOCK);
-        // Tell the driver that manual driving has been enabled
+        // Tell the driver that heading lock driving has been enabled
         System.out.println("HEADING LOCK ENGAGED");
 
         targetAngle = Rotation2d.fromDegrees(0);
@@ -58,6 +63,8 @@ public class HeadingLockDriveCommand extends Command{
 
     @Override
     public void execute() {
+        // call the drive function, passing is x and y inputs as normal,
+        // and the result of the pid function for the rotation
         driveSubsystem.drive(
             commandX.getAsDouble(), 
             commandY.getAsDouble(), 
@@ -65,14 +72,20 @@ public class HeadingLockDriveCommand extends Command{
             isFieldRelative.getAsBoolean(), 
             isRateLimited.getAsBoolean());
 
+        // changi g the target angle of rotation whenever joystick is pressed,
+        // but only once per press, hence the boolean variable
+        // the boolean variable stops the angle from being updated after the first time
         if (commandRot.getAsDouble() > 0.25 && !hasPressedRotationJoystick) {
             hasPressedRotationJoystick = true;
-            targetAngle = Rotation2d.fromDegrees(targetAngle.getDegrees() + 360/6);
+            targetAngle = Rotation2d.fromDegrees(targetAngle.getDegrees()
+             + 360/6); // using 360/6 because the gyro is in degrees (why I have no idea???) and the reef has six sides
         }
         if (commandRot.getAsDouble() < -0.25 && !hasPressedRotationJoystick) {
             hasPressedRotationJoystick = true;
-            targetAngle = Rotation2d.fromDegrees(targetAngle.getDegrees() - 360/6);
+            targetAngle = Rotation2d.fromDegrees(targetAngle.getDegrees()
+             - 360/6);
         }
+        // when not pushing down the joystick, tell the code that you're not pushing the joystick
         if (Math.abs(commandRot.getAsDouble()) < 0.25 ) {
             hasPressedRotationJoystick = false;
         }
@@ -91,7 +104,8 @@ public class HeadingLockDriveCommand extends Command{
 
     @Override
     public boolean isFinished() {
-        // End if the drive mode is not manual
+        // End if the drive mode is not heading lock mode
+        // this way all another piece of code has to do is change the drive mode and this is auto-cancelled
         return driveSubsystem.getDriveMode() != DriveModes.HEADINGLOCK;
     }
 }

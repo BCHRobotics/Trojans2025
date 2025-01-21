@@ -63,7 +63,7 @@ public class AlignCenterCommand extends Command{
             double commandedY = tagOffset.getY();
 
             double commandedRot = pidRot.calculate(
-                Rotation2d.fromDegrees(VisionConstants.testTagHeadings[3]).
+                Rotation2d.fromDegrees(VisionConstants.tagTransforms[3].headingAngle).
                 minus(Rotation2d.fromDegrees(driveSubsystem.getHeading())).
                 plus(Rotation2d.fromDegrees(180))
                 .getDegrees(), 0);

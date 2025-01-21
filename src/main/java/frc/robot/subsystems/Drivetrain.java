@@ -23,8 +23,8 @@ import edu.wpi.first.util.WPIUtilJNI;
 import frc.robot.Constants;
 import frc.robot.Constants.DriveConstants;
 import frc.robot.Constants.DriveConstants.DriveModes;
+import frc.utils.AutoUtils;
 import frc.utils.SwerveUtils;
-import frc.utils.devices.AutoUtils;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 public class Drivetrain extends SubsystemBase {

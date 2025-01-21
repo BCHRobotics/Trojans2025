@@ -1,4 +1,4 @@
-package frc.utils.devices;
+package frc.utils;
 
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Transform2d;
@@ -6,8 +6,6 @@ import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.util.Units;
 import frc.robot.Constants.VisionConstants;
-import frc.utils.CameraTransform;
-import frc.utils.TagTransform;
 
 /*
  * This script is for helper functions related to vision and related math
@@ -74,7 +72,7 @@ public class VisionUtils {
      * @return A rotation2d class with the camera's heading
      */
     public static Rotation2d constructCameraHeading(int tagId, double tagHeadingOffset) {
-        Rotation2d tagFieldHeading = Rotation2d.fromDegrees(VisionConstants.testTagHeadings[tagId-1]);
+        Rotation2d tagFieldHeading = Rotation2d.fromDegrees(VisionConstants.tagTransforms[tagId-1].headingAngle);
 
         return tagFieldHeading.minus(Rotation2d.fromRadians(tagHeadingOffset));
     }

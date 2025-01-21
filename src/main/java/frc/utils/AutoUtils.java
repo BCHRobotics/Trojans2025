@@ -1,4 +1,4 @@
-package frc.utils.devices;
+package frc.utils;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -22,7 +22,6 @@ import frc.robot.Constants;
 import frc.robot.Constants.AutoConstants;
 import frc.robot.subsystems.Cameras;
 import frc.robot.subsystems.Drivetrain;
-import frc.utils.AutoPOI;
 
 /*
  * This script is for helper functions related to autos
@@ -118,25 +117,32 @@ public class AutoUtils {
     // do this ^^ to allow humans to make the call
 
     public static Command actuallyBuildAutoFromCommands(String _commandString, Drivetrain driveSubsystem, Cameras cameraSubsystem, int fallbackStartingPose) {
+        // split the string up, commands are separated by commas obv
         String[] commands = separateCommandString(_commandString);
-        Pose2d startingPose = null;
 
+        // previous POI that the robot was at
         AutoPOI oldPOI = new AutoPOI();
-
+        
+        // defining where the auto starts
         if (cameraSubsystem.canSeeAnyTags()) {
             // we can see at least one tag, so pose estimation is possible
-            startingPose = cameraSubsystem.estimateRobotPose();
+
+            // create a new POI called VisionStart and place it where the robot thinks it is
+            oldPOI.name = "VisionStart";
+            oldPOI.position = cameraSubsystem.estimateRobotPose();
         }
         else {
             // we cannot see any tags, so all we can do is use the fallback pose
-            startingPose = AutoConstants.fallpackPositions[fallbackStartingPose].position;
-            oldPOI.name = AutoConstants.fallpackPositions[fallbackStartingPose].name;
+
+            // use one of the existing POIs from auto constants
+            oldPOI = AutoConstants.fallbackPositions[fallbackStartingPose];
         }
 
-        // reset odometry to where cameras think we are or the fallback pose
-        final Pose2d commandedStartingPose = startingPose;
+        // reset odometry to the defined starting pose
+        final Pose2d commandedStartingPose = oldPOI.position;
         Command autoCommand = Commands.runOnce(() -> driveSubsystem.resetOdometry(commandedStartingPose));
-
+        
+        // the final path, to be returned as a PathFollowCommand
         PathPlannerPath finalPath = null;
 
         // looping through the commands and adding them one by one to the path
@@ -147,6 +153,7 @@ public class AutoUtils {
 
             if (i == 0) {
                 // I swear I will finish this function soon - Max
+                // TODO: ^^^
             }
         }
 
@@ -154,8 +161,13 @@ public class AutoUtils {
     }
 
     // leave this here:
-    // SCORE_LEFT_L1_S4
-    // LOAD_CS1
+    // 3 types of commands
+
+    // [] meaning a number, "" meaning a string
+
+    // path("path name")
+    // score([side], [level], "left/right")
+    // load([station index])
 
     public static String getPOINameFromCommand(String command) {
         if (getCommandType(command) == "SCORE") {

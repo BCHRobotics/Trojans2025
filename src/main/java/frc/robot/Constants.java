@@ -13,7 +13,7 @@ import edu.wpi.first.math.util.Units;
 import frc.utils.AutoPOI;
 import frc.utils.CameraTransform;
 import frc.utils.TagTransform;
-import frc.utils.devices.VisionUtils;
+import frc.utils.VisionUtils;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 
@@ -95,57 +95,43 @@ public final class Constants {
       new CameraTransform(0, 0, 0),
     };
 
-    // these are the headings we're using for vision testing
-    public static final double[] testTagHeadings = new double[] {
-      0,
-      0,
-      0,
-      180,
-      0,
-      0,
-      0,
-      0,
-      0,
-      0,
-      0,
-      0,
-      0,
-      0,
-      0,
-      0,
-      0,
-      0,
-    };  
+    // TEST TRANSFORMS
+    public static final TagTransform[] tagTransforms = new TagTransform[] {
+      new TagTransform(0, 0, 0, 0, 0),
+      new TagTransform(0, 0, 0, 120, 0),
+      new TagTransform(0, 0, 0, 180, 0),
+      new TagTransform(0, 0, 0, -120, 0),
+    };
 
     // these are the actual ones for 2025
     // TagTransform class for holding position, heading, y-rot, etc.
 
     // since First decided to provide units in inches, I've left the raw units here
     // and just decided to make a function to correct them
-    public static final TagTransform[] tagTransforms = new TagTransform[] {
-      VisionUtils.correctTagUnits(new TagTransform(657.37, 25.80, 58.50, 126, 0)), // 1
-      VisionUtils.correctTagUnits(new TagTransform(657.37, 291.20, 58.50, 234, 0)), // 2
-      VisionUtils.correctTagUnits(new TagTransform(455.15, 317.15, 51.25, 270, 0)), // 3
-      VisionUtils.correctTagUnits(new TagTransform(365.20, 241.64, 73.54, 0, 30)), // 4
-      VisionUtils.correctTagUnits(new TagTransform(365.20, 75.39, 12.13, 0, 30)), // 5
-      VisionUtils.correctTagUnits(new TagTransform(530.49, 130.17, 12.13, 300, 0)), // 6
-      VisionUtils.correctTagUnits(new TagTransform(546.87, 158.50, 12.13, 0, 0)), // 7
-      VisionUtils.correctTagUnits(new TagTransform(530.49, 186.83, 12.13, 60, 0)), // 8
-      VisionUtils.correctTagUnits(new TagTransform(497.77, 186.83, 12.13, 120, 0)), // 9
-      VisionUtils.correctTagUnits(new TagTransform(481.39, 158.50, 12.13, 180, 0)), // 10
-      VisionUtils.correctTagUnits(new TagTransform(497.77, 130.17, 12.13, 240, 0)), // 11
-      VisionUtils.correctTagUnits(new TagTransform(33.51, 25.80, 58.50, 54, 0)), // 12
-      VisionUtils.correctTagUnits(new TagTransform(33.51, 291.20, 58.50, 306, 0)), // 13
-      VisionUtils.correctTagUnits(new TagTransform(325.68, 241.64, 73.54, 180, 30)), // 14
-      VisionUtils.correctTagUnits(new TagTransform(325.68, 75.39, 73.54, 180, 30)), // 15
-      VisionUtils.correctTagUnits(new TagTransform(235.73, -0.15, 51.25, 90, 0)), // 16
-      VisionUtils.correctTagUnits(new TagTransform(160.39, 130.17, 12.13, 240, 0)), // 17
-      VisionUtils.correctTagUnits(new TagTransform(144.00, 158.50, 12.13, 180, 0)), // 18
-      VisionUtils.correctTagUnits(new TagTransform(160.39, 186.83, 12.13, 120, 0)), // 19
-      VisionUtils.correctTagUnits(new TagTransform(193.10, 186.83, 12.13, 60, 0)), // 20
-      VisionUtils.correctTagUnits(new TagTransform(209.49, 158.50, 12.13, 0, 0)), // 21
-      VisionUtils.correctTagUnits(new TagTransform(193.10, 130.17, 12.13, 300, 0)), // 22
-    };
+    // public static final TagTransform[] tagTransforms = new TagTransform[] {
+    //   VisionUtils.correctTagUnits(new TagTransform(657.37, 25.80, 58.50, 126, 0)), // 1
+    //   VisionUtils.correctTagUnits(new TagTransform(657.37, 291.20, 58.50, 234, 0)), // 2
+    //   VisionUtils.correctTagUnits(new TagTransform(455.15, 317.15, 51.25, 270, 0)), // 3
+    //   VisionUtils.correctTagUnits(new TagTransform(365.20, 241.64, 73.54, 0, 30)), // 4
+    //   VisionUtils.correctTagUnits(new TagTransform(365.20, 75.39, 12.13, 0, 30)), // 5
+    //   VisionUtils.correctTagUnits(new TagTransform(530.49, 130.17, 12.13, 300, 0)), // 6
+    //   VisionUtils.correctTagUnits(new TagTransform(546.87, 158.50, 12.13, 0, 0)), // 7
+    //   VisionUtils.correctTagUnits(new TagTransform(530.49, 186.83, 12.13, 60, 0)), // 8
+    //   VisionUtils.correctTagUnits(new TagTransform(497.77, 186.83, 12.13, 120, 0)), // 9
+    //   VisionUtils.correctTagUnits(new TagTransform(481.39, 158.50, 12.13, 180, 0)), // 10
+    //   VisionUtils.correctTagUnits(new TagTransform(497.77, 130.17, 12.13, 240, 0)), // 11
+    //   VisionUtils.correctTagUnits(new TagTransform(33.51, 25.80, 58.50, 54, 0)), // 12
+    //   VisionUtils.correctTagUnits(new TagTransform(33.51, 291.20, 58.50, 306, 0)), // 13
+    //   VisionUtils.correctTagUnits(new TagTransform(325.68, 241.64, 73.54, 180, 30)), // 14
+    //   VisionUtils.correctTagUnits(new TagTransform(325.68, 75.39, 73.54, 180, 30)), // 15
+    //   VisionUtils.correctTagUnits(new TagTransform(235.73, -0.15, 51.25, 90, 0)), // 16
+    //   VisionUtils.correctTagUnits(new TagTransform(160.39, 130.17, 12.13, 240, 0)), // 17
+    //   VisionUtils.correctTagUnits(new TagTransform(144.00, 158.50, 12.13, 180, 0)), // 18
+    //   VisionUtils.correctTagUnits(new TagTransform(160.39, 186.83, 12.13, 120, 0)), // 19
+    //   VisionUtils.correctTagUnits(new TagTransform(193.10, 186.83, 12.13, 60, 0)), // 20
+    //   VisionUtils.correctTagUnits(new TagTransform(209.49, 158.50, 12.13, 0, 0)), // 21
+    //   VisionUtils.correctTagUnits(new TagTransform(193.10, 130.17, 12.13, 300, 0)), // 22
+    // };
 
     // the constants used for moving the bot towards the apriltag during vision alignment
     // NOTE - y axis doesn't go through PID, this is only for x
@@ -240,22 +226,31 @@ public final class Constants {
     public static final TrapezoidProfile.Constraints kThetaControllerConstraints = new TrapezoidProfile.Constraints(
         kMaxAngularSpeedRadiansPerSecond, kMaxAngularSpeedRadiansPerSecondSquared);
 
-    // POI syntax:
+    // POI numbers:
     // Start_ (1, 2, 3, 4, 5, 6) -> fallback starting positions
     // Reef_ (1, 2, 3, 4, 5, 6) -> sides of the reef
     // Station_ (1, 2) -> coral stations
 
-    public static final AutoPOI[] fallpackPositions = new AutoPOI[] {
-      // blue
-      new AutoPOI(new Pose2d(7.780, 7.274, new Rotation2d()), "Start1"),
-      new AutoPOI(new Pose2d(7.780, 6.171, new Rotation2d()), "Start1"),
-      new AutoPOI(new Pose2d(7.780, 5.056, new Rotation2d()), "Start1"),
-
-      // red
-      new AutoPOI(new Pose2d(7.780, 3.018, new Rotation2d()), "Start1"),
-      new AutoPOI(new Pose2d(7.780, 1.903, new Rotation2d()), "Start1"),
-      new AutoPOI(new Pose2d(7.780, 0.800, new Rotation2d()), "Start1"),
+    // test fallback positions
+    public static final AutoPOI[] fallbackPositions = new AutoPOI[] {
+      // tag indices are set to -1 because these poses have nothing to do with apriltags
+      new AutoPOI(new Pose2d(0, 0, new Rotation2d()), "Start1", -1),
+      new AutoPOI(new Pose2d(0, 0, new Rotation2d()), "Start2", -1),
+      new AutoPOI(new Pose2d(0, 0, new Rotation2d()), "Start3", -1),
     };
+    
+    // THESE ARE THE REAL POSITIONS, NOT USED YET
+    // public static final AutoPOI[] fallpackPositions = new AutoPOI[] {
+    //   // blue
+    //   new AutoPOI(new Pose2d(7.780, 7.274, new Rotation2d()), "Start1"),
+    //   new AutoPOI(new Pose2d(7.780, 6.171, new Rotation2d()), "Start2"),
+    //   new AutoPOI(new Pose2d(7.780, 5.056, new Rotation2d()), "Start3"),
+
+    //   // red
+    //   new AutoPOI(new Pose2d(7.780, 3.018, new Rotation2d()), "Start4"),
+    //   new AutoPOI(new Pose2d(7.780, 1.903, new Rotation2d()), "Start5"),
+    //   new AutoPOI(new Pose2d(7.780, 0.800, new Rotation2d()), "Start6"),
+    // };
   }
 
   public static final class NeoMotorConstants {
