@@ -72,7 +72,7 @@ public class VisionUtils {
      * @return A rotation2d class with the camera's heading
      */
     public static Rotation2d constructCameraHeading(int tagId, double tagHeadingOffset) {
-        Rotation2d tagFieldHeading = Rotation2d.fromDegrees(VisionConstants.tagTransforms[tagId-1].headingAngle);
+        Rotation2d tagFieldHeading = Rotation2d.fromDegrees(VisionConstants.tagTransforms[tagId].headingAngle);
 
         return tagFieldHeading.minus(Rotation2d.fromRadians(tagHeadingOffset));
     }

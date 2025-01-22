@@ -13,7 +13,6 @@ import edu.wpi.first.math.util.Units;
 import frc.utils.AutoPOI;
 import frc.utils.CameraTransform;
 import frc.utils.TagTransform;
-import frc.utils.VisionUtils;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 
@@ -234,9 +233,14 @@ public final class Constants {
     // test fallback positions
     public static final AutoPOI[] fallbackPositions = new AutoPOI[] {
       // tag indices are set to -1 because these poses have nothing to do with apriltags
-      new AutoPOI(new Pose2d(0, 0, new Rotation2d()), "Start1", -1),
-      new AutoPOI(new Pose2d(0, 0, new Rotation2d()), "Start2", -1),
-      new AutoPOI(new Pose2d(0, 0, new Rotation2d()), "Start3", -1),
+      new AutoPOI(new Pose2d(0, 0, Rotation2d.fromDegrees(0)), "Start1", -1),
+    };
+
+    public static final AutoPOI[] fieldPOIs = new AutoPOI[] {
+      new AutoPOI(new Pose2d(1.315, 0.2, Rotation2d.fromDegrees(180)), "Reef1", 1),
+      new AutoPOI(new Pose2d(1.88, -0.83, Rotation2d.fromDegrees(-120)), "Reef2", 2),
+      new AutoPOI(new Pose2d(1.88, 1.21, Rotation2d.fromDegrees(120)), "Reef3", 3),
+      new AutoPOI(new Pose2d(0.55, -2.42, Rotation2d.fromDegrees(27)), "Coral1", -1),
     };
     
     // THESE ARE THE REAL POSITIONS, NOT USED YET

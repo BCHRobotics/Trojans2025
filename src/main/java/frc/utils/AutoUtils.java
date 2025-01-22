@@ -3,6 +3,7 @@ package frc.utils;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.LinkedList;
 import java.util.List;
 
 import org.json.simple.parser.ParseException;
@@ -28,6 +29,12 @@ import frc.robot.subsystems.Drivetrain;
  * Only public static functions in here
  */
 public class AutoUtils {
+
+    public enum AutoCommands {
+        Score,
+        Load,
+        Path,
+    }
 
     // PROCESSING AUTO COMMANDS
     // _______________________________________________________________________________
@@ -100,21 +107,22 @@ public class AutoUtils {
         return commands;
     }
 
-    // scoring command syntax:
-    // SCORE_(LEFT/RIGHT)_(LEVEL)_(SIDE)
-    // e.g. SCORE_LEFT_L4_S4
+    // leave this here:
+    // 3 types of commands
 
-    // loading command syntax:
-    // LOAD_(STATION NUMBER)
-    // e.g. LOAD_CS1
+    // [] meaning a number, "" meaning a string
 
-    // going in a straight line (construct path class)
-    // unless there is a path defined already (path file)
+    // path("path name")
+    // score([side], [level], "left/right")
+    // load([station index])
 
     // also, using pose estimation to figure out starting position
     // unless tags cannot be seen, in which case use a fallback position
-    // TODO: maybe make pose estimation/fallback a boolean passed into the function, instead of checking vision
+    // TODO: make pose estimation/fallback a boolean passed into the function, instead of checking vision
     // do this ^^ to allow humans to make the call
+
+    // test command
+    // "score(1, 1, right),load(2),score(6, 1, left)"
 
     public static Command actuallyBuildAutoFromCommands(String _commandString, Drivetrain driveSubsystem, Cameras cameraSubsystem, int fallbackStartingPose) {
         // split the string up, commands are separated by commas obv
@@ -122,21 +130,23 @@ public class AutoUtils {
 
         // previous POI that the robot was at
         AutoPOI oldPOI = new AutoPOI();
+
+        oldPOI = AutoConstants.fallbackPositions[fallbackStartingPose];
         
-        // defining where the auto starts
-        if (cameraSubsystem.canSeeAnyTags()) {
-            // we can see at least one tag, so pose estimation is possible
+        // // defining where the auto starts
+        // if (cameraSubsystem.canSeeAnyTags()) {
+        //     // we can see at least one tag, so pose estimation is possible
 
-            // create a new POI called VisionStart and place it where the robot thinks it is
-            oldPOI.name = "VisionStart";
-            oldPOI.position = cameraSubsystem.estimateRobotPose();
-        }
-        else {
-            // we cannot see any tags, so all we can do is use the fallback pose
+        //     // create a new POI called VisionStart and place it where the robot thinks it is
+        //     oldPOI.name = "VisionStart";
+        //     oldPOI.position = cameraSubsystem.estimateRobotPose();
+        // }
+        // else {
+        //     // we cannot see any tags, so all we can do is use the fallback pose
 
-            // use one of the existing POIs from auto constants
-            oldPOI = AutoConstants.fallbackPositions[fallbackStartingPose];
-        }
+        //     // use one of the existing POIs from auto constants
+        //     oldPOI = AutoConstants.fallbackPositions[fallbackStartingPose];
+        // }
 
         // reset odometry to the defined starting pose
         final Pose2d commandedStartingPose = oldPOI.position;
@@ -158,40 +168,7 @@ public class AutoUtils {
         }
 
         return autoCommand;
-    }
-
-    // leave this here:
-    // 3 types of commands
-
-    // [] meaning a number, "" meaning a string
-
-    // path("path name")
-    // score([side], [level], "left/right")
-    // load([station index])
-
-    public static String getPOINameFromCommand(String command) {
-        if (getCommandType(command) == "SCORE") {
-            return "Reef" + Integer.parseInt(String.valueOf(command.charAt(15)));
-        }
-        else if (getCommandType(command) == "LOAD") {
-            return "Station" + Integer.parseInt(String.valueOf(command.charAt(7)));
-        }
-
-        System.err.println("ERROR: that auto command type doesn't exist or hasn't been implemented!");
-        return "";
-    }
-
-    public static String getCommandType(String command) {
-        if (command.substring(0, 5) == "SCORE") {
-            return "SCORE";
-        }
-        else if (command.substring(0, 4) == "LOAD") {
-            return "LOAD";
-        }
-        
-        System.err.println("ERROR: that auto command type doesn't exist or hasn't been implemented!");
-        return "";
-    }
+    } 
 
     // Make an auto using a string[] of commands
     // NOTE - for now each command is just the name of a path,
@@ -307,4 +284,80 @@ public class AutoUtils {
 
         return config;
     }
+
+    // HELPERS ---------
+
+    /*
+     * Get the index of a command based on what the name of it is
+     * indexes are managed with the AutoCommand enum
+     */
+    public static int getCommandType(String command) {
+        // using .substring() to look for the first set of characters in a command
+        if (command.substring(0, 4) == "path") {
+            return 0;
+        }
+        else if (command.substring(0, 5) == "score") {
+            return 1;
+        }
+        else if (command.substring(0, 4) == "load") {
+            return 2;
+        }
+        
+        System.err.println("ERROR: that auto command type doesn't exist or hasn't been implemented!");
+        return -1;
+    }
+
+    /*
+     * grab the name of the POI associated with a command
+     * if it's a scoring command, then whatever side of the reef
+     * if it's a loading command, then either coral station
+     */
+    public static String getPOINameFromCommand(String command) {
+        if (getCommandType(command) == AutoCommands.Score.ordinal()) {
+            return "Reef" + Integer.parseInt(String.valueOf(command.charAt(15)));
+        }
+        else if (getCommandType(command) == AutoCommands.Load.ordinal()) {
+            return "Coral" + Integer.parseInt(String.valueOf(command.charAt(7)));
+        }
+
+        System.err.println("ERROR: that auto command type doesn't exist or hasn't been implemented!");
+        return "";
+    }
+
+    /*
+     * given a single command (not the full string!)
+     * e.g. path(example path)
+     * return an array containing all the arguments in the command
+     * the example would return example path as a string
+     */
+    public static String[] getArguments(String command) {
+        List<String> arguments = new LinkedList<String>();
+
+        for (int i = 0; i < command.length(); i++) {
+            if (command.charAt(i) == ',' || command.charAt(i) == '(') {
+                for (int j = i+1; j < command.length(); j++) {
+                    if (command.charAt(j) == ')') {
+                        arguments.add(command.substring(i+1, j));
+                        return listToArray(arguments);
+                    }
+                    else if (command.charAt(j) == ',') {
+                        arguments.add(command.substring(i+1, j));
+                        break;
+                    }
+                }
+            }
+        }
+        
+        return listToArray(arguments);
+    }
+
+    /*
+     * literally just converting a list into an array
+     * I got sick of writing this code over and over - Max
+     */
+    public static String[] listToArray(List<String> input) {
+        String[] toReturn = new String[input.size()];
+        for (int i = 0; i < toReturn.length; i++) {toReturn[i] = input.get(i);}
+        return toReturn;
+    }   
 }

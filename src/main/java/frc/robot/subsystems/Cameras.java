@@ -87,7 +87,11 @@ public class Cameras extends SubsystemBase {
         for (int i = 0; i < tagCount; i++) {
             Transform2d fieldOffset = getFieldOrientedTagOffset(i);
             if (fieldOffset == null) {continue;}
-            tagTestPositions[i] = driveSubsystem.getPose().plus(fieldOffset);
+            tagTestPositions[i] = new Pose2d(
+                driveSubsystem.getPose().getX() + fieldOffset.getX(),
+                driveSubsystem.getPose().getY() + fieldOffset.getY(),
+                fieldOffset.getRotation()
+            );
         }
     }
     
@@ -153,8 +157,8 @@ public class Cameras extends SubsystemBase {
         SmartDashboard.putNumber("odometry y", driveSubsystem.getPose().getY());
         SmartDashboard.putNumber("odometry rot", driveSubsystem.getHeading());
 
-        if (canSeeTag(2) && tagTestPositions[2] != null) {
-            logTag(2);
+        if (canSeeTag(1) && tagTestPositions[1] != null) {
+            logTag(1);
         }
 
         // if (getTagTestPosition(4) != null) {
