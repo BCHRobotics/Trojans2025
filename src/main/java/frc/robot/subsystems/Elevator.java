@@ -11,11 +11,17 @@ import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
 import com.revrobotics.spark.config.SparkMaxConfig;
 import com.revrobotics.spark.SparkClosedLoopController;
 
+import edu.wpi.first.networktables.DoublePublisher;
+import edu.wpi.first.networktables.DoubleTopic;
+import edu.wpi.first.networktables.NetworkTable;
+import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 import frc.robot.Constants.ElevatorConstants;
+
+//import edu.wpi.first.networktables // importing networktables
 
 
 // import com.revrobotics.spark.config.SparkMaxConfig.follow;
@@ -38,12 +44,27 @@ public class Elevator extends SubsystemBase{
 
     private double position;
 
+    final DoublePublisher setpoint_publisher;
+    final DoublePublisher actual_pos_publisher;
 
     public Elevator(){
+        
+        // Get the default NetworkTable instance
+        NetworkTableInstance inst = NetworkTableInstance.getDefault();
+        // Get the "elevator" table
+        NetworkTable table = inst.getTable("elevator");
+        // Get the "setpoint" topic within the "elevator" table
+        DoubleTopic topicSetpoint = table.getDoubleTopic("setpoint");
+        // Get the "actual_position" topic within the "elevator" table
+        DoubleTopic topicActualPosition = table.getDoubleTopic("actual position");
+
+        // Initialize the publisher for the "setpoint" topic
+        setpoint_publisher = topicSetpoint.publish();
+        actual_pos_publisher = topicActualPosition.publish();
+
         this.kLeftMotor = new SparkMax(ElevatorConstants.kLeftElevatorMotorCanId, MotorType.kBrushless);
         this.kRightMotor = new SparkMax(ElevatorConstants.kRightElevatorMotorCanId, MotorType.kBrushless);
         
-
         //this.kLeftEncoder = kLeftMotor.getEncoder();
         this.kRightConfig.follow(kLeftMotor, true);
 
@@ -83,7 +104,8 @@ public class Elevator extends SubsystemBase{
 
     private void setLeftMotorPos(double pos) {
         // kLeftController.calculate(kLeftEncoder.getPosition(), pos);
-        this.kLeftController.setReference(pos, SparkBase.ControlType.kMAXMotionPositionControl);
+        this.kLeftController.setReference(pos, SparkBase.ControlType.kMAXMotionPositionControl); // setting the setpoint to reach
+        setpoint_publisher.set(pos); // publishing the setpoint to network tables
     }
 
     //public Command moveToPosition(double pos) {
@@ -103,6 +125,8 @@ public class Elevator extends SubsystemBase{
         // This method will be called once per scheduler run
         SmartDashboard.putNumber("Encoder Position", this.position);
         //setLeftMotorPos(10);
+        this.position = kLeftMotor.getEncoder().getPosition();
+        actual_pos_publisher.set(position); // publishing it to network tables
     }
     
 }
