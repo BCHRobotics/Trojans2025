@@ -109,6 +109,15 @@ public final class Constants {
     
   }
 
+  public static final class HarpoonConstants {
+    public static final int kLeftHarpoonMotorCanId = 21;
+    public static final int kRightHarpoonMotorCanId = 30;
+
+    public static final double harpoonP = 0.1;
+    public static final double harpoonI = 0.0;
+    public static final double harpoonD = 0.0;
+  }
+
   public static final class VisionConstants{
     // camera names, transforms, etc.
     public static final String[] cameraNames = new String[] {"Front"};
@@ -250,4 +259,5 @@ public final class Constants {
   public static final class NeoMotorConstants {
     public static final double kFreeSpeedRpm = 5676;
   }
+
 }
