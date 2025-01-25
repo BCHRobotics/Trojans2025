@@ -37,7 +37,7 @@ public class RobotContainer {
     // The robot's subsystems
     private final Drivetrain m_robotDrive = new Drivetrain();
     private final Cameras m_cameras = new Cameras();
-    private final Elevator m_elevator = new Elevator();
+    public final Elevator m_elevator = new Elevator();
 
     // Driving controller
     CommandPS5Controller m_mainController = new CommandPS5Controller(OIConstants.kMainControllerPort);
@@ -186,5 +186,9 @@ public class RobotContainer {
      * Initializes the LEDs
      */
     public void initLEDs() {
+    }
+
+    public void initElevator() {
+        m_elevator.calibrate();
     }
 }

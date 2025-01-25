@@ -11,6 +11,7 @@ import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
 import com.revrobotics.spark.config.SparkMaxConfig;
 import com.revrobotics.spark.SparkClosedLoopController;
 
+import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -22,6 +23,9 @@ import frc.robot.Constants.ElevatorConstants;
 
 // testing pushing to github
 public class Elevator extends SubsystemBase{
+
+    DigitalInput toplimitSwitch = new DigitalInput(0);
+    DigitalInput bottomlimitSwitch = new DigitalInput(1);
 
     private final SparkMax kLeftMotor;
     private final SparkMax kRightMotor;
@@ -37,6 +41,8 @@ public class Elevator extends SubsystemBase{
     private final SparkClosedLoopController kLeftController;
 
     private double position;
+
+    private double offset;
 
 
     public Elevator(){
@@ -89,12 +95,19 @@ public class Elevator extends SubsystemBase{
     //public Command moveToPosition(double pos) {
     public Command moveToPosition(double pos) {
         //return this.runOnce(() -> setLeftMotorPos(pos));
-        return this.runOnce(() -> setLeftMotorPos(pos));
+        return this.runOnce(() -> setLeftMotorPos(pos-offset));
     }
 
     public Command cancelElevatorCommands() {
         this.kLeftMotor.stopMotor();
-        return this.runOnce(() -> setLeftMotorPos(0.0));
+        return this.runOnce(() -> setLeftMotorPos(0.0-offset));
+    }
+
+    public void calibrate() {
+        while (!bottomlimitSwitch.get()){
+            this.setLeftMotorPos(-1);
+        }
+        offset = kLeftMotor.getEncoder().getPosition();
     }
 
     
@@ -103,6 +116,18 @@ public class Elevator extends SubsystemBase{
         // This method will be called once per scheduler run
         SmartDashboard.putNumber("Encoder Position", this.position);
         //setLeftMotorPos(10);
+
+        if (toplimitSwitch.get()) {
+            // We are going up and top limit is tripped so stop
+            kLeftMotor.set(0);
+        }
+
+        if (bottomlimitSwitch.get()) {
+            // We are going up and top limit is tripped so stop
+            kLeftMotor.set(0);
+        }
+
+
     }
     
 }

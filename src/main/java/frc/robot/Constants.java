@@ -93,6 +93,9 @@ public final class Constants {
     public static final int kLeftElevatorMotorCanId = 20;
     public static final int kRightElevatorMotorCanId = 31;
 
+    public static final int topSwitchPort = 0;
+    public static final int bottomSwitchPort = 1;
+
     // creating hashmap to store elevator positions
     public static final HashMap<String, Double> ElevatorPositions = new HashMap<String, Double>();
 

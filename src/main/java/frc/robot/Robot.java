@@ -5,6 +5,7 @@
 package frc.robot;
 
 import java.io.IOException;
+import frc.robot.RobotContainer;
 
 import org.json.simple.parser.ParseException;
 
@@ -14,6 +15,7 @@ import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
+
 
 /**
  * The VM is configured to automatically run this class, and to call the functions corresponding to
@@ -79,7 +81,11 @@ public class Robot extends TimedRobot {
       m_autonomousCommand.andThen(() -> System.out.println("command finished")).schedule();
     }
 
+    m_robotContainer.m_elevator.calibrate();
+
     final boolean isRed = DriverStation.getAlliance().get() == DriverStation.Alliance.Red;
+
+
 
     // Schedules the teleop drive command when entering teleop
     m_robotContainer.configureDriveMode(isRed);
