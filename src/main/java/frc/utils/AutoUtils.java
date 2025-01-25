@@ -11,6 +11,8 @@ import org.json.simple.parser.ParseException;
 import com.pathplanner.lib.commands.FollowPathCommand;
 import com.pathplanner.lib.config.RobotConfig;
 import com.pathplanner.lib.controllers.PPHolonomicDriveController;
+import com.pathplanner.lib.path.GoalEndState;
+import com.pathplanner.lib.path.IdealStartingState;
 import com.pathplanner.lib.path.PathPlannerPath;
 import com.pathplanner.lib.path.RotationTarget;
 import com.pathplanner.lib.util.FileVersionException;
@@ -31,9 +33,9 @@ import frc.robot.subsystems.Drivetrain;
 public class AutoUtils {
 
     public enum AutoCommands {
-        Score,
-        Load,
-        Path,
+        Score, // scoring a game piece on the coral station
+        Load, // loading a game piece from the coral station
+        Path, // following a path
     }
 
     // PROCESSING AUTO COMMANDS
@@ -133,20 +135,21 @@ public class AutoUtils {
 
         oldPOI = AutoConstants.fallbackPositions[fallbackStartingPose];
         
-        // // defining where the auto starts
-        // if (cameraSubsystem.canSeeAnyTags()) {
-        //     // we can see at least one tag, so pose estimation is possible
+        // defining where the auto starts
+        if (cameraSubsystem.canSeeAnyTags()) {
+            // we can see at least one tag, so pose estimation is possible
 
-        //     // create a new POI called VisionStart and place it where the robot thinks it is
-        //     oldPOI.name = "VisionStart";
-        //     oldPOI.position = cameraSubsystem.estimateRobotPose();
-        // }
-        // else {
-        //     // we cannot see any tags, so all we can do is use the fallback pose
+            // create a new POI called VisionStart and place it where the robot thinks it is
+            oldPOI.name = "VisionStart";
+            oldPOI.position = cameraSubsystem.estimateRobotPose();
+            oldPOI.tagId = -1; // none of the fallbacks are based off tags so it should be already -1
+        }
+        else {
+            // we cannot see any tags, so all we can do is use the fallback pose
 
-        //     // use one of the existing POIs from auto constants
-        //     oldPOI = AutoConstants.fallbackPositions[fallbackStartingPose];
-        // }
+            // use one of the existing POIs from auto constants
+            oldPOI = AutoConstants.fallbackPositions[fallbackStartingPose];
+        }
 
         // reset odometry to the defined starting pose
         final Pose2d commandedStartingPose = oldPOI.position;
@@ -159,16 +162,185 @@ public class AutoUtils {
         // NOTE - we are ending up with one path, essentially "baking" everything together to make it smoother
         for (int i = 0; i < commands.length; i++) {
             AutoPOI newPOI = new AutoPOI();
-            newPOI.name = getPOINameFromCommand(commands[i]);
+            
+            // this logic applies to commands that follow a straight line, i.e. anything but the path command
+            if (getCommandType(commands[i]) != AutoCommands.Path.ordinal()) {
+                String name = getPOINameFromCommand(commands[i]);
+                newPOI.name = name;
+                newPOI.position = searchForPOI(name).position;
 
-            if (i == 0) {
-                // I swear I will finish this function soon - Max
-                // TODO: ^^^
+                finalPath = combinePaths(finalPath, generatePathFromPOIs(oldPOI, newPOI));
+                
+                // set the previous POI to where the robot should now be at this time
+                oldPOI = newPOI;
             }
         }
 
         return autoCommand;
     } 
+
+    /*
+     * UNTESTED FUNCTION
+     * combine two pathplanner paths into one, using the end state from the second and the start state from the first
+     * event markers are not handled
+     */
+    public static PathPlannerPath combinePaths(PathPlannerPath a, PathPlannerPath b) {
+        // define what points are already a part of the final path and what ones are to be added
+        List<Pose2d> existingPoses = a.getPathPoses();
+        List<Pose2d> newPoses = b.getPathPoses();
+
+        List<RotationTarget> rotationTargets = a.getRotationTargets();
+        if (rotationTargets.size() == 0) {
+            rotationTargets = new ArrayList<RotationTarget>();
+        }
+        rotationTargets.add(new RotationTarget(a.getPathPoses().size() - 1, a.getGoalEndState().rotation()));
+        for (int j = 0; j < b.getRotationTargets().size(); j++) {
+            rotationTargets.add(b.getRotationTargets().get(j));
+        }
+            
+        // loop through all new points and throw them on top of the existing points in the list
+        // NOTE - we SKIP THE FIRST POINT because it should already be in the list, the end state of the last path
+        for (int j = 1; j < newPoses.size(); j++) {
+            Pose2d poseToAdd = newPoses.get(j);
+            existingPoses.add(poseToAdd);
+        }
+
+        PathPlannerPath toReturn = new PathPlannerPath(
+                    PathPlannerPath.waypointsFromPoses(existingPoses),
+                    rotationTargets,
+                    Collections.emptyList(),
+                    Collections.emptyList(),
+                    Collections.emptyList(),
+                    a.getGlobalConstraints(), 
+                    a.getIdealStartingState(), 
+                    b.getGoalEndState(), 
+                    false);
+
+        return toReturn;
+    }   
+
+    /*
+     * create a PathPlannerPath given two AutoPOI classes, going from one to the other
+     * the path will be a straight line
+     */
+    public static PathPlannerPath generatePathFromPOIs(AutoPOI start, AutoPOI finish) {
+        PathPlannerPath toReturn = new PathPlannerPath(
+            PathPlannerPath.waypointsFromPoses(new Pose2d[]{start.position, finish.position}),
+            Collections.emptyList(),
+            Collections.emptyList(),
+            Collections.emptyList(),
+            Collections.emptyList(),
+            AutoConstants.defaultGlobalContstraints, 
+            new IdealStartingState(null, null), 
+            new GoalEndState(null, finish.position.getRotation()), 
+            false);
+
+        return toReturn;
+    }
+
+    public static RobotConfig geRobotConfig() {
+        RobotConfig config = null;
+        try{
+        config = RobotConfig.fromGUISettings();
+        } catch (Exception e) {
+        // Handle exception as needed
+        e.printStackTrace();
+        }
+
+        return config;
+    }
+
+    // HELPERS ---------
+
+    /*
+     * search the field POIs for one with a specific name
+     */
+    public static AutoPOI searchForPOI(String name) {
+        for (int i = 0; i < AutoConstants.fieldPOIs.length; i++) {
+            if (AutoConstants.fieldPOIs[i].name == name) {
+                return AutoConstants.fieldPOIs[i];
+            }
+        }
+
+        return null;
+    }
+
+    /*
+     * Get the index of a command based on what the name of it is
+     * indexes are managed with the AutoCommand enum
+     */
+    public static int getCommandType(String command) {
+        // using .substring() to look for the first set of characters in a command
+        if (command.substring(0, 4) == "path") {
+            return 0;
+        }
+        else if (command.substring(0, 5) == "score") {
+            return 1;
+        }
+        else if (command.substring(0, 4) == "load") {
+            return 2;
+        }
+        
+        System.err.println("ERROR: that auto command type doesn't exist or hasn't been implemented!");
+        return -1;
+    }
+
+    /*
+     * grab the name of the POI associated with a command
+     * if it's a scoring command, then whatever side of the reef
+     * if it's a loading command, then either coral station
+     */
+    public static String getPOINameFromCommand(String command) {
+        if (getCommandType(command) == AutoCommands.Score.ordinal()) {
+            return "Reef" + Integer.parseInt(String.valueOf(command.charAt(15)));
+        }
+        else if (getCommandType(command) == AutoCommands.Load.ordinal()) {
+            return "Coral" + Integer.parseInt(String.valueOf(command.charAt(7)));
+        }
+
+        System.err.println("ERROR: that auto command type doesn't exist or hasn't been implemented!");
+        return "";
+    }
+
+    /*
+     * given a single command (not the full string!)
+     * e.g. path(example path)
+     * return an array containing all the arguments in the command
+     * the example would return example path as a string
+     */
+    public static String[] getArguments(String command) {
+        List<String> arguments = new LinkedList<String>();
+
+        for (int i = 0; i < command.length(); i++) {
+            if (command.charAt(i) == ',' || command.charAt(i) == '(') {
+                for (int j = i+1; j < command.length(); j++) {
+                    if (command.charAt(j) == ')') {
+                        arguments.add(command.substring(i+1, j));
+                        return listToArray(arguments);
+                    }
+                    else if (command.charAt(j) == ',') {
+                        arguments.add(command.substring(i+1, j));
+                        break;
+                    }
+                }
+            }
+        }
+        
+        return listToArray(arguments);
+    }
+
+    /*
+     * literally just converting a list into an array
+     * I got sick of writing this code over and over - Max
+     */
+    public static String[] listToArray(List<String> input) {
+        String[] toReturn = new String[input.size()];
+        for (int i = 0; i < toReturn.length; i++) {toReturn[i] = input.get(i);}
+        return toReturn;
+    }  
+    
+    // DEPRECATED (still works tho)
+    // ----------------------------------
 
     // Make an auto using a string[] of commands
     // NOTE - for now each command is just the name of a path,
@@ -273,91 +445,5 @@ public class AutoUtils {
         return followCommand;
     }
 
-    public static RobotConfig geRobotConfig() {
-        RobotConfig config = null;
-        try{
-        config = RobotConfig.fromGUISettings();
-        } catch (Exception e) {
-        // Handle exception as needed
-        e.printStackTrace();
-        }
-
-        return config;
-    }
-
-    // HELPERS ---------
-
-    /*
-     * Get the index of a command based on what the name of it is
-     * indexes are managed with the AutoCommand enum
-     */
-    public static int getCommandType(String command) {
-        // using .substring() to look for the first set of characters in a command
-        if (command.substring(0, 4) == "path") {
-            return 0;
-        }
-        else if (command.substring(0, 5) == "score") {
-            return 1;
-        }
-        else if (command.substring(0, 4) == "load") {
-            return 2;
-        }
-        
-        System.err.println("ERROR: that auto command type doesn't exist or hasn't been implemented!");
-        return -1;
-    }
-
-    /*
-     * grab the name of the POI associated with a command
-     * if it's a scoring command, then whatever side of the reef
-     * if it's a loading command, then either coral station
-     */
-    public static String getPOINameFromCommand(String command) {
-        if (getCommandType(command) == AutoCommands.Score.ordinal()) {
-            return "Reef" + Integer.parseInt(String.valueOf(command.charAt(15)));
-        }
-        else if (getCommandType(command) == AutoCommands.Load.ordinal()) {
-            return "Coral" + Integer.parseInt(String.valueOf(command.charAt(7)));
-        }
-
-        System.err.println("ERROR: that auto command type doesn't exist or hasn't been implemented!");
-        return "";
-    }
-
-    /*
-     * given a single command (not the full string!)
-     * e.g. path(example path)
-     * return an array containing all the arguments in the command
-     * the example would return example path as a string
-     */
-    public static String[] getArguments(String command) {
-        List<String> arguments = new LinkedList<String>();
-
-        for (int i = 0; i < command.length(); i++) {
-            if (command.charAt(i) == ',' || command.charAt(i) == '(') {
-                for (int j = i+1; j < command.length(); j++) {
-                    if (command.charAt(j) == ')') {
-                        arguments.add(command.substring(i+1, j));
-                        return listToArray(arguments);
-                    }
-                    else if (command.charAt(j) == ',') {
-                        arguments.add(command.substring(i+1, j));
-                        break;
-                    }
-                }
-            }
-        }
-        
-        return listToArray(arguments);
-    }
-
-    /*
-     * literally just converting a list into an array
-     * I got sick of writing this code over and over - Max
-     */
-    public static String[] listToArray(List<String> input) {
-        String[] toReturn = new String[input.size()];
-        for (int i = 0; i < toReturn.length; i++) {toReturn[i] = input.get(i);}
-        return toReturn;
-    }   
+    // ----------------------------------
 }

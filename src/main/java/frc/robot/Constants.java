@@ -5,6 +5,7 @@
 package frc.robot;
 
 import com.pathplanner.lib.config.PIDConstants;
+import com.pathplanner.lib.path.PathConstraints;
 
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
@@ -209,6 +210,8 @@ public final class Constants {
   }
 
   public static final class AutoConstants {
+    public static final PathConstraints defaultGlobalContstraints = new PathConstraints(3.5, 2, 540, 130);
+
     public static final PIDConstants translationConstants = new PIDConstants(8, 8, 0);
     public static final PIDConstants rotationConstants = new PIDConstants(5, 0, 0);
 
