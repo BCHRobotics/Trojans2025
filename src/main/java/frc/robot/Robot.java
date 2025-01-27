@@ -5,8 +5,6 @@
 package frc.robot;
 
 import java.io.IOException;
-import frc.robot.RobotContainer;
-import frc.robot.subsystems.Elevator;
 
 import org.json.simple.parser.ParseException;
 
