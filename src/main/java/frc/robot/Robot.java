@@ -6,6 +6,7 @@ package frc.robot;
 
 import java.io.IOException;
 import frc.robot.RobotContainer;
+import frc.robot.subsystems.Elevator;
 
 import org.json.simple.parser.ParseException;
 
@@ -27,6 +28,7 @@ public class Robot extends TimedRobot {
   private Command m_autonomousCommand;
   private RobotContainer m_robotContainer;
   public static boolean isRed;
+
 
   /**
    * This function is run when the robot is first started up and should be used for any
@@ -59,7 +61,7 @@ public class Robot extends TimedRobot {
   /** This function is called once each time the robot enters Disabled mode. */
   @Override
   public void disabledInit() {
-    m_robotContainer.get_Elevator().cancelElevatorCommands();
+    m_robotContainer.m_elevator.cancelElevatorCommands();
   }
 
   /** This function is called periodically during Disabled mode. */

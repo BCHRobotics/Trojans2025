@@ -23,6 +23,7 @@ import frc.robot.Constants.ElevatorConstants;
 
 // testing pushing to github
 public class Elevator extends SubsystemBase{
+    private static Elevator instance = null;
 
     DigitalInput toplimitSwitch = new DigitalInput(0);
     DigitalInput bottomlimitSwitch = new DigitalInput(1);
@@ -39,9 +40,7 @@ public class Elevator extends SubsystemBase{
     // private final RelativeEncoder kLeftEncoder;
 
     private final SparkClosedLoopController kLeftController;
-
     private double position;
-
     private double offset;
 
 
@@ -60,7 +59,6 @@ public class Elevator extends SubsystemBase{
 
         this.kLeftController = kLeftMotor.getClosedLoopController();
 
-
         this.kLeftConfig.closedLoop.feedbackSensor(FeedbackSensor.kPrimaryEncoder).pid(
             Constants.ElevatorConstants.elevatorP,
             Constants.ElevatorConstants.elevatorI,
@@ -74,22 +72,25 @@ public class Elevator extends SubsystemBase{
         this.kLeftConfig.closedLoop.maxMotion
             .maxVelocity(maxVelocity)
             .maxAcceleration(maxAcceleration)
-            .allowedClosedLoopError(2);
+            .allowedClosedLoopError(0.5);
 
         this.kRightConfig.closedLoop.maxMotion
             .maxVelocity(maxVelocity)
             .maxAcceleration(maxAcceleration)
-            .allowedClosedLoopError(2);
+            .allowedClosedLoopError(0.5);
            
         this.kLeftMotor.configure(kLeftConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
         this.kRightMotor.configure(kRightConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
 
+
         this.position = kLeftMotor.getEncoder().getPosition();
+
+
     }
 
     private void setLeftMotorPos(double pos) {
         // kLeftController.calculate(kLeftEncoder.getPosition(), pos);
-        this.kLeftController.setReference(pos, SparkBase.ControlType.kMAXMotionPositionControl);
+        this.kLeftController.setReference(pos*ElevatorConstants.gearConversionFactor, SparkBase.ControlType.kMAXMotionPositionControl);
     }
 
     //public Command moveToPosition(double pos) {
@@ -128,6 +129,13 @@ public class Elevator extends SubsystemBase{
         }
 
 
+    }
+
+    public static Elevator getInstance() {
+        if (instance == null) {
+            instance = new Elevator();
+        }
+        return instance;
     }
     
 }

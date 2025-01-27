@@ -105,16 +105,18 @@ public final class Constants {
     
     // adding elements to the hashmap, values are currenlty at 0.0 as a placeholder (need to get gear ratios)
     static {
-        ElevatorPositions.put("Bottom", 30.0);
-        ElevatorPositions.put("Middle", 20.0);
-        ElevatorPositions.put("Top", 10.0);
+        ElevatorPositions.put("L1", 30.0);
+        ElevatorPositions.put("L2", 20.0);
+        ElevatorPositions.put("L3", 10.0);
     }
+
+    public static final double gearConversionFactor = 5; // placeholder value
     
   }
 
   public static final class HarpoonConstants {
-    public static final int kLeftHarpoonMotorCanId = 21;
-    public static final int kRightHarpoonMotorCanId = 30;
+    public static final int kIntakeMotorCANID = 21; // this is the motor that intakes the coral
+    public static final int kRotationMotorCANID = 22; // this is the motor that rotates the harpoon
 
     public static final double harpoonP = 0.1;
     public static final double harpoonI = 0.0;

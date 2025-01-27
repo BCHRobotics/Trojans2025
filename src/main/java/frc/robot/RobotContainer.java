@@ -37,7 +37,7 @@ public class RobotContainer {
     // The robot's subsystems
     private final Drivetrain m_robotDrive = new Drivetrain();
     private final Cameras m_cameras = new Cameras();
-    public final Elevator m_elevator = new Elevator();
+    public final Elevator m_elevator;
 
     // Driving controller
     CommandPS5Controller m_mainController = new CommandPS5Controller(OIConstants.kMainControllerPort);
@@ -49,6 +49,7 @@ public class RobotContainer {
      * The container for the robot. Contains subsystems, OI devices, and commands.
      */
     public RobotContainer() {
+        m_elevator = Elevator.getInstance();
         m_cameras.setDriveSubsystem(m_robotDrive);
 
         configureNamedCommands();
@@ -158,17 +159,15 @@ public class RobotContainer {
             m_backupController.rightBumper().onTrue(new InstantCommand(() -> m_robotDrive.setFastMode(true)));
             m_backupController.rightBumper().onFalse(new InstantCommand(() -> m_robotDrive.setFastMode(false)));
             // testing motor moving
-            m_backupController.x().whileTrue(m_elevator.moveToPosition(ElevatorConstants.ElevatorPositions.get("Top")));
+            m_backupController.x().onTrue(m_elevator.moveToPosition(ElevatorConstants.ElevatorPositions.get("L3")));
             //m_backupController.x().onFalse(m_elevator.cancelElevatorCommands());
-            m_backupController.y().whileTrue(m_elevator.moveToPosition(ElevatorConstants.ElevatorPositions.get("Bottom")));
-            m_backupController.a().whileTrue(m_elevator.moveToPosition(ElevatorConstants.ElevatorPositions.get("Middle")));
-            m_backupController.b().whileTrue(m_elevator.cancelElevatorCommands());
+            m_backupController.y().onTrue(m_elevator.moveToPosition(ElevatorConstants.ElevatorPositions.get("L1")));
+            m_backupController.a().onTrue(m_elevator.moveToPosition(ElevatorConstants.ElevatorPositions.get("L2")));
+            m_backupController.b().onTrue(m_elevator.cancelElevatorCommands());
         }
     }
     
-    public Elevator get_Elevator(){
-        return this.m_elevator;
-    }
+    
     /**
      * Use this to pass the autonomous command to the main {@link Robot} class.
      *
