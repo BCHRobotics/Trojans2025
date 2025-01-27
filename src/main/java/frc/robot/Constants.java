@@ -96,6 +96,9 @@ public final class Constants {
     public static final int topSwitchPort = 0;
     public static final int bottomSwitchPort = 1;
 
+    public static final double elevatorStowedHeight = 0.0;
+    public static final double kElevatorPulleyRadius = 0.0;
+
     // creating hashmap to store elevator positions
     public static final HashMap<String, Double> ElevatorPositions = new HashMap<String, Double>();
 
@@ -104,11 +107,12 @@ public final class Constants {
     // Need to know gear ratio to figure out how many rotations correspond to the different positions
     
     // adding elements to the hashmap, values are currenlty at 0.0 as a placeholder (need to get gear ratios)
+    // Elevator Positions are in inches
     static {
-        ElevatorPositions.put("L1", 30.0);
-        ElevatorPositions.put("L2", 20.0);
-        ElevatorPositions.put("L3", 10.0);
-        ElevatorPositions.put("L4", 5.0);
+        ElevatorPositions.put("L1", elevatorStowedHeight);
+        ElevatorPositions.put("L2", 20.0 - elevatorStowedHeight);
+        ElevatorPositions.put("L3", 10.0 - elevatorStowedHeight);
+        ElevatorPositions.put("L4", 5.0 - elevatorStowedHeight);
     }
 
     public static final double gearConversionFactor = 5; // placeholder value

@@ -28,8 +28,9 @@ public class Harpoon extends SubsystemBase{
 
     private final SparkMax kIntakeMotor; // intake motor is the same as the "shooter" motor
     private final SparkMax kRotationMotor; // rotation motor turns the wrist
-    private final RelativeEncoder kIntakeEncoder;
+    private final RelativeEncoder kRotationEncoder;
     private final SparkMaxConfig kIntakeConfig = new SparkMaxConfig();
+    private final SparkMaxConfig kRotationConfig = new SparkMaxConfig();
     private final double maxVelocity = 1000; // This is in rpm
     private final double maxAcceleration = 1000; // This is in rpm/second
     private final DigitalInput harpoonBeamBreaker = new DigitalInput(0);
@@ -45,13 +46,27 @@ public class Harpoon extends SubsystemBase{
         this.kIntakeMotor = new SparkMax(Constants.HarpoonConstants.kIntakeMotorCANID, MotorType.kBrushless);
         this.kRotationMotor = new SparkMax(Constants.HarpoonConstants.kRotationMotorCANID, MotorType.kBrushless);
 
-        this.kIntakeEncoder = kIntakeMotor.getEncoder();
-        this.kIntakeConfig.inverted(false);
-        this.kIntakeConfig.idleMode(IdleMode.kBrake);
+        this.kRotationEncoder = kRotationMotor.getEncoder();
+        this.kRotationConfig.inverted(false);
+        this.kRotationConfig.idleMode(IdleMode.kBrake);
 
-        this.kRotationController = kRotationMotor.getClosedLoopController();
-        //this.position = this.kRotationMotor.getPosition();
+        this.kIntakeConfig.inverted(false);
+        this.kRotationConfig.idleMode(IdleMode.kBrake);
         
+        this.kRotationConfig.closedLoop.feedbackSensor(FeedbackSensor.kPrimaryEncoder).pid(
+            Constants.HarpoonConstants.harpoonP,
+            Constants.HarpoonConstants.harpoonI,
+            Constants.HarpoonConstants.harpoonD);
+        
+        this.kRotationConfig.closedLoop.maxMotion
+            .maxVelocity(maxVelocity)
+            .maxAcceleration(maxAcceleration)
+            .allowedClosedLoopError(0.5);
+        
+        this.kRotationController = kRotationMotor.getClosedLoopController();
+
+        this.kRotationMotor.configure(kRotationConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
+        this.position = this.kRotationEncoder.getPosition();
     }
 
     public double degreesToRotations(double degrees){
@@ -145,7 +160,4 @@ public class Harpoon extends SubsystemBase{
             .andThen(()->
                 m_elevator.moveToHomePosition());
     }
-
-    
-
 }

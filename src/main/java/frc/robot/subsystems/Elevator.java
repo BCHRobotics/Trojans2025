@@ -90,7 +90,9 @@ public class Elevator extends SubsystemBase{
 
     private void setLeftMotorPos(double pos) {
         // kLeftController.calculate(kLeftEncoder.getPosition(), pos);
-        this.kLeftController.setReference(pos*ElevatorConstants.gearConversionFactor, SparkBase.ControlType.kMAXMotionPositionControl);
+        this.kLeftController.setReference(
+            (pos*ElevatorConstants.gearConversionFactor)/(2*Math.PI*Constants.ElevatorConstants.kElevatorPulleyRadius), 
+            SparkBase.ControlType.kMAXMotionPositionControl);
     }
 
     //public Command moveToPosition(double pos) {
