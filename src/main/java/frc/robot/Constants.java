@@ -109,10 +109,12 @@ public final class Constants {
     // adding elements to the hashmap, values are currenlty at 0.0 as a placeholder (need to get gear ratios)
     // Elevator Positions are in inches
     static {
+        
         ElevatorPositions.put("L1", elevatorStowedHeight);
         ElevatorPositions.put("L2", 20.0 - elevatorStowedHeight);
         ElevatorPositions.put("L3", 10.0 - elevatorStowedHeight);
         ElevatorPositions.put("L4", 5.0 - elevatorStowedHeight);
+        ElevatorPositions.put("Intake",0.0); // to be changed
     }
 
     public static final double gearConversionFactor = 5; // placeholder value
@@ -131,6 +133,7 @@ public final class Constants {
     public static final double L3RotationMotorPositionDegrees = 0.0;
     public static final double L2RotationMotorPositionDegrees = 0.0;
     public static final double L1RotationMotorPositionDegrees = 0.0;
+    public static final double IntakeRotationMotorPositionDegrees = 0.0;
 
     public static final double HomeRotationMotorPositionDegrees = 0.0;
     public static final double gearConversionFactor = 5;

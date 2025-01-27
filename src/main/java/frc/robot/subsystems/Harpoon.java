@@ -81,8 +81,22 @@ public class Harpoon extends SubsystemBase{
 
     public Command intake(){
         return new InstantCommand(()->{
-            kIntakeMotor.set(1);
-        }).until(() -> harpoonBeamBreaker.get());
+            m_elevator.moveToPosition(Constants.ElevatorConstants.ElevatorPositions.get("Intake"));
+            //kIntakeMotor.set(1);
+        })
+        .andThen(()->
+                setRotationMotorPosition(Constants.HarpoonConstants.IntakeRotationMotorPositionDegrees))
+        .andThen(()->
+        kIntakeMotor.set(1))
+        
+        .until(() -> harpoonBeamBreaker.get())
+        .andThen(()->
+        kIntakeMotor.stopMotor())
+        .andThen(()->
+                setRotationMotorPosition(Constants.HarpoonConstants.HomeRotationMotorPositionDegrees)
+        )
+        .andThen(()->
+                m_elevator.moveToHomePosition());
 
     }
      
@@ -119,7 +133,7 @@ public class Harpoon extends SubsystemBase{
                 kIntakeMotor.set(1)
             )
             .beforeStarting(new WaitCommand(0.5))
-            .until(() -> harpoonBeamBreaker.get())
+            .until(() -> !harpoonBeamBreaker.get())
             .andThen(()->{
                 kIntakeMotor.set(0);
             })
@@ -137,7 +151,7 @@ public class Harpoon extends SubsystemBase{
                 kIntakeMotor.set(1)
             )
             .beforeStarting(new WaitCommand(0.5))
-            .until(() -> harpoonBeamBreaker.get())
+            .until(() -> !harpoonBeamBreaker.get())
             .andThen(()->
                 kIntakeMotor.set(0)
             )
@@ -153,7 +167,7 @@ public class Harpoon extends SubsystemBase{
             .andThen(()->
                 kIntakeMotor.set(1))
             .beforeStarting(new WaitCommand(0.5))
-            .until(() -> harpoonBeamBreaker.get())
+            .until(() -> !harpoonBeamBreaker.get())
             .andThen(()->
                 kIntakeMotor.set(0)
             )
