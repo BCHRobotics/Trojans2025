@@ -34,6 +34,7 @@ public class Cameras extends SubsystemBase {
     // USEFUL IF THE COPROCESSOR ISN'T PLUGGED IN!!!
     // -----
     private boolean isVisionActive = false;
+    // -----
     private boolean useTagTestPositions = true;
     // ----
     
@@ -100,6 +101,8 @@ public class Cameras extends SubsystemBase {
      * (check all the tags and see if one is visible)
      */
     public boolean canSeeAnyTags() {
+        if (!isVisionActive) {return false;}
+
         for (int i = 0; i < tagCount; i++) {
             if (canSeeTag(i)) {
                 return true;
@@ -147,9 +150,6 @@ public class Cameras extends SubsystemBase {
     public void printToDashboard() {
         //SmartDashboard.putBoolean("Tag Visible", canSeeTag(4));
 
-        // SmartDashboard.putNumber("odometry x", driveSubsystem.getPose().getX());
-        // SmartDashboard.putNumber("odometry y", driveSubsystem.getPose().getY());
-
         // SmartDashboard.putNumber("camera x", estimateRobotPose().getX());
         // SmartDashboard.putNumber("camera y", estimateRobotPose().getY());
 
@@ -185,6 +185,8 @@ public class Cameras extends SubsystemBase {
      * whether or not the camera can see a tag with a specific id
      */
     public boolean canSeeTag(int tagId) {
+        if (!isVisionActive) {return false;}
+        
         for (int i = 0; i < results.length; i++) {
             for (int j = 0; j < results[i].getTargets().size(); j++) {
                 if (results[i].getTargets().get(j).fiducialId == tagId) {

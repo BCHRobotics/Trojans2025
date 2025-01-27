@@ -8,15 +8,16 @@ import java.io.IOException;
 
 import org.json.simple.parser.ParseException;
 
+import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.util.FileVersionException;
 
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.Constants.OIConstants;
-import frc.robot.commands.AlignCenterCommand;
-import frc.robot.commands.HeadingLockDriveCommand;
-import frc.robot.commands.TeleopDriveCommand;
+import frc.robot.commands.vision.AlignCenterCommand;
+import frc.robot.commands.drive.HeadingLockDriveCommand;
+import frc.robot.commands.drive.TeleopDriveCommand;
 import frc.robot.subsystems.Cameras;
 import frc.robot.subsystems.Drivetrain;
 import frc.utils.AutoUtils;
@@ -42,6 +43,9 @@ public class RobotContainer {
 
     SendableChooser<String> controllerOptions;
 
+    // The auto chooser
+    private final SendableChooser<Command> autoChooser;
+
     /**
      * The container for the robot. Contains subsystems, OI devices, and commands.
      */
@@ -58,6 +62,9 @@ public class RobotContainer {
         controllerOptions.addOption("Xbox Controller", "XBOX");
         controllerOptions.addOption("Playstation Controller", "PS");
         SmartDashboard.putData("Controller Select", controllerOptions);
+
+        autoChooser = AutoBuilder.buildAutoChooser();
+        SmartDashboard.putData("Auto Chooser", autoChooser);
     }
 
     // Sets up the drivetrain for teleoperated driving
@@ -163,7 +170,11 @@ public class RobotContainer {
      */ 
     public Command getAutonomousCommand() throws FileVersionException, IOException, ParseException {
         // using the string provided by the user to build and run an auto
-        return AutoUtils.actuallyBuildAutoFromCommands(SmartDashboard.getString("Auto Command", ""), m_robotDrive, m_cameras, 0);
+        return AutoUtils.actuallyBuildAutoFromCommands(
+            "move(Reef4)/path(Coral2)/path(Reef6)/path(Coral2)/path(Reef6)/path(Coral2)/path(Reef6)/path(Coral2)", m_robotDrive, m_cameras, 0
+        );
+
+        //return autoChooser.getSelected();
     }
 
     /**

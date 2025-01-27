@@ -76,8 +76,7 @@ public class Robot extends TimedRobot {
 
     // schedule the autonomous command (example)
     if (m_autonomousCommand != null) {
-      System.out.println("command start");
-      m_autonomousCommand.andThen(() -> System.out.println("command finished")).schedule();
+      m_autonomousCommand.schedule();
     }
 
     final boolean isRed = DriverStation.getAlliance().get() == DriverStation.Alliance.Red;

@@ -1,4 +1,4 @@
-package frc.robot.commands;
+package frc.robot.commands.vision;
 
 import frc.robot.subsystems.Cameras;
 import frc.robot.subsystems.Drivetrain;

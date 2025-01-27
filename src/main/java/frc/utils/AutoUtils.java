@@ -1,5 +1,8 @@
 package frc.utils;
 
+import static edu.wpi.first.units.Units.MetersPerSecond;
+import static edu.wpi.first.units.Units.RPM;
+
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -18,10 +21,12 @@ import com.pathplanner.lib.path.RotationTarget;
 import com.pathplanner.lib.util.FileVersionException;
 
 import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.units.measure.LinearVelocity;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import frc.robot.Constants;
+import frc.robot.Robot;
 import frc.robot.Constants.AutoConstants;
 import frc.robot.subsystems.Cameras;
 import frc.robot.subsystems.Drivetrain;
@@ -33,9 +38,10 @@ import frc.robot.subsystems.Drivetrain;
 public class AutoUtils {
 
     public enum AutoCommands {
-        Score, // scoring a game piece on the coral station
-        Load, // loading a game piece from the coral station
-        Path, // following a path
+        Move, // move in a straight line from one POI to another
+        Path, // same thing but not a line, following a prebuilt path
+        Wait, // wait a certain amount of seconds
+        // TODO: maybe add a rawpath command that allows you to specify a specific path name
     }
 
     // PROCESSING AUTO COMMANDS
@@ -72,7 +78,7 @@ public class AutoUtils {
         // loop through the entire string to see how many commands there are
         for (int i = 0; i < _commandString.length(); i++) {
             // if there is a comma at the current position increment the commandCount by 1
-            if (_commandString.charAt(i) == ',') {
+            if (_commandString.charAt(i) == '/') {
                 commandCount += 1;
                 commandIndices.add(i + 1);
             }
@@ -88,7 +94,7 @@ public class AutoUtils {
 
             for (int j = commandIndices.get(i); j < _commandString.length(); j++) {
                 // found another comma, so the command is complete
-                if (_commandString.charAt(j) == ',') {
+                if (_commandString.charAt(j) == '/') {
                     stopIndex = j;
                     
                     // break the loop and move on to the next command
@@ -109,22 +115,12 @@ public class AutoUtils {
         return commands;
     }
 
-    // leave this here:
-    // 3 types of commands
-
-    // [] meaning a number, "" meaning a string
-
-    // path("path name")
-    // score([side], [level], "left/right")
-    // load([station index])
-
     // also, using pose estimation to figure out starting position
     // unless tags cannot be seen, in which case use a fallback position
     // TODO: make pose estimation/fallback a boolean passed into the function, instead of checking vision
     // do this ^^ to allow humans to make the call
 
-    // test command
-    // "score(1, 1, right),load(2),score(6, 1, left)"
+    // TODO: make it so that you can specify closest POI by typing Reef_ instead of Reef1 for example
 
     public static Command actuallyBuildAutoFromCommands(String _commandString, Drivetrain driveSubsystem, Cameras cameraSubsystem, int fallbackStartingPose) {
         // split the string up, commands are separated by commas obv
@@ -133,8 +129,6 @@ public class AutoUtils {
         // previous POI that the robot was at
         AutoPOI oldPOI = new AutoPOI();
 
-        oldPOI = AutoConstants.fallbackPositions[fallbackStartingPose];
-        
         // defining where the auto starts
         if (cameraSubsystem.canSeeAnyTags()) {
             // we can see at least one tag, so pose estimation is possible
@@ -153,10 +147,9 @@ public class AutoUtils {
 
         // reset odometry to the defined starting pose
         final Pose2d commandedStartingPose = oldPOI.position;
+
         Command autoCommand = Commands.runOnce(() -> driveSubsystem.resetOdometry(commandedStartingPose));
-        
-        // the final path, to be returned as a PathFollowCommand
-        PathPlannerPath finalPath = null;
+        RobotConfig robotConfig = geRobotConfig();
 
         // looping through the commands and adding them one by one to the path
         // NOTE - we are ending up with one path, essentially "baking" everything together to make it smoother
@@ -164,15 +157,40 @@ public class AutoUtils {
             AutoPOI newPOI = new AutoPOI();
             
             // this logic applies to commands that follow a straight line, i.e. anything but the path command
-            if (getCommandType(commands[i]) != AutoCommands.Path.ordinal()) {
-                String name = getPOINameFromCommand(commands[i]);
+            if (getCommandType(commands[i]) == AutoCommands.Move.ordinal()) {
+                // defining the poi we need to get to
+                String name = getArguments(commands[i])[0];
                 newPOI.name = name;
                 newPOI.position = searchForPOI(name).position;
 
-                finalPath = combinePaths(finalPath, generatePathFromPOIs(oldPOI, newPOI));
+                autoCommand = autoCommand.andThen(
+                    constructPathCommand(generatePathFromPOIs(oldPOI, newPOI), driveSubsystem, robotConfig)
+                );
                 
                 // set the previous POI to where the robot should now be at this time
                 oldPOI = newPOI;
+            }
+            else if (getCommandType(commands[i]) == AutoCommands.Path.ordinal()) {
+                PathPlannerPath pathFromFile = null;
+                // following a path, different process
+                try {
+                    pathFromFile = PathPlannerPath.fromPathFile(oldPOI.name + "-" + getArguments(commands[i])[0]);
+                } catch (FileVersionException | IOException | ParseException e) {
+                    e.printStackTrace();
+                }
+
+                if (pathFromFile == null) {System.out.println("no path!");continue;}
+                
+                autoCommand = autoCommand.andThen(
+                    constructPathCommand(pathFromFile, driveSubsystem, robotConfig)
+                );
+
+                oldPOI = searchForPOI(getArguments(commands[i])[0]);
+            }
+            else if (getCommandType(commands[i]) == AutoCommands.Wait.ordinal()) {
+                autoCommand = autoCommand.andThen(
+                    Commands.waitSeconds(Double.parseDouble(getArguments(commands[i])[0]))
+                );
             }
         }
 
@@ -180,44 +198,34 @@ public class AutoUtils {
     } 
 
     /*
-     * UNTESTED FUNCTION
-     * combine two pathplanner paths into one, using the end state from the second and the start state from the first
-     * event markers are not handled
+     * turn a pathplanner path into a trajectory following command,
+     * using pathplannerlib's constructor
      */
-    public static PathPlannerPath combinePaths(PathPlannerPath a, PathPlannerPath b) {
-        // define what points are already a part of the final path and what ones are to be added
-        List<Pose2d> existingPoses = a.getPathPoses();
-        List<Pose2d> newPoses = b.getPathPoses();
+    public static Command constructPathCommand(PathPlannerPath path, Drivetrain driveSubsystem, RobotConfig config) {
+        return new FollowPathCommand(
+            path,
+            driveSubsystem::getPose, // Robot pose supplier
+            driveSubsystem::getChassisSpeeds, // ChassisSpeeds supplier. MUST BE ROBOT RELATIVE
+            driveSubsystem::setChassisSpeeds, // Method that will drive the robot given ROBOT RELATIVE ChassisSpeeds, AND feedforwards
+            new PPHolonomicDriveController(
+                Constants.AutoConstants.translationConstants, 
+                Constants.AutoConstants.rotationConstants, 
+                0.02),
+                config, // The robot configuration
+            () -> {
+            // Boolean supplier that controls when the path will be mirrored for the red alliance
+            // This will flip the path being followed to the red side of the field.
+            // THE ORIGIN WILL REMAIN ON THE BLUE SIDE
 
-        List<RotationTarget> rotationTargets = a.getRotationTargets();
-        if (rotationTargets.size() == 0) {
-            rotationTargets = new ArrayList<RotationTarget>();
-        }
-        rotationTargets.add(new RotationTarget(a.getPathPoses().size() - 1, a.getGoalEndState().rotation()));
-        for (int j = 0; j < b.getRotationTargets().size(); j++) {
-            rotationTargets.add(b.getRotationTargets().get(j));
-        }
-            
-        // loop through all new points and throw them on top of the existing points in the list
-        // NOTE - we SKIP THE FIRST POINT because it should already be in the list, the end state of the last path
-        for (int j = 1; j < newPoses.size(); j++) {
-            Pose2d poseToAdd = newPoses.get(j);
-            existingPoses.add(poseToAdd);
-        }
-
-        PathPlannerPath toReturn = new PathPlannerPath(
-                    PathPlannerPath.waypointsFromPoses(existingPoses),
-                    rotationTargets,
-                    Collections.emptyList(),
-                    Collections.emptyList(),
-                    Collections.emptyList(),
-                    a.getGlobalConstraints(), 
-                    a.getIdealStartingState(), 
-                    b.getGoalEndState(), 
-                    false);
-
-        return toReturn;
-    }   
+            var alliance = DriverStation.getAlliance();
+            if (alliance.isPresent()) {
+                return alliance.get() == DriverStation.Alliance.Red;
+            }
+            return false;
+            },
+            driveSubsystem // Reference to this subsystem to set requirements
+        );
+    }
 
     /*
      * create a PathPlannerPath given two AutoPOI classes, going from one to the other
@@ -226,18 +234,22 @@ public class AutoUtils {
     public static PathPlannerPath generatePathFromPOIs(AutoPOI start, AutoPOI finish) {
         PathPlannerPath toReturn = new PathPlannerPath(
             PathPlannerPath.waypointsFromPoses(new Pose2d[]{start.position, finish.position}),
-            Collections.emptyList(),
+            new LinkedList<RotationTarget>(),
             Collections.emptyList(),
             Collections.emptyList(),
             Collections.emptyList(),
             AutoConstants.defaultGlobalContstraints, 
-            new IdealStartingState(null, null), 
-            new GoalEndState(null, finish.position.getRotation()), 
+            new IdealStartingState(LinearVelocity.ofBaseUnits(0, MetersPerSecond), start.position.getRotation()), 
+            new GoalEndState(LinearVelocity.ofBaseUnits(0, MetersPerSecond), finish.position.getRotation()), 
             false);
 
         return toReturn;
     }
 
+    // HELPERS ---------
+    /*
+     * get the robot config from the Pathplanner GUI
+     */
     public static RobotConfig geRobotConfig() {
         RobotConfig config = null;
         try{
@@ -250,14 +262,12 @@ public class AutoUtils {
         return config;
     }
 
-    // HELPERS ---------
-
     /*
      * search the field POIs for one with a specific name
      */
     public static AutoPOI searchForPOI(String name) {
         for (int i = 0; i < AutoConstants.fieldPOIs.length; i++) {
-            if (AutoConstants.fieldPOIs[i].name == name) {
+            if (stringEquals(AutoConstants.fieldPOIs[i].name, name)) {
                 return AutoConstants.fieldPOIs[i];
             }
         }
@@ -266,40 +276,36 @@ public class AutoUtils {
     }
 
     /*
+     * test if one string equals another, this is here because java doesn't work with the == notation
+     */
+    public static boolean stringEquals(String a, String b) {
+        boolean isEqual = true;
+        if (a.length() != b.length()) {return false;}
+
+        for (int i = 0; i < a.length(); i++) {
+            if (a.charAt(i) != b.charAt(i)) {
+                return false;
+            }
+        }
+
+        return isEqual;
+    }
+
+    /*
      * Get the index of a command based on what the name of it is
      * indexes are managed with the AutoCommand enum
      */
     public static int getCommandType(String command) {
         // using .substring() to look for the first set of characters in a command
-        if (command.substring(0, 4) == "path") {
-            return 0;
+        if (stringEquals(command.substring(0, 4), "move")) {
+            return AutoCommands.Move.ordinal();
+        } else if (stringEquals(command.substring(0, 4), "path")) {
+            return AutoCommands.Path.ordinal();
+        } else if (stringEquals(command.substring(0, 4), "wait")) { 
+            return AutoCommands.Wait.ordinal();
         }
-        else if (command.substring(0, 5) == "score") {
-            return 1;
-        }
-        else if (command.substring(0, 4) == "load") {
-            return 2;
-        }
-        
         System.err.println("ERROR: that auto command type doesn't exist or hasn't been implemented!");
         return -1;
-    }
-
-    /*
-     * grab the name of the POI associated with a command
-     * if it's a scoring command, then whatever side of the reef
-     * if it's a loading command, then either coral station
-     */
-    public static String getPOINameFromCommand(String command) {
-        if (getCommandType(command) == AutoCommands.Score.ordinal()) {
-            return "Reef" + Integer.parseInt(String.valueOf(command.charAt(15)));
-        }
-        else if (getCommandType(command) == AutoCommands.Load.ordinal()) {
-            return "Coral" + Integer.parseInt(String.valueOf(command.charAt(7)));
-        }
-
-        System.err.println("ERROR: that auto command type doesn't exist or hasn't been implemented!");
-        return "";
     }
 
     /*
@@ -446,4 +452,46 @@ public class AutoUtils {
     }
 
     // ----------------------------------
+
+    // DEPRECATED FUNCTIONS
+
+    // public static List<RotationTarget> addToList(List<RotationTarget> currentList, RotationTarget elementToAdd) {
+    //     ArrayList<RotationTarget> toReturn = new ArrayList<>(currentList.size() + 1);
+    //     for (int i = 0; i < currentList.size(); i++) {
+    //         toReturn.add(currentList.get(i));
+    //     }
+
+    //     toReturn.add(elementToAdd);
+    //     return toReturn;
+    // }
+
+    // /*
+    //  * (SEMI) UNTESTED FUNCTION
+    //  * combine two pathplanner paths into one, using the end state from the second and the start state from the first
+    //  * event markers are not handled
+    //  */
+    // public static PathPlannerPath combinePaths(PathPlannerPath a, PathPlannerPath b) {
+    //     // define what points are already a part of the final path and what ones are to be added
+    //     List<Waypoint> waypoints = getStitchedPathWaypoints(a,b);
+
+    //     List<RotationTarget> rotationTargets = a.getRotationTargets();
+
+    //     rotationTargets = addToList(rotationTargets, new RotationTarget(a.getPathPoses().size() - 1, a.getGoalEndState().rotation()));
+    //     for (int j = 0; j < b.getRotationTargets().size(); j++) {
+    //         rotationTargets = addToList(rotationTargets, b.getRotationTargets().get(j));
+    //     }
+        
+    //     PathPlannerPath toReturn = new PathPlannerPath(
+    //                 waypoints,
+    //                 rotationTargets,
+    //                 Collections.emptyList(),
+    //                 Collections.emptyList(),
+    //                 Collections.emptyList(),
+    //                 a.getGlobalConstraints(), 
+    //                 a.getIdealStartingState(), 
+    //                 b.getGoalEndState(), 
+    //                 false);
+
+    //     return toReturn;
+    // }   
 }

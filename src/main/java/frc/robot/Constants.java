@@ -14,8 +14,10 @@ import edu.wpi.first.math.util.Units;
 import frc.utils.AutoPOI;
 import frc.utils.CameraTransform;
 import frc.utils.TagTransform;
+import frc.utils.VisionUtils;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Transform2d;
 
 
 /**
@@ -43,7 +45,7 @@ public final class Constants {
     // Driving Parameters - Note that these are not the maximum and minimum capable speeds of
     // the robot, rather the allowed maximum and minimum speeds.
     public static final double kMaxSpeedMetersPerSecond = 3.3; // 4.1
-    public static final double a = 1.6; // 3.3
+    public static final double a = 2; // 3.3
     public static final double kMinSpeedMetersPerSecond = 0.9; // 1.6
     public static final double kMaxAngularSpeed = 2 * Math.PI; // radians per second
 
@@ -95,43 +97,36 @@ public final class Constants {
       new CameraTransform(0, 0, 0),
     };
 
-    // TEST TRANSFORMS
-    public static final TagTransform[] tagTransforms = new TagTransform[] {
-      new TagTransform(0, 0, 0, 0, 0),
-      new TagTransform(0, 0, 0, 120, 0),
-      new TagTransform(0, 0, 0, 180, 0),
-      new TagTransform(0, 0, 0, -120, 0),
-    };
-
     // these are the actual ones for 2025
     // TagTransform class for holding position, heading, y-rot, etc.
 
     // since First decided to provide units in inches, I've left the raw units here
     // and just decided to make a function to correct them
-    // public static final TagTransform[] tagTransforms = new TagTransform[] {
-    //   VisionUtils.correctTagUnits(new TagTransform(657.37, 25.80, 58.50, 126, 0)), // 1
-    //   VisionUtils.correctTagUnits(new TagTransform(657.37, 291.20, 58.50, 234, 0)), // 2
-    //   VisionUtils.correctTagUnits(new TagTransform(455.15, 317.15, 51.25, 270, 0)), // 3
-    //   VisionUtils.correctTagUnits(new TagTransform(365.20, 241.64, 73.54, 0, 30)), // 4
-    //   VisionUtils.correctTagUnits(new TagTransform(365.20, 75.39, 12.13, 0, 30)), // 5
-    //   VisionUtils.correctTagUnits(new TagTransform(530.49, 130.17, 12.13, 300, 0)), // 6
-    //   VisionUtils.correctTagUnits(new TagTransform(546.87, 158.50, 12.13, 0, 0)), // 7
-    //   VisionUtils.correctTagUnits(new TagTransform(530.49, 186.83, 12.13, 60, 0)), // 8
-    //   VisionUtils.correctTagUnits(new TagTransform(497.77, 186.83, 12.13, 120, 0)), // 9
-    //   VisionUtils.correctTagUnits(new TagTransform(481.39, 158.50, 12.13, 180, 0)), // 10
-    //   VisionUtils.correctTagUnits(new TagTransform(497.77, 130.17, 12.13, 240, 0)), // 11
-    //   VisionUtils.correctTagUnits(new TagTransform(33.51, 25.80, 58.50, 54, 0)), // 12
-    //   VisionUtils.correctTagUnits(new TagTransform(33.51, 291.20, 58.50, 306, 0)), // 13
-    //   VisionUtils.correctTagUnits(new TagTransform(325.68, 241.64, 73.54, 180, 30)), // 14
-    //   VisionUtils.correctTagUnits(new TagTransform(325.68, 75.39, 73.54, 180, 30)), // 15
-    //   VisionUtils.correctTagUnits(new TagTransform(235.73, -0.15, 51.25, 90, 0)), // 16
-    //   VisionUtils.correctTagUnits(new TagTransform(160.39, 130.17, 12.13, 240, 0)), // 17
-    //   VisionUtils.correctTagUnits(new TagTransform(144.00, 158.50, 12.13, 180, 0)), // 18
-    //   VisionUtils.correctTagUnits(new TagTransform(160.39, 186.83, 12.13, 120, 0)), // 19
-    //   VisionUtils.correctTagUnits(new TagTransform(193.10, 186.83, 12.13, 60, 0)), // 20
-    //   VisionUtils.correctTagUnits(new TagTransform(209.49, 158.50, 12.13, 0, 0)), // 21
-    //   VisionUtils.correctTagUnits(new TagTransform(193.10, 130.17, 12.13, 300, 0)), // 22
-    // };
+    public static final TagTransform[] tagTransforms = new TagTransform[] {
+      VisionUtils.correctTagUnits(new TagTransform(0, 0, 0, 0, 0)), // null tag so indexing makes sense
+      VisionUtils.correctTagUnits(new TagTransform(657.37, 25.80, 58.50, 126, 0)), // 1
+      VisionUtils.correctTagUnits(new TagTransform(657.37, 291.20, 58.50, 234, 0)), // 2
+      VisionUtils.correctTagUnits(new TagTransform(455.15, 317.15, 51.25, 270, 0)), // 3
+      VisionUtils.correctTagUnits(new TagTransform(365.20, 241.64, 73.54, 0, 30)), // 4
+      VisionUtils.correctTagUnits(new TagTransform(365.20, 75.39, 12.13, 0, 30)), // 5
+      VisionUtils.correctTagUnits(new TagTransform(530.49, 130.17, 12.13, 300, 0)), // 6
+      VisionUtils.correctTagUnits(new TagTransform(546.87, 158.50, 12.13, 0, 0)), // 7
+      VisionUtils.correctTagUnits(new TagTransform(530.49, 186.83, 12.13, 60, 0)), // 8
+      VisionUtils.correctTagUnits(new TagTransform(497.77, 186.83, 12.13, 120, 0)), // 9
+      VisionUtils.correctTagUnits(new TagTransform(481.39, 158.50, 12.13, 180, 0)), // 10
+      VisionUtils.correctTagUnits(new TagTransform(497.77, 130.17, 12.13, 240, 0)), // 11
+      VisionUtils.correctTagUnits(new TagTransform(33.51, 25.80, 58.50, 54, 0)), // 12
+      VisionUtils.correctTagUnits(new TagTransform(33.51, 291.20, 58.50, 306, 0)), // 13
+      VisionUtils.correctTagUnits(new TagTransform(325.68, 241.64, 73.54, 180, 30)), // 14
+      VisionUtils.correctTagUnits(new TagTransform(325.68, 75.39, 73.54, 180, 30)), // 15
+      VisionUtils.correctTagUnits(new TagTransform(235.73, -0.15, 51.25, 90, 0)), // 16
+      VisionUtils.correctTagUnits(new TagTransform(160.39, 130.17, 12.13, 240, 0)), // 17
+      VisionUtils.correctTagUnits(new TagTransform(144.00, 158.50, 12.13, 180, 0)), // 18
+      VisionUtils.correctTagUnits(new TagTransform(160.39, 186.83, 12.13, 120, 0)), // 19
+      VisionUtils.correctTagUnits(new TagTransform(193.10, 186.83, 12.13, 60, 0)), // 20
+      VisionUtils.correctTagUnits(new TagTransform(209.49, 158.50, 12.13, 0, 0)), // 21
+      VisionUtils.correctTagUnits(new TagTransform(193.10, 130.17, 12.13, 300, 0)), // 22
+    };
 
     // the constants used for moving the bot towards the apriltag during vision alignment
     // NOTE - y axis doesn't go through PID, this is only for x
@@ -210,7 +205,7 @@ public final class Constants {
   }
 
   public static final class AutoConstants {
-    public static final PathConstraints defaultGlobalContstraints = new PathConstraints(3.5, 2, 540, 130);
+    public static final PathConstraints defaultGlobalContstraints = new PathConstraints(1,0.5, 540, 720);
 
     public static final PIDConstants translationConstants = new PIDConstants(8, 8, 0);
     public static final PIDConstants rotationConstants = new PIDConstants(5, 0, 0);
@@ -236,28 +231,15 @@ public final class Constants {
     // test fallback positions
     public static final AutoPOI[] fallbackPositions = new AutoPOI[] {
       // tag indices are set to -1 because these poses have nothing to do with apriltags
-      new AutoPOI(new Pose2d(0, 0, Rotation2d.fromDegrees(0)), "Start1", -1),
+      new AutoPOI(new Pose2d(8.000, 4.045, Rotation2d.fromDegrees(180)), "Start1"), // centered on the start line, per actual field
     };
 
     public static final AutoPOI[] fieldPOIs = new AutoPOI[] {
-      new AutoPOI(new Pose2d(1.315, 0.2, Rotation2d.fromDegrees(180)), "Reef1", 1),
-      new AutoPOI(new Pose2d(1.88, -0.83, Rotation2d.fromDegrees(-120)), "Reef2", 2),
-      new AutoPOI(new Pose2d(1.88, 1.21, Rotation2d.fromDegrees(120)), "Reef3", 3),
-      new AutoPOI(new Pose2d(0.55, -2.42, Rotation2d.fromDegrees(27)), "Coral1", -1),
+      new AutoPOI(new Pose2d(5.762, 4.045, Rotation2d.fromDegrees(180)), "Reef4", 21, new Transform2d(0.3, 0, new Rotation2d())),
+      new AutoPOI(new Pose2d(3.740, 2.802, Rotation2d.fromDegrees(120)), "Reef6", 17, new Transform2d(0.3, 0, new Rotation2d())), // 
+      new AutoPOI(new Pose2d(1.200, 7.100, Rotation2d.fromDegrees(126)), "Coral1"),
+      new AutoPOI(new Pose2d(1.200, 7.100, Rotation2d.fromDegrees(-126)), "Coral2"),
     };
-    
-    // THESE ARE THE REAL POSITIONS, NOT USED YET
-    // public static final AutoPOI[] fallpackPositions = new AutoPOI[] {
-    //   // blue
-    //   new AutoPOI(new Pose2d(7.780, 7.274, new Rotation2d()), "Start1"),
-    //   new AutoPOI(new Pose2d(7.780, 6.171, new Rotation2d()), "Start2"),
-    //   new AutoPOI(new Pose2d(7.780, 5.056, new Rotation2d()), "Start3"),
-
-    //   // red
-    //   new AutoPOI(new Pose2d(7.780, 3.018, new Rotation2d()), "Start4"),
-    //   new AutoPOI(new Pose2d(7.780, 1.903, new Rotation2d()), "Start5"),
-    //   new AutoPOI(new Pose2d(7.780, 0.800, new Rotation2d()), "Start6"),
-    // };
   }
 
   public static final class NeoMotorConstants {
