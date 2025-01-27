@@ -59,7 +59,9 @@ public class Harpoon extends SubsystemBase{
     }
 
     public void setRotationMotorPosition(double positionInDegrees){
-        this.kRotationController.setReference(degreesToRotations(positionInDegrees), SparkBase.ControlType.kMAXMotionPositionControl);
+        this.kRotationController.setReference(
+            degreesToRotations(positionInDegrees)*Constants.HarpoonConstants.gearConversionFactor,
+            SparkBase.ControlType.kMAXMotionPositionControl);
     }
 
     public Command intake(){

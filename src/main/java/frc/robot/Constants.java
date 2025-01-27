@@ -129,6 +129,7 @@ public final class Constants {
     public static final double L1RotationMotorPositionDegrees = 0.0;
 
     public static final double HomeRotationMotorPositionDegrees = 0.0;
+    public static final double gearConversionFactor = 5;
   }
 
   public static final class VisionConstants{
