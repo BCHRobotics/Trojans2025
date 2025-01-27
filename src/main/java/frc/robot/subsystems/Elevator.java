@@ -94,14 +94,17 @@ public class Elevator extends SubsystemBase{
     }
 
     //public Command moveToPosition(double pos) {
-    public Command moveToPosition(double pos) {
+    public void moveToPosition(double pos) {
         //return this.runOnce(() -> setLeftMotorPos(pos));
-        return this.runOnce(() -> setLeftMotorPos(pos-offset));
+        setLeftMotorPos(pos-offset);
     }
 
-    public Command cancelElevatorCommands() {
+    public void cancelElevatorCommands() {
         this.kLeftMotor.stopMotor();
-        return this.runOnce(() -> setLeftMotorPos(0.0-offset));
+    }
+
+    public void moveToHomePosition() {
+        this.moveToPosition(0);
     }
 
     public void calibrate() {

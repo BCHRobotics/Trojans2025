@@ -108,6 +108,7 @@ public final class Constants {
         ElevatorPositions.put("L1", 30.0);
         ElevatorPositions.put("L2", 20.0);
         ElevatorPositions.put("L3", 10.0);
+        ElevatorPositions.put("L4", 5.0);
     }
 
     public static final double gearConversionFactor = 5; // placeholder value
@@ -121,6 +122,13 @@ public final class Constants {
     public static final double harpoonP = 0.1;
     public static final double harpoonI = 0.0;
     public static final double harpoonD = 0.0;
+
+    public static final double L4RotationMotorPositionDegrees = 0.0;
+    public static final double L3RotationMotorPositionDegrees = 0.0;
+    public static final double L2RotationMotorPositionDegrees = 0.0;
+    public static final double L1RotationMotorPositionDegrees = 0.0;
+
+    public static final double HomeRotationMotorPositionDegrees = 0.0;
   }
 
   public static final class VisionConstants{

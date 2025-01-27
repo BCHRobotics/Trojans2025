@@ -159,11 +159,12 @@ public class RobotContainer {
             m_backupController.rightBumper().onTrue(new InstantCommand(() -> m_robotDrive.setFastMode(true)));
             m_backupController.rightBumper().onFalse(new InstantCommand(() -> m_robotDrive.setFastMode(false)));
             // testing motor moving
-            m_backupController.x().onTrue(m_elevator.moveToPosition(ElevatorConstants.ElevatorPositions.get("L3")));
+            m_backupController.x().onTrue(new InstantCommand(() -> m_elevator.moveToPosition(ElevatorConstants.ElevatorPositions.get("L3"))));
             //m_backupController.x().onFalse(m_elevator.cancelElevatorCommands());
-            m_backupController.y().onTrue(m_elevator.moveToPosition(ElevatorConstants.ElevatorPositions.get("L1")));
-            m_backupController.a().onTrue(m_elevator.moveToPosition(ElevatorConstants.ElevatorPositions.get("L2")));
-            m_backupController.b().onTrue(m_elevator.cancelElevatorCommands());
+    
+            m_backupController.y().onTrue(new InstantCommand(() -> m_elevator.moveToPosition(ElevatorConstants.ElevatorPositions.get("L2"))));
+            m_backupController.a().onTrue(new InstantCommand(() -> m_elevator.moveToPosition(ElevatorConstants.ElevatorPositions.get("L1"))));
+            m_backupController.b().onTrue(new InstantCommand(()-> m_elevator.cancelElevatorCommands()));
         }
     }
     
