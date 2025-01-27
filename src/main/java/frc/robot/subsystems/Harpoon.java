@@ -2,7 +2,7 @@ package frc.robot.subsystems;
 
 
 import com.revrobotics.spark.SparkLowLevel.MotorType;
-import com.revrobotics.RelativeEncoder;
+
 import com.revrobotics.spark.SparkBase;
 import com.revrobotics.spark.SparkBase.PersistMode;
 import com.revrobotics.spark.SparkBase.ResetMode;
@@ -13,32 +13,32 @@ import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
 import com.revrobotics.spark.config.SparkMaxConfig;
 import com.revrobotics.spark.SparkClosedLoopController;
 
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
-import edu.wpi.first.wpilibj2.command.RunCommand;
+
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
 import edu.wpi.first.wpilibj.DigitalInput;
 import frc.robot.Constants;
-import java.util.function.BooleanSupplier;
+
 
 
 public class Harpoon extends SubsystemBase{
 
     private final SparkMax kIntakeMotor; // intake motor is the same as the "shooter" motor
     private final SparkMax kRotationMotor; // rotation motor turns the wrist
-    private final RelativeEncoder kRotationEncoder;
+
     private final SparkMaxConfig kIntakeConfig = new SparkMaxConfig();
     private final SparkMaxConfig kRotationConfig = new SparkMaxConfig();
     private final double maxVelocity = 1000; // This is in rpm
     private final double maxAcceleration = 1000; // This is in rpm/second
     private final DigitalInput harpoonBeamBreaker = new DigitalInput(0);
-    private double position;
+
 
     // private final RelativeEncoder kLeftEncoder;
     private final SparkClosedLoopController kRotationController;
-    private double rotationMotorPosition;
+
 
     private Elevator m_elevator = Elevator.getInstance();
 
@@ -46,12 +46,12 @@ public class Harpoon extends SubsystemBase{
         this.kIntakeMotor = new SparkMax(Constants.HarpoonConstants.kIntakeMotorCANID, MotorType.kBrushless);
         this.kRotationMotor = new SparkMax(Constants.HarpoonConstants.kRotationMotorCANID, MotorType.kBrushless);
 
-        this.kRotationEncoder = kRotationMotor.getEncoder();
+
         this.kRotationConfig.inverted(false);
         this.kRotationConfig.idleMode(IdleMode.kBrake);
 
         this.kIntakeConfig.inverted(false);
-        this.kRotationConfig.idleMode(IdleMode.kBrake);
+        this.kIntakeConfig.idleMode(IdleMode.kBrake);
         
         this.kRotationConfig.closedLoop.feedbackSensor(FeedbackSensor.kPrimaryEncoder).pid(
             Constants.HarpoonConstants.harpoonP,
@@ -66,7 +66,7 @@ public class Harpoon extends SubsystemBase{
         this.kRotationController = kRotationMotor.getClosedLoopController();
 
         this.kRotationMotor.configure(kRotationConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
-        this.position = this.kRotationEncoder.getPosition();
+  
     }
 
     public double degreesToRotations(double degrees){

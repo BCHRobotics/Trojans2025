@@ -136,6 +136,19 @@ public final class Constants {
     public static final double gearConversionFactor = 5;
   }
 
+  public static final class ClimberConstants{
+    public static final int kLeftCanID = 23;
+    public static final int kRightCanID = 24;
+
+
+    public static final double climberP = 0.1;
+    public static final double climberI = 0.0;
+    public static final double climberD = 0.0;
+
+    public static final double gearConversionFactor = 5;
+    public static final double fullyRotatedPositionDegrees = 0.0;
+  }
+
   public static final class VisionConstants{
     // camera names, transforms, etc.
     public static final String[] cameraNames = new String[] {"Front"};
