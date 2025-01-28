@@ -126,7 +126,10 @@ public class RobotContainer {
             this.m_backupController.leftBumper().onTrue(m_robotDrive.setXCommand());
             this.m_backupController.rightBumper().onTrue(new InstantCommand(() -> m_robotDrive.setSlowMode(true)));
             this.m_backupController.rightBumper().onFalse(new InstantCommand(() -> m_robotDrive.setSlowMode(false)));
-        }
+
+            this.m_backupController.rightTrigger().onTrue(new InstantCommand(() -> m_robotDrive.setFastMode(true)));
+            this.m_backupController.rightBumper().onTrue(new InstantCommand(() -> m_robotDrive.setFastMode(false)));
+        }   
     }
 
     /**
