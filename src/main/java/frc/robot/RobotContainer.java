@@ -21,6 +21,7 @@ import frc.robot.subsystems.Drivetrain;
 import frc.utils.devices.AutoUtils;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
+import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandPS5Controller;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 
@@ -61,7 +62,7 @@ public class RobotContainer {
     // Sets up the drivetrain for teleoperated driving
     public void configureDriveMode(boolean isRedAlliance) {
         final double invert = isRedAlliance ? -1 : 1;
-
+ 
         String controller = controllerOptions.getSelected();
         
         // If no other command is running on the drivetrain, then this manual driving command (driving via controller) is used
@@ -119,16 +120,20 @@ public class RobotContainer {
             // Reset Gyro
             m_mainController.triangle().onTrue(new InstantCommand(() -> m_robotDrive.zeroHeading()));
 
+
         }
         else {
             // TODO: copy these over
             // XBOX CONTROLLER 
-            this.m_backupController.leftBumper().onTrue(m_robotDrive.setXCommand());
-            this.m_backupController.rightBumper().onTrue(new InstantCommand(() -> m_robotDrive.setSlowMode(true)));
+            this.m_backupController.leftBumper().whileTrue(new RunCommand(()->m_robotDrive.setX(), m_robotDrive));
+
+            this.m_backupController.rightBumper().whileTrue(new InstantCommand(() -> m_robotDrive.setSlowMode(true)));
             this.m_backupController.rightBumper().onFalse(new InstantCommand(() -> m_robotDrive.setSlowMode(false)));
 
-            this.m_backupController.rightTrigger().onTrue(new InstantCommand(() -> m_robotDrive.setFastMode(true)));
-            this.m_backupController.rightBumper().onTrue(new InstantCommand(() -> m_robotDrive.setFastMode(false)));
+            this.m_backupController.rightTrigger().whileTrue(new InstantCommand(() -> m_robotDrive.setFastMode(true)));
+            this.m_backupController.rightTrigger().onFalse(new InstantCommand(() -> m_robotDrive.setFastMode(false)));
+
+            this.m_backupController.x().onTrue(new InstantCommand(() -> m_robotDrive.zeroHeading()));
         }   
     }
 
