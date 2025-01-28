@@ -1,17 +1,37 @@
 package frc.utils;
 
+import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.util.Units;
 import frc.robot.Constants.VisionConstants;
+import frc.robot.subsystems.Cameras;
+import frc.robot.subsystems.Drivetrain;
 
 /*
  * This script is for helper functions related to vision and related math
  * There should only be public static functions in here
  */
 public class VisionUtils {
+    /*
+     * figure out if a robot is done aligning, given some data
+     * NOTE - offset is tag-relative
+     */
+    public static boolean hasReachedPosition(int tagId, Translation2d offset, Drivetrain driveSubsystem, Cameras cameraSubsystem) {
+        Translation2d fieldRelativeTagOffset = applyRotationMatrix(offset, -VisionConstants.tagTransforms[tagId].headingAngle * Math.PI / 180);
+        Pose2d fieldRelativeTagPosition = VisionConstants.tagTransforms[tagId].getPosition();
+        Pose2d robotPosition = driveSubsystem.getPose();
+
+        Translation2d desiredPosition = new Translation2d(fieldRelativeTagPosition.getX() + fieldRelativeTagOffset.getX(), fieldRelativeTagPosition.getY() + fieldRelativeTagOffset.getY());
+
+        Translation2d currentOffsetVector = desiredPosition.minus(new Translation2d(robotPosition.getX(), robotPosition.getY()));
+
+        return (Math.abs(currentOffsetVector.getX()) < VisionConstants.allowedXError
+         && Math.abs(currentOffsetVector.getY()) < VisionConstants.allowedYError);
+    }
+
     /**
      * Since FRC provides tag position in inches, this function corrects them to meters
      * @param inputTransform
@@ -33,7 +53,7 @@ public class VisionUtils {
      * @param angle Angle to rotate by IN RADIANS
      * @return the vector rotated by the angle
      */
-    public static Transform2d applyRotationMatrix(Transform2d inputMatrix, double angle) {
+    public static Translation2d applyRotationMatrix(Translation2d inputMatrix, double angle) {
         // Multiply the heading by PI/180 to convert to radians
         double sinHeading = Math.sin(angle);
         double cosHeading = Math.cos(angle);
@@ -43,7 +63,7 @@ public class VisionUtils {
         double fieldY = inputMatrix.getX() * sinHeading + inputMatrix.getY() * cosHeading;
 
         // Create the transform2d object
-        Transform2d rotatedVector = new Transform2d(fieldX, fieldY, inputMatrix.getRotation());
+        Translation2d rotatedVector = new Translation2d(fieldX, fieldY);
 
         return rotatedVector;
     }
@@ -56,13 +76,6 @@ public class VisionUtils {
      */
     public static Transform2d projectOntoHorizontalPlane(Transform3d rawOffset) {
         return new Transform2d(new Translation2d(rawOffset.getX(), rawOffset.getY()), Rotation2d.fromRadians(rawOffset.getRotation().getZ()));
-    }
-
-    /*
-    * This function maybe shouldn't exist
-    */
-    public static Transform2d correctRotation(Transform2d inputOffset, double cameraHeading) {
-        return new Transform2d(inputOffset.getX(), inputOffset.getY(), inputOffset.getRotation().plus(Rotation2d.fromRadians(cameraHeading)));
     }
 
     /**
@@ -92,12 +105,9 @@ public class VisionUtils {
         // just getting rid of the z (height) component of the raw offset and the x and y rotation (z heading stays)
         Transform2d projectedOffset = projectOntoHorizontalPlane(rawOffset);
         // apply the rotation matrix to switch from robot-relative to field relative
-        Transform2d offsetWithRotationMatrix = applyRotationMatrix(projectedOffset, cameraHeading);
-
-        // not sure if this is necessary, either way this variable isn't being used rn
-        Transform2d fieldOrientedOffset = correctRotation(offsetWithRotationMatrix, cameraHeading);
+        Transform2d offsetWithRotationMatrix = new Transform2d(applyRotationMatrix(projectedOffset.getTranslation(), cameraHeading), projectedOffset.getRotation());
 
         // return the transformed vector
-        return fieldOrientedOffset;
+        return offsetWithRotationMatrix;
     }
 }

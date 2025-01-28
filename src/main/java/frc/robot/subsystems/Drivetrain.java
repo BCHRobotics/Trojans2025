@@ -14,6 +14,8 @@ import com.pathplanner.lib.util.DriveFeedforwards;
 import edu.wpi.first.math.filter.SlewRateLimiter;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Transform2d;
+import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.kinematics.SwerveDriveOdometry;
@@ -74,6 +76,8 @@ public class Drivetrain extends SubsystemBase {
   // enum for keeping track of how the robot is driving
   private DriveModes driveMode = DriveModes.MANUAL;
 
+  private Translation2d odometryOffset = new Translation2d(0, 0);
+
   // Odometry class for tracking robot pose
   SwerveDriveOdometry m_odometry = new SwerveDriveOdometry(
       DriveConstants.kDriveKinematics,
@@ -118,6 +122,20 @@ public class Drivetrain extends SubsystemBase {
     this.printToDashboard();
   }
 
+  /*
+   * telling the drivetrain how to offset the odometry to align with the tag
+   */
+  public void setOdometryOffset(Translation2d offset) {
+    odometryOffset = offset;
+  }
+
+  /*
+   * get the pose, but with LYING involved
+   */
+  public Pose2d getOffsetPose() {
+    return m_odometry.getPoseMeters().plus(new Transform2d(odometryOffset, new Rotation2d()));
+  }
+
   /**
    * Returns the currently-estimated pose of the robot.
    *
@@ -134,7 +152,7 @@ public class Drivetrain extends SubsystemBase {
    */
   public void resetOdometry(Pose2d pose) {
     m_odometry.resetPosition(
-        Rotation2d.fromDegrees(m_gyro.getAngle() * (DriveConstants.kGyroReversed ? -1.0 : 1.0)),
+        Rotation2d.fromDegrees(getHeading()),
         new SwerveModulePosition[] {
             m_frontLeft.getPosition(),
             m_frontRight.getPosition(),

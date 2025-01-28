@@ -24,19 +24,16 @@ public class Cameras extends SubsystemBase {
 
     // how many apriltags there are on the field
     // (we're using last year's family, so there are only 16)
-    private int tagCount = 16;
+    private int tagCount = 22;
 
     // test stuff
-    private Pose2d[] tagTestPositions;
     private Drivetrain driveSubsystem;
 
     // IF YOU WANT TO DISABLE THE VISION CODE USE THIS!!!
     // USEFUL IF THE COPROCESSOR ISN'T PLUGGED IN!!!
     // -----
-    private boolean isVisionActive = false;
+    public boolean isVisionActive = true;
     // -----
-    private boolean useTagTestPositions = true;
-    // ----
     
     public Cameras() {
         cameras = new PhotonCamera[VisionConstants.cameraNames.length];
@@ -45,8 +42,6 @@ public class Cameras extends SubsystemBase {
         }
 
         results = new PhotonPipelineResult[cameras.length];
-
-        tagTestPositions = new Pose2d[tagCount+1];
     }
 
     // since the cameras need to pull (odometry) data from the drivetrain,
@@ -63,36 +58,17 @@ public class Cameras extends SubsystemBase {
 
             // print any relevant debug data to the dashboard
             printToDashboard();
-            
-            // update the "test positions" for the tags, basically reverse-engineering tag position from offset data and odometry
-            // this allows us to align to tags without a defined field layout
-            // NOTE - we do need to have predefined tag headings though
-            updateTagTestPositions();
+
+            //updateOdometry();
         }
     }
 
     /*
-     * retrieve one of the tag test positions from the array
-     * see periodic for more info
+     * apply the estimated pose to the robot odometry
      */
-    public Pose2d getTagTestPosition(int tagId) {
-        if (tagTestPositions[tagId] == null) {return null;}
-        else {return tagTestPositions[tagId];}
-    }
-
-    /*
-     * update the "test positions"
-     * see periodic for more info
-     */
-    public void updateTagTestPositions() {
-        for (int i = 0; i < tagCount; i++) {
-            Transform2d fieldOffset = getFieldOrientedTagOffset(i);
-            if (fieldOffset == null) {continue;}
-            tagTestPositions[i] = new Pose2d(
-                driveSubsystem.getPose().getX() + fieldOffset.getX(),
-                driveSubsystem.getPose().getY() + fieldOffset.getY(),
-                fieldOffset.getRotation()
-            );
+    public void updateOdometry() {
+        if (canSeeAnyTags()) {
+            driveSubsystem.resetOdometry(estimateRobotPoseManual());
         }
     }
     
@@ -103,7 +79,7 @@ public class Cameras extends SubsystemBase {
     public boolean canSeeAnyTags() {
         if (!isVisionActive) {return false;}
 
-        for (int i = 0; i < tagCount; i++) {
+        for (int i = 1; i < tagCount; i++) {
             if (canSeeTag(i)) {
                 return true;
             }
@@ -116,15 +92,32 @@ public class Cameras extends SubsystemBase {
      * WARNING: THIS IS AN UNTESTED FUNCTION
      * figure out where the robot is based on camera data
      */
-    public Pose2d estimateRobotPose() {
+    public Pose2d estimateRobotPoseManual() {
         Transform2d[] fieldRelativeOffsets = getAllFieldRelativeOffsets();
         Pose2d finalPose = new Pose2d(0, 0, new Rotation2d());
 
-        for (int i = 0; i < fieldRelativeOffsets.length; i++) {
-            finalPose.plus(tagTestPositions[i].minus(new Pose2d(fieldRelativeOffsets[i].getX(), fieldRelativeOffsets[i].getY(), new Rotation2d())));
-        }
-        finalPose.div(fieldRelativeOffsets.length);
+        int tagCount = 0;
 
+        for (int i = 1; i < fieldRelativeOffsets.length; i++) {
+            if (fieldRelativeOffsets[i] != null && tagCount == 0) {
+                Pose2d offset = new Pose2d(fieldRelativeOffsets[i].getX(), 
+                fieldRelativeOffsets[i].getY(), 
+                fieldRelativeOffsets[i].getRotation());
+
+                Pose2d tagPosition = VisionConstants.tagTransforms[i].getPosition();
+
+                Transform2d estimatedPosition = new Transform2d(
+                    tagPosition.getX() - offset.getX(),
+                    tagPosition.getY() - offset.getY(),
+                    tagPosition.getRotation().minus(offset.getRotation())
+                );
+
+                finalPose = finalPose.plus(estimatedPosition);
+
+                tagCount++;
+            }
+        }
+        
         return finalPose;
     }
 
@@ -133,33 +126,25 @@ public class Cameras extends SubsystemBase {
      * used for pose estimation
      */
     public Transform2d[] getAllFieldRelativeOffsets() {
-        ArrayList<Transform2d> toReturn = new ArrayList<Transform2d>();
+        Transform2d[] toReturn = new Transform2d[tagCount+1];
 
-        for (int i = 0; i < tagCount; i++) {
+        for (int i = 1; i <= tagCount; i++) {
             if (getFieldOrientedTagOffset(i) != null) {
-                toReturn.add(getFieldOrientedTagOffset(i));
+                toReturn[i] = getFieldOrientedTagOffset(i);
             }
         }
-
-        return toReturn.toArray(new Transform2d[toReturn.size()]);
+        return toReturn;
     }
 
     /*
      * printing debug stuff to the dashboard
      */
     public void printToDashboard() {
-        //SmartDashboard.putBoolean("Tag Visible", canSeeTag(4));
-
-        // SmartDashboard.putNumber("camera x", estimateRobotPose().getX());
-        // SmartDashboard.putNumber("camera y", estimateRobotPose().getY());
-
         SmartDashboard.putNumber("odometry x", driveSubsystem.getPose().getX());
         SmartDashboard.putNumber("odometry y", driveSubsystem.getPose().getY());
-        SmartDashboard.putNumber("odometry rot", driveSubsystem.getHeading());
 
-        if (canSeeTag(1) && tagTestPositions[1] != null) {
-            logTag(1);
-        }
+        SmartDashboard.putNumber("camera x", estimateRobotPoseManual().getX());
+        SmartDashboard.putNumber("camera y", estimateRobotPoseManual().getY());
 
         // if (getTagTestPosition(4) != null) {
         //     SmartDashboard.putNumber("Tag X", getTagTestPosition(4).getX());
@@ -173,12 +158,6 @@ public class Cameras extends SubsystemBase {
         //     SmartDashboard.putNumber("Pose X", driveSubsystem.getPose().getX());
         //     SmartDashboard.putNumber("Pose Y", driveSubsystem.getPose().getY());
         // }
-    }
-
-    public void logTag(int index) {
-        SmartDashboard.putNumber("tag x", tagTestPositions[index].getX());
-        SmartDashboard.putNumber("tag y",tagTestPositions[index].getY());
-        SmartDashboard.putNumber("tag rot",tagTestPositions[index].getRotation().getDegrees());
     }
 
     /*

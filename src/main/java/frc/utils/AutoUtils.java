@@ -1,7 +1,6 @@
 package frc.utils;
 
 import static edu.wpi.first.units.Units.MetersPerSecond;
-import static edu.wpi.first.units.Units.RPM;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -14,6 +13,7 @@ import org.json.simple.parser.ParseException;
 import com.pathplanner.lib.commands.FollowPathCommand;
 import com.pathplanner.lib.config.RobotConfig;
 import com.pathplanner.lib.controllers.PPHolonomicDriveController;
+import com.pathplanner.lib.path.EventMarker;
 import com.pathplanner.lib.path.GoalEndState;
 import com.pathplanner.lib.path.IdealStartingState;
 import com.pathplanner.lib.path.PathPlannerPath;
@@ -21,13 +21,15 @@ import com.pathplanner.lib.path.RotationTarget;
 import com.pathplanner.lib.util.FileVersionException;
 
 import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.units.measure.LinearVelocity;
 import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import frc.robot.Constants;
-import frc.robot.Robot;
 import frc.robot.Constants.AutoConstants;
+import frc.robot.commands.vision.AlignAutoCommand;
 import frc.robot.subsystems.Cameras;
 import frc.robot.subsystems.Drivetrain;
 
@@ -115,6 +117,11 @@ public class AutoUtils {
         return commands;
     }
 
+    // TODO: this
+    public static PathPlannerPath adjustPath(PathPlannerPath path, Translation2d newPoint) {
+        return null;
+    }
+
     // also, using pose estimation to figure out starting position
     // unless tags cannot be seen, in which case use a fallback position
     // TODO: make pose estimation/fallback a boolean passed into the function, instead of checking vision
@@ -130,12 +137,12 @@ public class AutoUtils {
         AutoPOI oldPOI = new AutoPOI();
 
         // defining where the auto starts
-        if (cameraSubsystem.canSeeAnyTags()) {
+        if (!SmartDashboard.getBoolean("Auto Fallback", false)) {
             // we can see at least one tag, so pose estimation is possible
 
             // create a new POI called VisionStart and place it where the robot thinks it is
             oldPOI.name = "VisionStart";
-            oldPOI.position = cameraSubsystem.estimateRobotPose();
+            oldPOI.position = cameraSubsystem.estimateRobotPoseManual();
             oldPOI.tagId = -1; // none of the fallbacks are based off tags so it should be already -1
         }
         else {
@@ -164,7 +171,7 @@ public class AutoUtils {
                 newPOI.position = searchForPOI(name).position;
 
                 autoCommand = autoCommand.andThen(
-                    constructPathCommand(generatePathFromPOIs(oldPOI, newPOI), driveSubsystem, robotConfig)
+                    constructPathCommand(generatePathFromPOIs(oldPOI, newPOI, driveSubsystem, cameraSubsystem), driveSubsystem, robotConfig)
                 );
                 
                 // set the previous POI to where the robot should now be at this time
@@ -204,7 +211,7 @@ public class AutoUtils {
     public static Command constructPathCommand(PathPlannerPath path, Drivetrain driveSubsystem, RobotConfig config) {
         return new FollowPathCommand(
             path,
-            driveSubsystem::getPose, // Robot pose supplier
+            driveSubsystem::getOffsetPose, // Robot pose supplier
             driveSubsystem::getChassisSpeeds, // ChassisSpeeds supplier. MUST BE ROBOT RELATIVE
             driveSubsystem::setChassisSpeeds, // Method that will drive the robot given ROBOT RELATIVE ChassisSpeeds, AND feedforwards
             new PPHolonomicDriveController(
@@ -231,13 +238,33 @@ public class AutoUtils {
      * create a PathPlannerPath given two AutoPOI classes, going from one to the other
      * the path will be a straight line
      */
-    public static PathPlannerPath generatePathFromPOIs(AutoPOI start, AutoPOI finish) {
+    public static PathPlannerPath generatePathFromPOIs(AutoPOI start, AutoPOI finish, Drivetrain driveSubsystem, Cameras cameraSubsystem) {
+        
+        // creating an empty list for event markers, filled if the POI has a tag id
+        List<EventMarker> eventMarkers = new LinkedList<EventMarker>();
+
+        // checking if the finish POI involves a tag
+        // if (finish.tagId != -1) {
+        //     eventMarkers.add(
+        //     new EventMarker(
+        //         "Activate Vision", 
+        //     0.25,
+        //     -1,
+        //     new AlignAutoCommand(
+        //         finish.tagId, 
+        //         finish.desiredTagOffset, 
+        //         driveSubsystem, 
+        //         cameraSubsystem))
+        //     );
+        // }
+
+        // construct the path using the POIs and the built-in constructor
         PathPlannerPath toReturn = new PathPlannerPath(
             PathPlannerPath.waypointsFromPoses(new Pose2d[]{start.position, finish.position}),
             new LinkedList<RotationTarget>(),
             Collections.emptyList(),
             Collections.emptyList(),
-            Collections.emptyList(),
+            eventMarkers,
             AutoConstants.defaultGlobalContstraints, 
             new IdealStartingState(LinearVelocity.ofBaseUnits(0, MetersPerSecond), start.position.getRotation()), 
             new GoalEndState(LinearVelocity.ofBaseUnits(0, MetersPerSecond), finish.position.getRotation()), 

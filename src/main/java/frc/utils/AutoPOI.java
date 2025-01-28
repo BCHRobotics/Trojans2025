@@ -1,7 +1,7 @@
 package frc.utils;
 
 import edu.wpi.first.math.geometry.Pose2d;
-import edu.wpi.first.math.geometry.Transform2d;
+import edu.wpi.first.math.geometry.Translation2d;
 
 /*
  * point of interest for use in autos
@@ -15,7 +15,7 @@ public class AutoPOI {
     // an offset vector that dedfines how the robot should be lined up relative to the tag
     // NOTE - this is only used if the POI involves vision, like for the reef,
     // (tagId != -1)
-    public Transform2d desiredTagOffset;
+    public Translation2d desiredTagOffset;
     
     // the name of the POI
     public String name;
@@ -26,7 +26,7 @@ public class AutoPOI {
     }
 
     // initializing a POI with vision
-    public AutoPOI(Pose2d position, String name, int tagId, Transform2d tagOffset) {
+    public AutoPOI(Pose2d position, String name, int tagId, Translation2d tagOffset) {
         this.position = position;
         this.name = name;
         this.tagId = tagId;

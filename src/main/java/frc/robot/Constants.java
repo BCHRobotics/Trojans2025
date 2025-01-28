@@ -17,7 +17,6 @@ import frc.utils.TagTransform;
 import frc.utils.VisionUtils;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.math.geometry.Transform2d;
 
 
 /**
@@ -38,8 +37,9 @@ public final class Constants {
     // Ways to drive the robot
     public enum DriveModes {
       MANUAL,
-      ALIGNREEF,
-      HEADINGLOCK
+      ALIGNTELE,
+      HEADINGLOCK,
+      ALIGNAUTO,
     }
 
     // Driving Parameters - Note that these are not the maximum and minimum capable speeds of
@@ -90,11 +90,14 @@ public final class Constants {
   }
 
   public static final class VisionConstants{
+    public static final double allowedXError = 0.1;
+    public static final double allowedYError = 0.1;
+
     // camera names, transforms, etc.
     public static final String[] cameraNames = new String[] {"Front"};
     public static final CameraTransform[] cameraOffsets = 
     new CameraTransform[] {
-      new CameraTransform(0, 0, 0),
+      new CameraTransform(0.356, 0, 0),
     };
 
     // these are the actual ones for 2025
@@ -235,8 +238,8 @@ public final class Constants {
     };
 
     public static final AutoPOI[] fieldPOIs = new AutoPOI[] {
-      new AutoPOI(new Pose2d(5.762, 4.045, Rotation2d.fromDegrees(180)), "Reef4", 21, new Transform2d(0.3, 0, new Rotation2d())),
-      new AutoPOI(new Pose2d(3.740, 2.802, Rotation2d.fromDegrees(120)), "Reef6", 17, new Transform2d(0.3, 0, new Rotation2d())), // 
+      new AutoPOI(new Pose2d(5.762, 4.045, Rotation2d.fromDegrees(180)), "Reef4", 21, new Translation2d(0.3, 0)),
+      new AutoPOI(new Pose2d(3.740, 2.802, Rotation2d.fromDegrees(120)), "Reef6", 17, new Translation2d(0.3, 0)), // 
       new AutoPOI(new Pose2d(1.200, 7.100, Rotation2d.fromDegrees(126)), "Coral1"),
       new AutoPOI(new Pose2d(1.200, 7.100, Rotation2d.fromDegrees(-126)), "Coral2"),
     };

@@ -8,14 +8,14 @@ import java.io.IOException;
 
 import org.json.simple.parser.ParseException;
 
-import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.util.FileVersionException;
 
 import edu.wpi.first.math.MathUtil;
+import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.Constants.OIConstants;
-import frc.robot.commands.vision.AlignCenterCommand;
+import frc.robot.commands.vision.AlignTeleopCommand;
 import frc.robot.commands.drive.HeadingLockDriveCommand;
 import frc.robot.commands.drive.TeleopDriveCommand;
 import frc.robot.subsystems.Cameras;
@@ -43,9 +43,6 @@ public class RobotContainer {
 
     SendableChooser<String> controllerOptions;
 
-    // The auto chooser
-    private final SendableChooser<Command> autoChooser;
-
     /**
      * The container for the robot. Contains subsystems, OI devices, and commands.
      */
@@ -62,9 +59,6 @@ public class RobotContainer {
         controllerOptions.addOption("Xbox Controller", "XBOX");
         controllerOptions.addOption("Playstation Controller", "PS");
         SmartDashboard.putData("Controller Select", controllerOptions);
-
-        autoChooser = AutoBuilder.buildAutoChooser();
-        SmartDashboard.putData("Auto Chooser", autoChooser);
     }
 
     // Sets up the drivetrain for teleoperated driving
@@ -128,7 +122,21 @@ public class RobotContainer {
             // Reset Gyro
             m_mainController.triangle().onTrue(new InstantCommand(() -> m_robotDrive.zeroHeading()));
 
-            m_mainController.square().onTrue(new AlignCenterCommand(true, true, m_robotDrive, m_cameras));
+            m_mainController.square().onTrue(
+                new InstantCommand(() -> {
+                    if(m_cameras.isVisionActive) {
+                        new AlignTeleopCommand(
+                            18, 
+                            true, 
+                            true, 
+                            m_robotDrive, 
+                            m_cameras, 
+                            new Translation2d(0.3, 0)
+                            ).schedule();
+                        }
+                    })
+                    );
+
             m_mainController.circle().onTrue(new HeadingLockDriveCommand(
                 () -> -MathUtil.applyDeadband(m_mainController.getLeftY() * invert, 0.05),
             () -> -MathUtil.applyDeadband(m_mainController.getLeftX() * invert, 0.05),
@@ -141,7 +149,21 @@ public class RobotContainer {
             // Reset Gyro
             m_backupController.y().onTrue(new InstantCommand(() -> m_robotDrive.zeroHeading()));
 
-            m_backupController.x().onTrue(new AlignCenterCommand(true, true, m_robotDrive, m_cameras));
+            m_backupController.x().onTrue(
+                new InstantCommand(() -> {
+                    if(m_cameras.isVisionActive) {
+                        new AlignTeleopCommand(
+                            18, 
+                            true, 
+                            true, 
+                            m_robotDrive, 
+                            m_cameras, 
+                            new Translation2d(0.3, 0)
+                            ).schedule();
+                        }
+                    })
+                    );
+
             m_backupController.b().onTrue(new HeadingLockDriveCommand(
                 () -> -MathUtil.applyDeadband(m_backupController.getLeftY() * invert, 0.05),
             () -> -MathUtil.applyDeadband(m_backupController.getLeftX() * invert, 0.05),
@@ -171,10 +193,8 @@ public class RobotContainer {
     public Command getAutonomousCommand() throws FileVersionException, IOException, ParseException {
         // using the string provided by the user to build and run an auto
         return AutoUtils.actuallyBuildAutoFromCommands(
-            "move(Reef4)/path(Coral2)/path(Reef6)/path(Coral2)/path(Reef6)/path(Coral2)/path(Reef6)/path(Coral2)", m_robotDrive, m_cameras, 0
+            "move(Reef4)", m_robotDrive, m_cameras, 0
         );
-
-        //return autoChooser.getSelected();
     }
 
     /**
