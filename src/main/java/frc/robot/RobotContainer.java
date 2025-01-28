@@ -122,6 +122,10 @@ public class RobotContainer {
         }
         else {
             // TODO: copy these over
+            // XBOX CONTROLLER 
+            this.m_backupController.leftBumper().onTrue(m_robotDrive.setXCommand());
+            this.m_backupController.rightBumper().onTrue(new InstantCommand(() -> m_robotDrive.setSlowMode(true)));
+            this.m_backupController.rightBumper().onFalse(new InstantCommand(() -> m_robotDrive.setSlowMode(false)));
         }
     }
 

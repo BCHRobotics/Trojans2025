@@ -25,6 +25,8 @@ import frc.robot.Constants.DriveConstants;
 import frc.robot.Constants.DriveConstants.DriveModes;
 import frc.utils.SwerveUtils;
 import frc.utils.devices.AutoUtils;
+import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 public class Drivetrain extends SubsystemBase {
@@ -242,10 +244,16 @@ public class Drivetrain extends SubsystemBase {
    * This does not set the brake mode of the motors.
    */
   public void setX() {
+    
     m_frontLeft.setDesiredState(new SwerveModuleState(0, Rotation2d.fromDegrees(45)));
     m_frontRight.setDesiredState(new SwerveModuleState(0, Rotation2d.fromDegrees(-45)));
     m_rearLeft.setDesiredState(new SwerveModuleState(0, Rotation2d.fromDegrees(-45)));
     m_rearRight.setDesiredState(new SwerveModuleState(0, Rotation2d.fromDegrees(45)));
+  }
+
+  // command to set X
+  public Command setXCommand() {
+      return new InstantCommand(() -> setX());
   }
 
   /**
