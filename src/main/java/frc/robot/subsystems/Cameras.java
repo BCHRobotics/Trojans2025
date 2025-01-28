@@ -1,6 +1,5 @@
 package frc.robot.subsystems;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import org.photonvision.PhotonCamera;
@@ -36,6 +35,8 @@ public class Cameras extends SubsystemBase {
     // -----
     
     public Cameras() {
+
+        // initialize and fill any necessary arrays
         cameras = new PhotonCamera[VisionConstants.cameraNames.length];
         for (int i = 0; i < cameras.length; i++) {
             cameras[i] = new PhotonCamera(VisionConstants.cameraNames[i]);
@@ -117,6 +118,8 @@ public class Cameras extends SubsystemBase {
                 tagCount++;
             }
         }
+
+        // TODO: account for camera offsets
         
         return finalPose;
     }
@@ -145,19 +148,6 @@ public class Cameras extends SubsystemBase {
 
         SmartDashboard.putNumber("camera x", estimateRobotPoseManual().getX());
         SmartDashboard.putNumber("camera y", estimateRobotPoseManual().getY());
-
-        // if (getTagTestPosition(4) != null) {
-        //     SmartDashboard.putNumber("Tag X", getTagTestPosition(4).getX());
-        //     SmartDashboard.putNumber("Tag Y", getTagTestPosition(4).getY());
-
-        //     if (getFieldOrientedTagOffset(4) != null) {
-        //         SmartDashboard.putNumber("Offset X", getFieldOrientedTagOffset(4).getX());
-        //         SmartDashboard.putNumber("Offset Y", getFieldOrientedTagOffset(4).getY());
-        //     }
-
-        //     SmartDashboard.putNumber("Pose X", driveSubsystem.getPose().getX());
-        //     SmartDashboard.putNumber("Pose Y", driveSubsystem.getPose().getY());
-        // }
     }
 
     /*

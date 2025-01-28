@@ -1,5 +1,7 @@
 package frc.robot.commands.vision;
 
+import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.Constants.DriveConstants.DriveModes;
@@ -31,7 +33,13 @@ public class AlignAutoCommand extends Command {
 
    @Override
    public void execute() {
-   }
+        // set the odometry offset that is going to guide the robot towards the tag
+        Transform2d tagOffset = cameraSubsystem.getFieldOrientedTagOffset(tagId);
+
+        tagOffset = tagOffset.plus(new Transform2d(VisionUtils.applyRotationMatrix(desiredOffset, -driveSubsystem.getHeading()), new Rotation2d()));
+
+        driveSubsystem.setOdometryOffset(tagOffset.getTranslation().times(-1));
+    }
 
    @Override
    public void end(boolean interrupted) {

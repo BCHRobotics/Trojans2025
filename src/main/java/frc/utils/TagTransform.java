@@ -1,7 +1,5 @@
 package frc.utils;
 
-import static edu.wpi.first.units.Units.Rotation;
-
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 
@@ -25,6 +23,9 @@ public class TagTransform {
         zPosition = zPos;
     }
 
+    /*
+     * returns the 2D position of a tag, field-relative
+     */
     public Pose2d getPosition() {
         return new Pose2d(xPosition, yPosition, Rotation2d.fromDegrees(headingAngle));
     }

@@ -132,7 +132,7 @@ public class Drivetrain extends SubsystemBase {
   /*
    * get the pose, but with LYING involved
    */
-  public Pose2d getOffsetPose() {
+  public Pose2d getOffsetedPose() {
     return m_odometry.getPoseMeters().plus(new Transform2d(odometryOffset, new Rotation2d()));
   }
 
@@ -244,7 +244,7 @@ public class Drivetrain extends SubsystemBase {
      */
     double xSpeedDelivered = xSpeedCommanded * m_maxSpeed;
     double ySpeedDelivered = ySpeedCommanded * m_maxSpeed;
-    double rotDelivered = m_currentRotation * DriveConstants.kMaxAngularSpeed;
+    double rotDelivered = m_currentRotation * DriveConstants.maxAngularSpeed;
 
     SwerveModuleState[] swerveModuleStates = DriveConstants.kDriveKinematics.toSwerveModuleStates(
         fieldRelative
@@ -349,11 +349,11 @@ public class Drivetrain extends SubsystemBase {
    */
   public void setSpeedPercent() {
     if (m_slowMode) {
-      m_maxSpeed = DriveConstants.kMinSpeedMetersPerSecond;
+      m_maxSpeed = DriveConstants.maxSpeedSlow;
     } else if (m_fastMode) {
-      m_maxSpeed = DriveConstants.kMaxSpeedMetersPerSecond;
+      m_maxSpeed = DriveConstants.maxSpeedFast;
     } else {
-      m_maxSpeed = DriveConstants.a;
+      m_maxSpeed = DriveConstants.maxSpeedNormal;
     }
   }
 
