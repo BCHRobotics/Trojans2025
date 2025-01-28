@@ -10,6 +10,9 @@ import com.revrobotics.spark.config.ClosedLoopConfig.FeedbackSensor;
 import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
 import com.revrobotics.spark.config.SparkMaxConfig;
 import com.revrobotics.spark.SparkClosedLoopController;
+import com.revrobotics.spark.SparkLimitSwitch;
+
+
 
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -25,9 +28,10 @@ import frc.robot.Constants.ElevatorConstants;
 public class Elevator extends SubsystemBase{
     private static Elevator instance = null;
 
-    DigitalInput toplimitSwitch = new DigitalInput(0);
-    DigitalInput bottomlimitSwitch = new DigitalInput(1);
+    //DigitalInput toplimitSwitch = new DigitalInput(0);
+    //DigitalInput bottomlimitSwitch = new DigitalInput(1);
 
+    
     private final SparkMax kLeftMotor;
     private final SparkMax kRightMotor;
 
@@ -43,11 +47,13 @@ public class Elevator extends SubsystemBase{
     private double position;
     private double offset;
 
+    // LIMIT SWITCH
+    private SparkLimitSwitch toplimitSwitch;
+    private SparkLimitSwitch bottomlimitSwitch;
 
     public Elevator(){
         this.kLeftMotor = new SparkMax(ElevatorConstants.kLeftElevatorMotorCanId, MotorType.kBrushless);
         this.kRightMotor = new SparkMax(ElevatorConstants.kRightElevatorMotorCanId, MotorType.kBrushless);
-        
 
         //this.kLeftEncoder = kLeftMotor.getEncoder();
         this.kRightConfig.follow(kLeftMotor, true);
@@ -58,6 +64,10 @@ public class Elevator extends SubsystemBase{
         this.kRightConfig.idleMode(IdleMode.kBrake);
 
         this.kLeftController = kLeftMotor.getClosedLoopController();
+
+        // LIMIT SWITCH
+        toplimitSwitch = kLeftMotor.getForwardLimitSwitch(SparkLimitSwitch.Type.kNormallyOpen);
+        bottomlimitSwitch = kLeftMotor.getReverseLimitSwitch(SparkLimitSwitch.Type.kNormallyOpen);
 
         this.kLeftConfig.closedLoop.feedbackSensor(FeedbackSensor.kPrimaryEncoder).pid(
             Constants.ElevatorConstants.elevatorP,
