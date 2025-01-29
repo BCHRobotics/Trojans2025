@@ -48,7 +48,8 @@ public class Elevator extends SubsystemBase{
     // private final RelativeEncoder kLeftEncoder;
 
     private final SparkClosedLoopController kLeftController;
-    private double position;
+    //private double position;
+    private double current_encoder_pos;  // the current pos of the encoder, in rotations
     private double offset;
 
 
@@ -104,20 +105,27 @@ public class Elevator extends SubsystemBase{
         this.kLeftMotor.configure(kLeftConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
         this.kRightMotor.configure(kRightConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
 
-        this.position = kLeftMotor.getEncoder().getPosition();
+        this.current_encoder_pos = this.getEncoderPos();
     }
-
+    
     private void setLeftMotorPos(double pos) {
         // kLeftController.calculate(kLeftEncoder.getPosition(), pos);
+        // the amount of rotations the SPROCKET needs to reach the setpoint (pos) 
+        double sprocketRotations = pos / ElevatorConstants.kElevatorPulleyCircumference; 
+        // the amount of rotations the MOTOR needs to reach the setpoint (pos)
+        double motorRotations = sprocketRotations * ElevatorConstants.sprocketConversionFactor; 
+
         this.kLeftController.setReference(
-            (pos*ElevatorConstants.gearConversionFactor)/(2*Math.PI*Constants.ElevatorConstants.kElevatorPulleyRadius), 
+            (motorRotations), 
             SparkBase.ControlType.kMAXMotionPositionControl);
     }
 
     //public Command moveToPosition(double pos) {
     public void moveToPosition(double pos) {
         //return this.runOnce(() -> setLeftMotorPos(pos));
-        setLeftMotorPos(pos-offset);
+        // subtracting current encoder pos to get the distance needed to travel 
+        // Ex. Level 2 --> Level 3 is different from bottom -- > 3 level 3
+        setLeftMotorPos(pos - current_encoder_pos); 
     }
 
     public void cancelElevatorCommands() {
@@ -140,19 +148,24 @@ public class Elevator extends SubsystemBase{
 
         }
     }
- */  
+ */ 
+    // get's the encoder's current position in rotations
+    public double getEncoderPos() {
+        return this.kLeftMotor.getEncoder().getPosition();
+    }
 
     @Override
     public void periodic() {
         // This method will be called once per scheduler run
-        SmartDashboard.putNumber("Encoder Position", this.position);
+        //SmartDashboard.putNumber("Encoder Position", this.position);
         //setLeftMotorPos(10);
+        this.current_encoder_pos = this.getEncoderPos(); // getting the encoder pos
 
         // Display data from SPARK onto the dashboard
         SmartDashboard.putBoolean("Forward Limit Reached", toplimitSwitch.isPressed());
         SmartDashboard.putBoolean("Reverse Limit Reached", bottomlimitSwitch.isPressed());
         SmartDashboard.putNumber("Applied Output", kLeftMotor.getAppliedOutput());
-        SmartDashboard.putNumber("Position", kLeftMotor.getEncoder().getPosition());
+        SmartDashboard.putNumber("Encoder Position", this.current_encoder_pos);
        
        /* OLD LIMIT SWITCH CODE
         if (toplimitSwitch.get()) {

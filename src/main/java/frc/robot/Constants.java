@@ -86,18 +86,27 @@ public final class Constants {
   }
 
   public static final class ElevatorConstants {
+    // Elevator PID values
     public static final double elevatorP = 0.1;
     public static final double elevatorI = 0.0;
     public static final double elevatorD = 0.0;
 
+    // NOTE: CanIDs are for 2024 bot currently
     public static final int kLeftElevatorMotorCanId = 20;
-    public static final int kRightElevatorMotorCanId = 31;
+    public static final int kRightElevatorMotorCanId = 21; // 31
 
-    public static final int topSwitchPort = 0;
-    public static final int bottomSwitchPort = 1;
+    // NOTE: Comments below are ports if you use digital i/o via roboRIO for limit switches
+    //public static final int topSwitchPort = 0;
+    //public static final int bottomSwitchPort = 1;
 
-    public static final double elevatorStowedHeight = 0.0;
-    public static final double kElevatorPulleyRadius = 0.0;
+    public static final double elevatorStowedHeight = 0.0; // 0.0 is a placeholder for now
+
+    // distance from the sprocket's axel to the end of the chain around it (inches)
+    public static final double kElevatorPulleyRadius = 0.716; // diameter is 1.432 (from 2024 code) / 2 -> gets the radius
+    // distance around the chain around the sprocket
+    public static final double kElevatorPulleyCircumference = 2 * Math.PI * kElevatorPulleyRadius; // 2 x Π x r for circumfrance
+    // How many rotations of the MOTOR spins the sprocket ONCE
+    public static final double sprocketConversionFactor = 20; // rotations of motor, 20:1 as per 2024 code
 
     // creating hashmap to store elevator positions
     public static final HashMap<String, Double> ElevatorPositions = new HashMap<String, Double>();
@@ -109,15 +118,13 @@ public final class Constants {
     // adding elements to the hashmap, values are currenlty at 0.0 as a placeholder (need to get gear ratios)
     // Elevator Positions are in inches
     static {
-        
+        // NOTE: All positions are for testing currently
         ElevatorPositions.put("L1", elevatorStowedHeight);
-        ElevatorPositions.put("L2", 20.0 - elevatorStowedHeight);
-        ElevatorPositions.put("L3", 10.0 - elevatorStowedHeight);
-        ElevatorPositions.put("L4", 5.0 - elevatorStowedHeight);
-        ElevatorPositions.put("Intake",0.0); // to be changed
+        ElevatorPositions.put("L2", 15.0 - elevatorStowedHeight); // position is 15 inches
+        ElevatorPositions.put("L3", 10.0 - elevatorStowedHeight); // position is 10 inches
+        ElevatorPositions.put("L4", 5.0 - elevatorStowedHeight); // position is 5 inches
+        //ElevatorPositions.put("Intake",0.0); // to be changed
     }
-
-    public static final double gearConversionFactor = 5; // placeholder value
     
   }
 
