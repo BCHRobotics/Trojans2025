@@ -79,7 +79,7 @@ public class RobotContainer {
             m_robotDrive));
         }
         else {
-            
+
             m_robotDrive.setDefaultCommand(new TeleopDriveCommand(
             () -> -MathUtil.applyDeadband(m_mainController.getLeftY() * invert, 0.05),
             () -> -MathUtil.applyDeadband(m_mainController.getLeftX() * invert, 0.05),
@@ -161,9 +161,11 @@ public class RobotContainer {
             // testing motor moving
 
             // ELEVATOR POSITIONS BINDINGS
-            m_backupController.x().onTrue(new InstantCommand(() -> m_elevator.moveToPosition(ElevatorConstants.ElevatorPositions.get("L3"))));
+            // L3: m_backupController.x().onTrue(new InstantCommand(() -> m_elevator.moveToPosition(ElevatorConstants.ElevatorPositions.get("L3"))));
+            m_backupController.x().onTrue(this.m_elevator.setEncoderPos(0)); // resetting encoder position
+
             //m_backupController.x().onFalse(m_elevator.cancelElevatorCommands());
-            m_backupController.y().onTrue(new InstantCommand(() -> m_elevator.moveToPosition(ElevatorConstants.ElevatorPositions.get("L2"))));
+            m_backupController.y().onTrue(new InstantCommand(() -> m_elevator.moveToPosition(ElevatorConstants.ElevatorPositions.get("L3"))));
             m_backupController.a().onTrue(new InstantCommand(() -> m_elevator.moveToPosition(ElevatorConstants.ElevatorPositions.get("L1"))));
             m_backupController.b().onTrue(new InstantCommand(()-> m_elevator.cancelElevatorCommands()));
             

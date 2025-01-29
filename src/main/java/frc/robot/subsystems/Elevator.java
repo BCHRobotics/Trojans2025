@@ -15,7 +15,7 @@ import com.revrobotics.spark.SparkLimitSwitch;
 
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-
+import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 import frc.robot.Constants.ElevatorConstants;
@@ -42,8 +42,8 @@ public class Elevator extends SubsystemBase{
     private final SparkMaxConfig kLeftConfig; 
     private final SparkMaxConfig kRightConfig;
 
-    private final double maxVelocity = 250; //1000; // This is in rpm
-    private final double maxAcceleration = 10; // This is in rpm/second
+    private final double maxVelocity = 500; //1000; // This is in rpm
+    private final double maxAcceleration = 50; // 100 This is in rpm/second
 
     // private final RelativeEncoder kLeftEncoder;
 
@@ -112,6 +112,7 @@ public class Elevator extends SubsystemBase{
         this.kRightMotor.configure(kRightConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
 
         this.current_encoder_pos = this.getEncoderPos();
+        
     }
     
     private void setLeftMotorPos(double pos) {
@@ -140,6 +141,7 @@ public class Elevator extends SubsystemBase{
 
     public void moveToHomePosition() {
         this.moveToPosition(0);
+        this.kLeftMotor.getEncoder().setPosition(0); // setting the encoder positino to zero
     }
 /* OLD LIMIT SWITCH CODE
     public void calibrate() {
@@ -159,6 +161,11 @@ public class Elevator extends SubsystemBase{
     public double getEncoderPos() {
         return this.kLeftMotor.getEncoder().getPosition();
     }
+    // set the encoder pos
+    public Command setEncoderPos(double position) {
+        return runOnce(() -> this.kLeftMotor.getEncoder().setPosition(position));
+    }
+    
 
     @Override
     public void periodic() {
