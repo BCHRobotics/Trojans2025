@@ -37,7 +37,7 @@ public class RobotContainer {
     // The robot's subsystems
     private final Drivetrain m_robotDrive = new Drivetrain();
     private final Cameras m_cameras = new Cameras();
-    public final Elevator m_elevator;
+    public final Elevator m_elevator = Elevator.getInstance();
 
     // Driving controller
     CommandPS5Controller m_mainController = new CommandPS5Controller(OIConstants.kMainControllerPort);
@@ -49,7 +49,6 @@ public class RobotContainer {
      * The container for the robot. Contains subsystems, OI devices, and commands.
      */
     public RobotContainer() {
-        m_elevator = Elevator.getInstance();
         m_cameras.setDriveSubsystem(m_robotDrive);
 
         configureNamedCommands();
@@ -159,12 +158,14 @@ public class RobotContainer {
             m_backupController.rightBumper().onTrue(new InstantCommand(() -> m_robotDrive.setFastMode(true)));
             m_backupController.rightBumper().onFalse(new InstantCommand(() -> m_robotDrive.setFastMode(false)));
             // testing motor moving
+
+            // ELEVATOR POSITIONS BINDINGS
             m_backupController.x().onTrue(new InstantCommand(() -> m_elevator.moveToPosition(ElevatorConstants.ElevatorPositions.get("L3"))));
             //m_backupController.x().onFalse(m_elevator.cancelElevatorCommands());
-    
             m_backupController.y().onTrue(new InstantCommand(() -> m_elevator.moveToPosition(ElevatorConstants.ElevatorPositions.get("L2"))));
             m_backupController.a().onTrue(new InstantCommand(() -> m_elevator.moveToPosition(ElevatorConstants.ElevatorPositions.get("L1"))));
             m_backupController.b().onTrue(new InstantCommand(()-> m_elevator.cancelElevatorCommands()));
+            
         }
     }
     
@@ -188,7 +189,7 @@ public class RobotContainer {
     public void initLEDs() {
     }
 
-    public void initElevator() {
+   /* public void initElevator() {
         m_elevator.calibrate();
-    }
+    }*/
 }

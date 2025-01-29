@@ -81,7 +81,7 @@ public class Robot extends TimedRobot {
       m_autonomousCommand.andThen(() -> System.out.println("command finished")).schedule();
     }
 
-    m_robotContainer.m_elevator.calibrate();
+    //m_robotContainer.m_elevator.calibrate(); OLD LIMIT SWTICH STUFF
 
     final boolean isRed = DriverStation.getAlliance().get() == DriverStation.Alliance.Red;
 
