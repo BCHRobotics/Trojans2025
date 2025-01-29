@@ -239,7 +239,7 @@ public final class Constants {
 
     public static final AutoPOI[] fieldPOIs = new AutoPOI[] {
       new AutoPOI(new Pose2d(5.762, 4.045, Rotation2d.fromDegrees(180)), "Reef4", 21, new Translation2d(0.3, 0)),
-      new AutoPOI(new Pose2d(3.740, 2.802, Rotation2d.fromDegrees(120)), "Reef6", 17, new Translation2d(0.3, 0)), // 
+      new AutoPOI(new Pose2d(3.740, 2.802, Rotation2d.fromDegrees(120)), "Reef6", 17, new Translation2d(0.3, 0)),
       new AutoPOI(new Pose2d(1.200, 7.100, Rotation2d.fromDegrees(126)), "Coral1"),
       new AutoPOI(new Pose2d(1.200, 7.100, Rotation2d.fromDegrees(-126)), "Coral2"),
     };

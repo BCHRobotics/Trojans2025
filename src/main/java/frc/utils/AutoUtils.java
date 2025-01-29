@@ -29,7 +29,6 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import frc.robot.Constants;
 import frc.robot.Constants.AutoConstants;
-import frc.robot.commands.vision.AlignAutoCommand;
 import frc.robot.subsystems.Cameras;
 import frc.robot.subsystems.Drivetrain;
 
@@ -157,7 +156,7 @@ public class AutoUtils {
 
         Command autoCommand = Commands.runOnce(() -> driveSubsystem.resetOdometry(commandedStartingPose));
         RobotConfig robotConfig = geRobotConfig();
-
+        if (commands == null) {return autoCommand;}
         // looping through the commands and adding them one by one to the path
         // NOTE - we are ending up with one path, essentially "baking" everything together to make it smoother
         for (int i = 0; i < commands.length; i++) {
@@ -211,7 +210,7 @@ public class AutoUtils {
     public static Command constructPathCommand(PathPlannerPath path, Drivetrain driveSubsystem, RobotConfig config) {
         return new FollowPathCommand(
             path,
-            driveSubsystem::getOffsetedPose, // Robot pose supplier
+            driveSubsystem::getCompositePose, // Robot pose supplier
             driveSubsystem::getChassisSpeeds, // ChassisSpeeds supplier. MUST BE ROBOT RELATIVE
             driveSubsystem::setChassisSpeeds, // Method that will drive the robot given ROBOT RELATIVE ChassisSpeeds, AND feedforwards
             new PPHolonomicDriveController(
@@ -244,19 +243,19 @@ public class AutoUtils {
         List<EventMarker> eventMarkers = new LinkedList<EventMarker>();
 
         // checking if the finish POI involves a tag
-        if (finish.tagId != -1) {
-            eventMarkers.add(
-            new EventMarker(
-                "Activate Vision", 
-            0.5,
-            -1,
-            new AlignAutoCommand(
-                finish.tagId, 
-                finish.desiredTagOffset, 
-                driveSubsystem, 
-                cameraSubsystem))
-            );
-        }
+        // if (finish.tagId != -1) {
+        //     eventMarkers.add(
+        //     new EventMarker(
+        //         "Activate Vision", 
+        //     0.5,
+        //     -1,
+        //     new AlignAutoCommand(
+        //         finish.tagId, 
+        //         finish.desiredTagOffset, 
+        //         driveSubsystem, 
+        //         cameraSubsystem))
+        //     );
+        // }
 
         // construct the path using the POIs and the built-in constructor
         PathPlannerPath toReturn = new PathPlannerPath(

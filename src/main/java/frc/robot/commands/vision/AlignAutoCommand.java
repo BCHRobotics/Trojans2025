@@ -29,6 +29,10 @@ public class AlignAutoCommand extends Command {
     System.out.println("AUTO-ALIGN ON");
        // Set the drive mode
        driveSubsystem.setDriveMode(DriveModes.ALIGNAUTO);
+       
+       System.out.println("----------");
+       System.out.println(desiredOffset);
+       System.out.println("----------");
    }
 
    @Override

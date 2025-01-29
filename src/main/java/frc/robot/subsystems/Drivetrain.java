@@ -6,6 +6,10 @@ package frc.robot.subsystems;
 
 import com.studica.frc.AHRS;
 import com.studica.frc.AHRS.NavXComType;
+
+import java.util.LinkedList;
+import java.util.List;
+
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.config.RobotConfig;
 import com.pathplanner.lib.controllers.PPHolonomicDriveController;
@@ -22,11 +26,13 @@ import edu.wpi.first.math.kinematics.SwerveDriveOdometry;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.util.WPIUtilJNI;
+import edu.wpi.first.wpilibj.Timer;
 import frc.robot.Constants;
 import frc.robot.Constants.DriveConstants;
 import frc.robot.Constants.DriveConstants.DriveModes;
 import frc.utils.AutoUtils;
 import frc.utils.SwerveUtils;
+import frc.utils.VisionCapture;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 public class Drivetrain extends SubsystemBase {
@@ -78,6 +84,15 @@ public class Drivetrain extends SubsystemBase {
 
   private Translation2d odometryOffset = new Translation2d(0, 0);
 
+  private List<VisionCapture> visionPoses = new LinkedList<VisionCapture>();
+  private Transform2d visionPose = null ;
+
+  private double visionFadeTime = 2;
+  private double visionUpdateTime = 2;
+  private double lastVisionUpdate;
+
+  private double visionCoefficient = 0.5;
+
   // Odometry class for tracking robot pose
   SwerveDriveOdometry m_odometry = new SwerveDriveOdometry(
       DriveConstants.kDriveKinematics,
@@ -103,8 +118,45 @@ public class Drivetrain extends SubsystemBase {
     driveMode = modeToSet;
   }
 
+  public void addVisionMeasurement(Pose2d visionMeasurement) {
+    visionPoses.add(new VisionCapture(visionMeasurement, getPose()));
+  }
+
+  public void removeOldVisionMeasurements() {
+    for (int i = 0; i < visionPoses.size(); i++) {
+      if (visionPoses.get(i).timeTaken < Timer.getFPGATimestamp() - visionFadeTime) {
+        visionPoses.remove(i);
+        break;
+      }
+    }
+  }
+
+  public void updateVisionPose() {
+    if (visionPoses.size() == 0) {return;}
+    
+    Transform2d averageVisionPose = new Transform2d(0, 0, new Rotation2d());
+    for (int i = 0; i < visionPoses.size(); i++) {
+      VisionCapture capture = visionPoses.get(i);
+      Transform2d visionOffset = capture.visionMeasurement.minus(capture.odometryMeasurement);
+
+      averageVisionPose = averageVisionPose.plus(visionOffset);
+    }
+
+    averageVisionPose = averageVisionPose.div(visionPoses.size());
+
+    visionPose = averageVisionPose;
+  }
+
   @Override
   public void periodic() {
+    // get rid of any outdated pose estimation measurements
+    removeOldVisionMeasurements();
+
+    if (Timer.getFPGATimestamp() > lastVisionUpdate + visionUpdateTime) {
+      updateVisionPose();
+      lastVisionUpdate = Timer.getFPGATimestamp();
+    }
+
     // Set the max speed of the bot
     setSpeedPercent();
 
@@ -143,6 +195,19 @@ public class Drivetrain extends SubsystemBase {
    */
   public Pose2d getPose() {
     return m_odometry.getPoseMeters();
+  }
+
+  /*
+   * odometry and vision
+   */
+  public Pose2d getCompositePose() {
+    if (visionPose != null) {
+      return m_odometry.getPoseMeters().plus(visionPose.times(visionCoefficient));
+    }
+    else {
+      return m_odometry.getPoseMeters();
+    }
+      
   }
 
   /**
