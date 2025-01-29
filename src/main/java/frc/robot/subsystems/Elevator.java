@@ -42,8 +42,8 @@ public class Elevator extends SubsystemBase{
     private final SparkMaxConfig kLeftConfig; 
     private final SparkMaxConfig kRightConfig;
 
-    private final double maxVelocity = 1000; // This is in rpm
-    private final double maxAcceleration = 1000; // This is in rpm/second
+    private final double maxVelocity = 250; //1000; // This is in rpm
+    private final double maxAcceleration = 10; // This is in rpm/second
 
     // private final RelativeEncoder kLeftEncoder;
 
@@ -51,7 +51,7 @@ public class Elevator extends SubsystemBase{
     //private double position;
     private double current_encoder_pos;  // the current pos of the encoder, in rotations
     private double offset;
-
+    private double motorRotations; // motor rotations to reach setpoint
 
     public Elevator(){
         this.kLeftMotor = new SparkMax(ElevatorConstants.kLeftElevatorMotorCanId, MotorType.kBrushless);
@@ -59,10 +59,17 @@ public class Elevator extends SubsystemBase{
 
         this.kLeftConfig = new SparkMaxConfig();
         this.kRightConfig = new SparkMaxConfig();
+
+        this.kLeftConfig.openLoopRampRate(0.05);
+        this.kRightConfig.openLoopRampRate(0.05);
+
+        this.kLeftConfig.smartCurrentLimit(60, 20);
+        this.kRightConfig.smartCurrentLimit(60, 20);
         // LIMIT SWITCH
         toplimitSwitch = kLeftMotor.getForwardLimitSwitch();
         bottomlimitSwitch = kLeftMotor.getReverseLimitSwitch();
         // Enable limit switches to stop the motor when they are closed
+        
         kLeftConfig.limitSwitch
         .forwardLimitSwitchType(Type.kNormallyOpen) // setting limit switchs to be normally open, 
         .forwardLimitSwitchEnabled(true) // setting limit switches to be enabled, so they shutdown motor when clicked
@@ -74,8 +81,7 @@ public class Elevator extends SubsystemBase{
 
         //this.kLeftEncoder = kLeftMotor.getEncoder();
         this.kRightConfig.follow(kLeftMotor, true);
-
-        this.kLeftConfig.inverted(false);
+        this.kLeftConfig.inverted(true); 
 
         this.kLeftConfig.idleMode(IdleMode.kBrake);
         this.kRightConfig.idleMode(IdleMode.kBrake);
@@ -113,7 +119,7 @@ public class Elevator extends SubsystemBase{
         // the amount of rotations the SPROCKET needs to reach the setpoint (pos) 
         double sprocketRotations = pos / ElevatorConstants.kElevatorPulleyCircumference; 
         // the amount of rotations the MOTOR needs to reach the setpoint (pos)
-        double motorRotations = sprocketRotations * ElevatorConstants.sprocketConversionFactor; 
+        this.motorRotations = sprocketRotations * ElevatorConstants.sprocketConversionFactor; 
 
         this.kLeftController.setReference(
             (motorRotations), 
@@ -166,7 +172,8 @@ public class Elevator extends SubsystemBase{
         SmartDashboard.putBoolean("Reverse Limit Reached", bottomlimitSwitch.isPressed());
         SmartDashboard.putNumber("Applied Output", kLeftMotor.getAppliedOutput());
         SmartDashboard.putNumber("Encoder Position", this.current_encoder_pos);
-       
+        
+        SmartDashboard.putNumber("Setpoint Rotations", motorRotations); // printing out the refrence
        /* OLD LIMIT SWITCH CODE
         if (toplimitSwitch.get()) {
             // We are going up and top limit is tripped so stop

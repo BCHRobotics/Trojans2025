@@ -120,9 +120,9 @@ public final class Constants {
     static {
         // NOTE: All positions are for testing currently
         ElevatorPositions.put("L1", elevatorStowedHeight);
-        ElevatorPositions.put("L2", 15.0 - elevatorStowedHeight); // position is 15 inches
-        ElevatorPositions.put("L3", 10.0 - elevatorStowedHeight); // position is 10 inches
-        ElevatorPositions.put("L4", 5.0 - elevatorStowedHeight); // position is 5 inches
+        ElevatorPositions.put("L2", 10.0 - elevatorStowedHeight); // position is 15 inches
+        ElevatorPositions.put("L3", 15.0 - elevatorStowedHeight); // position is 10 inches
+        ElevatorPositions.put("L4", 20.0 - elevatorStowedHeight); // position is 5 inches
         //ElevatorPositions.put("Intake",0.0); // to be changed
     }
     

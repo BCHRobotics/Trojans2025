@@ -79,6 +79,7 @@ public class RobotContainer {
             m_robotDrive));
         }
         else {
+            
             m_robotDrive.setDefaultCommand(new TeleopDriveCommand(
             () -> -MathUtil.applyDeadband(m_mainController.getLeftY() * invert, 0.05),
             () -> -MathUtil.applyDeadband(m_mainController.getLeftX() * invert, 0.05),
@@ -151,7 +152,7 @@ public class RobotContainer {
             ));
 
             // Slow mode command (Left Bumper)
-            m_backupController.leftBumper().onTrue(new InstantCommand(() -> m_robotDrive.setSlowMode(true)));
+            m_backupController.rightBumper().onTrue(new InstantCommand(() -> m_robotDrive.setSlowMode(true)));
             m_backupController.leftBumper().onFalse(new InstantCommand(() -> m_robotDrive.setSlowMode(false)));
 
             // Fast mode command (Right Bumper)
