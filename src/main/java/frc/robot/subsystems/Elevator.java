@@ -42,8 +42,8 @@ public class Elevator extends SubsystemBase{
     private final SparkMaxConfig kLeftConfig; 
     private final SparkMaxConfig kRightConfig;
 
-    private final double maxVelocity = 500; //1000; // This is in rpm
-    private final double maxAcceleration = 50; // 100 This is in rpm/second
+    private final double maxVelocity = 400;   //1000; // This is in rpm
+    private final double maxAcceleration = 200;     //100 This is in rpm/second
 
     // private final RelativeEncoder kLeftEncoder;
 
@@ -67,7 +67,7 @@ public class Elevator extends SubsystemBase{
         this.kRightConfig.smartCurrentLimit(60, 20);
         // LIMIT SWITCH
         toplimitSwitch = kLeftMotor.getForwardLimitSwitch();
-        bottomlimitSwitch = kRightMotor.getReverseLimitSwitch();
+        bottomlimitSwitch = kLeftMotor.getReverseLimitSwitch();
         // Enable limit switches to stop the motor when they are closed
         
         kLeftConfig.limitSwitch
@@ -118,6 +118,7 @@ public class Elevator extends SubsystemBase{
         
     }
     
+    // position in inches
     private void setLeftMotorPos(double pos) {
         // kLeftController.calculate(kLeftEncoder.getPosition(), pos);
         // the amount of rotations the SPROCKET needs to reach the setpoint (pos) 
@@ -147,14 +148,27 @@ public class Elevator extends SubsystemBase{
         this.kLeftMotor.getEncoder().setPosition(0); // setting the encoder positino to zero
     }
 
+    // returning a run Command that spins the motors -5 inches, which will be canceled when limit swtich is clicked
+    public Command calibrate() {
+        return this.run(() -> this.moveToPosition(0))
+        .andThen(()->this.moveToPosition(kLeftMotor.getEncoder().getPosition()-1))
+        .until(()->bottomlimitSwitch.isPressed())
+        .andThen(()->setOffset());
+       //andThen(() -> this.moveToPosition(1)); 
+    }
+
+    public void setOffset(){
+        offset = kLeftMotor.getEncoder().getPosition();
+    }
+    /* 
     public void calibrate() {
-        this.setLeftMotorPos(10);
+        this.setLeftMotorPos(50);
         while (!bottomlimitSwitch.isPressed()){
             this.setLeftMotorPos(kLeftMotor.getEncoder().getPosition()-1);
         }
         offset = kLeftMotor.getEncoder().getPosition();
-        this.setLeftMotorPos(10);
-    }
+        //this.setLeftMotorPos(10);
+    }*/
 /*  
     private void limitChecking() {
         if ((toplimitSwitch.isPressed() || bottomlimitSwitch.isPressed()) && !) { // if top or bottom limit swtiches are pressed
