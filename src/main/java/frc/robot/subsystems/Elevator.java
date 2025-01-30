@@ -50,7 +50,7 @@ public class Elevator extends SubsystemBase{
     private final SparkClosedLoopController kLeftController;
     //private double position;
     private double current_encoder_pos;  // the current pos of the encoder, in rotations
-    private double offset;
+    private double offset =0;
     private double motorRotations; // motor rotations to reach setpoint
 
     public Elevator(){
@@ -67,12 +67,15 @@ public class Elevator extends SubsystemBase{
         this.kRightConfig.smartCurrentLimit(60, 20);
         // LIMIT SWITCH
         toplimitSwitch = kLeftMotor.getForwardLimitSwitch();
-        bottomlimitSwitch = kLeftMotor.getReverseLimitSwitch();
+        bottomlimitSwitch = kRightMotor.getReverseLimitSwitch();
         // Enable limit switches to stop the motor when they are closed
         
         kLeftConfig.limitSwitch
         .forwardLimitSwitchType(Type.kNormallyOpen) // setting limit switchs to be normally open, 
-        .forwardLimitSwitchEnabled(true) // setting limit switches to be enabled, so they shutdown motor when clicked
+        .forwardLimitSwitchEnabled(true); // setting limit switches to be enabled, so they shutdown motor when clicked
+        
+        // You can only attach one limit switch to a breakout board
+        kRightConfig.limitSwitch
         .reverseLimitSwitchType(Type.kNormallyOpen)
         .reverseLimitSwitchEnabled(true);
 
@@ -120,10 +123,10 @@ public class Elevator extends SubsystemBase{
         // the amount of rotations the SPROCKET needs to reach the setpoint (pos) 
         double sprocketRotations = pos / ElevatorConstants.kElevatorPulleyCircumference; 
         // the amount of rotations the MOTOR needs to reach the setpoint (pos)
-        this.motorRotations = sprocketRotations * ElevatorConstants.sprocketConversionFactor; 
+        motorRotations = sprocketRotations * ElevatorConstants.sprocketConversionFactor; 
 
         this.kLeftController.setReference(
-            (motorRotations), 
+            motorRotations - offset, 
             SparkBase.ControlType.kMAXMotionPositionControl);
     }
 
@@ -132,7 +135,7 @@ public class Elevator extends SubsystemBase{
         //return this.runOnce(() -> setLeftMotorPos(pos));
         // subtracting current encoder pos to get the distance needed to travel 
         // Ex. Level 2 --> Level 3 is different from bottom -- > 3 level 3
-        setLeftMotorPos(pos - current_encoder_pos); 
+        setLeftMotorPos(pos - ElevatorConstants.elevatorStowedHeightInches); 
     }
 
     public void cancelElevatorCommands() {
@@ -143,13 +146,15 @@ public class Elevator extends SubsystemBase{
         this.moveToPosition(0);
         this.kLeftMotor.getEncoder().setPosition(0); // setting the encoder positino to zero
     }
-/* OLD LIMIT SWITCH CODE
+
     public void calibrate() {
-        while (!bottomlimitSwitch.get()){
-            this.setLeftMotorPos(-1);
+        this.setLeftMotorPos(10);
+        while (!bottomlimitSwitch.isPressed()){
+            this.setLeftMotorPos(kLeftMotor.getEncoder().getPosition()-1);
         }
         offset = kLeftMotor.getEncoder().getPosition();
-    }*/
+        this.setLeftMotorPos(10);
+    }
 /*  
     private void limitChecking() {
         if ((toplimitSwitch.isPressed() || bottomlimitSwitch.isPressed()) && !) { // if top or bottom limit swtiches are pressed
@@ -165,9 +170,10 @@ public class Elevator extends SubsystemBase{
     public Command setEncoderPos(double position) {
         return runOnce(() -> this.kLeftMotor.getEncoder().setPosition(position));
     }
-    
 
     @Override
+
+
     public void periodic() {
         // This method will be called once per scheduler run
         //SmartDashboard.putNumber("Encoder Position", this.position);
@@ -184,12 +190,12 @@ public class Elevator extends SubsystemBase{
        /* OLD LIMIT SWITCH CODE
         if (toplimitSwitch.get()) {
             // We are going up and top limit is tripped so stop
-            kLeftMotor.set(0);
+            kLeftMotor.stopMotor();
         }
 
         if (bottomlimitSwitch.get()) {
             // We are going up and top limit is tripped so stop
-            kLeftMotor.set(0);
+            kLeftMotor.stopMotor(0);
         }
         */
 

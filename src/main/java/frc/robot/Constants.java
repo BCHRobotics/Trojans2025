@@ -99,7 +99,7 @@ public final class Constants {
     //public static final int topSwitchPort = 0;
     //public static final int bottomSwitchPort = 1;
 
-    public static final double elevatorStowedHeight = 0.0; // 0.0 is a placeholder for now
+    public static final double elevatorStowedHeightInches = 0.0; // 0.0 is a placeholder for now
 
     // distance from the sprocket's axel to the end of the chain around it (inches)
     public static final double kElevatorPulleyRadius = 0.716; // diameter is 1.432 (from 2024 code) / 2 -> gets the radius
@@ -119,10 +119,10 @@ public final class Constants {
     // Elevator Positions are in inches
     static {
         // NOTE: All positions are for testing currently
-        ElevatorPositions.put("L1", elevatorStowedHeight);
-        ElevatorPositions.put("L2", 10.0 - elevatorStowedHeight); // position is 15 inches
-        ElevatorPositions.put("L3", 15.0 - elevatorStowedHeight); // position is 10 inches
-        ElevatorPositions.put("L4", 20.0 - elevatorStowedHeight); // position is 5 inches
+        ElevatorPositions.put("L1", elevatorStowedHeightInches);
+        ElevatorPositions.put("L2", 10.0 - elevatorStowedHeightInches); // position is 15 inches
+        ElevatorPositions.put("L3", 15.0 - elevatorStowedHeightInches); // position is 10 inches
+        ElevatorPositions.put("L4", 20.0 - elevatorStowedHeightInches); // position is 5 inches
         //ElevatorPositions.put("Intake",0.0); // to be changed
     }
     
