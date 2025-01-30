@@ -154,6 +154,11 @@ public class AutoUtils {
         // reset odometry to the defined starting pose
         final Pose2d commandedStartingPose = oldPOI.position;
 
+        // debug the estimated pose
+        SmartDashboard.putNumber("estimated x", commandedStartingPose.getX());
+        SmartDashboard.putNumber("estimated y", commandedStartingPose.getY());
+        SmartDashboard.putNumber("estimated rot", commandedStartingPose.getRotation().getDegrees());
+
         Command autoCommand = Commands.runOnce(() -> driveSubsystem.resetOdometry(commandedStartingPose));
         RobotConfig robotConfig = geRobotConfig();
         if (commands == null) {return autoCommand;}
@@ -369,49 +374,5 @@ public class AutoUtils {
         String[] toReturn = new String[input.size()];
         for (int i = 0; i < toReturn.length; i++) {toReturn[i] = input.get(i);}
         return toReturn;
-    }
-
-    // ----------------------------------
-
-    // DEPRECATED FUNCTIONS
-
-    // public static List<RotationTarget> addToList(List<RotationTarget> currentList, RotationTarget elementToAdd) {
-    //     ArrayList<RotationTarget> toReturn = new ArrayList<>(currentList.size() + 1);
-    //     for (int i = 0; i < currentList.size(); i++) {
-    //         toReturn.add(currentList.get(i));
-    //     }
-
-    //     toReturn.add(elementToAdd);
-    //     return toReturn;
-    // }
-
-    // /*
-    //  * (SEMI) UNTESTED FUNCTION
-    //  * combine two pathplanner paths into one, using the end state from the second and the start state from the first
-    //  * event markers are not handled
-    //  */
-    // public static PathPlannerPath combinePaths(PathPlannerPath a, PathPlannerPath b) {
-    //     // define what points are already a part of the final path and what ones are to be added
-    //     List<Waypoint> waypoints = getStitchedPathWaypoints(a,b);
-
-    //     List<RotationTarget> rotationTargets = a.getRotationTargets();
-
-    //     rotationTargets = addToList(rotationTargets, new RotationTarget(a.getPathPoses().size() - 1, a.getGoalEndState().rotation()));
-    //     for (int j = 0; j < b.getRotationTargets().size(); j++) {
-    //         rotationTargets = addToList(rotationTargets, b.getRotationTargets().get(j));
-    //     }
-        
-    //     PathPlannerPath toReturn = new PathPlannerPath(
-    //                 waypoints,
-    //                 rotationTargets,
-    //                 Collections.emptyList(),
-    //                 Collections.emptyList(),
-    //                 Collections.emptyList(),
-    //                 a.getGlobalConstraints(), 
-    //                 a.getIdealStartingState(), 
-    //                 b.getGoalEndState(), 
-    //                 false);
-
-    //     return toReturn;
-    // }   
+    } 
 }

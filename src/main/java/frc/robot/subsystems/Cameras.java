@@ -33,6 +33,7 @@ public class Cameras extends SubsystemBase {
     // USEFUL IF THE COPROCESSOR ISN'T PLUGGED IN!!!
     // -----
     public boolean isVisionActive = true;
+    public boolean periodicPoseEstimation = false;
     // -----
     
     public Cameras() {
@@ -61,7 +62,9 @@ public class Cameras extends SubsystemBase {
             // print any relevant debug data to the dashboard
             printToDashboard();
 
-            //updateOdometry();
+            if (periodicPoseEstimation) {
+                updateOdometry();
+            }
         }
     }
 
@@ -120,8 +123,6 @@ public class Cameras extends SubsystemBase {
             }
         }
 
-        System.out.println(finalPose);
-
         finalPose = finalPose.div(tagCount);
         
         // figuring out the field-relative position of the camera relative to the bot
@@ -152,8 +153,6 @@ public class Cameras extends SubsystemBase {
      * printing debug stuff to the dashboard
      */
     public void printToDashboard() {
-        SmartDashboard.putNumber("pose x", driveSubsystem.getCompositePose().getX());
-        SmartDashboard.putNumber("pose y", driveSubsystem.getCompositePose().getY());
     }
 
     /*
