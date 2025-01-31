@@ -83,6 +83,8 @@ public class Robot extends TimedRobot {
       m_autonomousCommand.andThen(() -> System.out.println("command finished")).schedule();
     }
 
+    m_robotContainer.m_elevator.calibrate(); // calibrates the elevator
+
     final boolean isRed = DriverStation.getAlliance().get() == DriverStation.Alliance.Red;
 
 
@@ -113,15 +115,6 @@ public class Robot extends TimedRobot {
     //new InstantCommand(()-> m_robotContainer.m_elevator.calibrate());
 //  Command calibrationCommand = m_robotContainer.m_elevator.calibrate(); // spinning robot up
 //  CommandScheduler.getInstance().schedule(calibrationCommand);
-    
-    //Command setZeroCommand = m_robotContainer.m_elevator.setEncoderPos(0);
-    //CommandScheduler.getInstance().schedule(setZeroCommand);
-    Command zeroElevatorCommand = this.m_robotContainer.m_elevator.zeroElevator();
-    CommandScheduler.getInstance().cancelAll(); // cancelling all commands first 
-    CommandScheduler.getInstance().schedule(zeroElevatorCommand);
- // CANCELLING ALL COMMANDS AT THE START
-    //CommandScheduler.getInstance().cancelAll();
-    
     
   }
 
