@@ -51,7 +51,7 @@ public class Elevator extends SubsystemBase{
     //private double position;
     private double current_encoder_pos;  // the current pos of the encoder, in rotations
     private double offset =0;
-    private double motorRotations; // motor rotations to reach setpoint
+    private double setpointRotations; // motor rotations to reach setpoint
 
     public Elevator(){
         this.kLeftMotor = new SparkMax(ElevatorConstants.kLeftElevatorMotorCanId, MotorType.kBrushless);
@@ -124,14 +124,15 @@ public class Elevator extends SubsystemBase{
         // the amount of rotations the SPROCKET needs to reach the setpoint (pos) 
         double sprocketRotations = pos / ElevatorConstants.kElevatorPulleyCircumference; 
         // the amount of rotations the MOTOR needs to reach the setpoint (pos)
-        motorRotations = sprocketRotations * ElevatorConstants.sprocketConversionFactor; 
+        this.setpointRotations = sprocketRotations * ElevatorConstants.sprocketConversionFactor; 
 
         this.kLeftController.setReference(
-            motorRotations - offset, 
+            this.setpointRotations - offset, 
             SparkBase.ControlType.kMAXMotionPositionControl);
     }
 
     //public Command moveToPosition(double pos) {
+    // pos is in inches!
     public void moveToPosition(double pos) {
         //return this.runOnce(() -> setLeftMotorPos(pos));
         // subtracting current encoder pos to get the distance needed to travel 
@@ -141,22 +142,32 @@ public class Elevator extends SubsystemBase{
 
     public void cancelElevatorCommands() {
         this.kLeftMotor.stopMotor();
+         // setting the setpoint to current pos
+    }
+
+    public Command zeroElevator() {
+        this.setEncoderPos(0); // setting the encoder pos to zero
+
+        return this.runOnce(() -> {
+            this.moveToPosition(1); // moving up 1 inch up for testing
+            
+        });
     }
 
     public void moveToHomePosition() {
         this.moveToPosition(0);
         this.kLeftMotor.getEncoder().setPosition(0); // setting the encoder positino to zero
     }
-
+/* 
     // returning a run Command that spins the motors -5 inches, which will be canceled when limit swtich is clicked
     public Command calibrate() {
-        return this.run(() -> this.moveToPosition(0))
+        return this.run(() -> this.moveToPosition(5))
         .andThen(()->this.moveToPosition(kLeftMotor.getEncoder().getPosition()-1))
         .until(()->bottomlimitSwitch.isPressed())
         .andThen(()->setOffset());
        //andThen(() -> this.moveToPosition(1)); 
     }
-
+*/
     public void setOffset(){
         offset = kLeftMotor.getEncoder().getPosition();
     }
@@ -180,27 +191,37 @@ public class Elevator extends SubsystemBase{
     public double getEncoderPos() {
         return this.kLeftMotor.getEncoder().getPosition();
     }
+
+    public double getEncoderPosInches() {
+        // Get encoder position in motor rotations
+        double EncodermotorRotations = this.kLeftMotor.getEncoder().getPosition();    
+        // Convert motor rotations to sprocket rotations
+        double sprocketRotations = EncodermotorRotations / ElevatorConstants.sprocketConversionFactor;
+        // Convert sprocket rotations to inches
+        double encoderPosInches = sprocketRotations * ElevatorConstants.kElevatorPulleyCircumference;
+        
+        return encoderPosInches;
+    }
+
     // set the encoder pos
     public Command setEncoderPos(double position) {
         return runOnce(() -> this.kLeftMotor.getEncoder().setPosition(position));
     }
 
     @Override
-
-
     public void periodic() {
         // This method will be called once per scheduler run
         //SmartDashboard.putNumber("Encoder Position", this.position);
         //setLeftMotorPos(10);
-        this.current_encoder_pos = this.getEncoderPos(); // getting the encoder pos
-
-        // Display data from SPARK onto the dashboard
-        SmartDashboard.putBoolean("Forward Limit Reached", toplimitSwitch.isPressed());
-        SmartDashboard.putBoolean("Reverse Limit Reached", bottomlimitSwitch.isPressed());
-        SmartDashboard.putNumber("Applied Output", kLeftMotor.getAppliedOutput());
+        this.current_encoder_pos = this.getEncoderPos();
+        // stuff for debugging
+        SmartDashboard.putBoolean("Forward Limit Reached", this.toplimitSwitch.isPressed());
+        SmartDashboard.putBoolean("Reverse Limit Reached", this.bottomlimitSwitch.isPressed());
+        SmartDashboard.putNumber("Applied Output", this.kLeftMotor.getAppliedOutput());
         SmartDashboard.putNumber("Encoder Position", this.current_encoder_pos);
-        
-        SmartDashboard.putNumber("Setpoint Rotations", motorRotations); // printing out the refrence
+        SmartDashboard.putNumber("Setpoint Rotations", this.setpointRotations);
+        SmartDashboard.putNumber("Offset", this.offset); // Debug offset
+
        /* OLD LIMIT SWITCH CODE
         if (toplimitSwitch.get()) {
             // We are going up and top limit is tripped so stop
