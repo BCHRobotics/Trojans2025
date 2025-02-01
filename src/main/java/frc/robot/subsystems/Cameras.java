@@ -103,19 +103,15 @@ public class Cameras extends SubsystemBase {
 
         int tagCount = 0;
 
-        SmartDashboard.putNumber("visible tag count", fieldRelativeOffsets.length);
-
         for (int i = 1; i < fieldRelativeOffsets.length; i++) {
             if (fieldRelativeOffsets[i] != null && tagCount == 0) {
                 Pose2d offset = new Pose2d(fieldRelativeOffsets[i].getX(), 
                 fieldRelativeOffsets[i].getY(), 
                 fieldRelativeOffsets[i].getRotation());
 
-                SmartDashboard.putNumber("offset x", offset.getX());
+                SmartDashboard.putNumber("tag id", i);
 
                 Pose2d tagPosition = VisionConstants.tagTransforms[i].getPosition();
-
-                SmartDashboard.putNumber("static tag x", tagPosition.getX());
 
                 Transform2d estimatedPosition = new Transform2d(
                     tagPosition.getX() - offset.getX(),
