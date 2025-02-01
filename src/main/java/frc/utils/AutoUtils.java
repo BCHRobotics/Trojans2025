@@ -154,11 +154,6 @@ public class AutoUtils {
         // reset odometry to the defined starting pose
         final Pose2d commandedStartingPose = oldPOI.position;
 
-        // debug the estimated pose
-        SmartDashboard.putNumber("estimated x", commandedStartingPose.getX());
-        SmartDashboard.putNumber("estimated y", commandedStartingPose.getY());
-        SmartDashboard.putNumber("estimated rot", commandedStartingPose.getRotation().getDegrees());
-
         Command autoCommand = Commands.runOnce(() -> driveSubsystem.resetOdometry(commandedStartingPose));
         RobotConfig robotConfig = geRobotConfig();
         if (commands == null) {return autoCommand;}

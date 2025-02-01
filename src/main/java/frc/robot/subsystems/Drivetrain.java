@@ -27,6 +27,7 @@ import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.util.WPIUtilJNI;
 import edu.wpi.first.wpilibj.Timer;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.Constants;
 import frc.robot.Constants.DriveConstants;
 import frc.robot.Constants.DriveConstants.DriveModes;
@@ -459,5 +460,8 @@ public class Drivetrain extends SubsystemBase {
 
   /** Prints all values to the dashboard. */
   public void printToDashboard() {
+    SmartDashboard.putNumber("posx", getPose().getX());
+    SmartDashboard.putNumber("posy", getPose().getY());
+    SmartDashboard.putNumber("rot", getPose().getRotation().getDegrees());
   }
 }

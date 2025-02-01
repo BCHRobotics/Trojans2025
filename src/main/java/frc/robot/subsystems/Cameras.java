@@ -60,11 +60,11 @@ public class Cameras extends SubsystemBase {
             updateCameraResults();
 
             // print any relevant debug data to the dashboard
-            printToDashboard();
+            //printToDashboard();
 
-            if (periodicPoseEstimation) {
-                updateOdometry();
-            }
+            // if (periodicPoseEstimation) {
+            //     updateOdometry();
+            // }
         }
     }
 
@@ -103,13 +103,19 @@ public class Cameras extends SubsystemBase {
 
         int tagCount = 0;
 
+        SmartDashboard.putNumber("visible tag count", fieldRelativeOffsets.length);
+
         for (int i = 1; i < fieldRelativeOffsets.length; i++) {
-            if (fieldRelativeOffsets[i] != null) {
+            if (fieldRelativeOffsets[i] != null && tagCount == 0) {
                 Pose2d offset = new Pose2d(fieldRelativeOffsets[i].getX(), 
                 fieldRelativeOffsets[i].getY(), 
                 fieldRelativeOffsets[i].getRotation());
 
+                SmartDashboard.putNumber("offset x", offset.getX());
+
                 Pose2d tagPosition = VisionConstants.tagTransforms[i].getPosition();
+
+                SmartDashboard.putNumber("static tag x", tagPosition.getX());
 
                 Transform2d estimatedPosition = new Transform2d(
                     tagPosition.getX() - offset.getX(),
@@ -117,19 +123,17 @@ public class Cameras extends SubsystemBase {
                     tagPosition.getRotation().minus(offset.getRotation())
                 );
 
-                if (tagCount == 0) {finalPose = finalPose.plus(estimatedPosition);}
+                finalPose = finalPose.plus(estimatedPosition);
 
                 tagCount++;
             }
         }
-
-        finalPose = finalPose.div(tagCount);
         
-        // figuring out the field-relative position of the camera relative to the bot
+        //figuring out the field-relative position of the camera relative to the bot
         Transform2d robotToCamera = VisionConstants.cameraOffsets[0].getTransform();
         Translation2d fieldRelativeRobotToCamera = VisionUtils.applyRotationMatrix(robotToCamera.getTranslation(), finalPose.getRotation().getRadians());
         
-        // subtracting that from the estimated pose to get the position of bot center
+        //subtracting that from the estimated pose to get the position of bot center
         finalPose = finalPose.plus(new Transform2d(fieldRelativeRobotToCamera.times(-1), new Rotation2d()));
         return finalPose;
     }
@@ -184,6 +188,7 @@ public class Cameras extends SubsystemBase {
             for (int j = 0; j < results[i].getTargets().size(); j++) {
                 if (results[i].getTargets().get(j).fiducialId == tagId) {
                     rawOffset = results[i].getTargets().get(j).getBestCameraToTarget();
+                    
                     cameraIndex = i;
                 }
             }
@@ -215,6 +220,7 @@ public class Cameras extends SubsystemBase {
     public void updateCameraResults() {
         for (int i = 0; i < cameras.length; i++) {
             List<PhotonPipelineResult> currentResults = cameras[i].getAllUnreadResults();
+
             if (currentResults.size() > 0) {
                 results[i] = currentResults.get(0);
             }
