@@ -147,7 +147,7 @@ public class RobotContainer {
      */ 
     public Command getAutonomousCommand() throws FileVersionException, IOException, ParseException {
         // using the string provided by the user to build and run an auto
-        return AutoUtils.BuildAutoFromCommands(AutoUtils.separateCommandString(SmartDashboard.getString("Auto Command", "")), m_robotDrive);
+        return AutoUtils.BuildAutoFromCommands(new String[]{"test"}, m_robotDrive);
     }
 
     /**

@@ -114,95 +114,97 @@ public class AutoUtils {
 
         PathPlannerPath finalPath = null;
 
-        // loop through the command strings and add them to the auto
-        for (int i = 0; i < _commands.length; i++) {
-            // get a path file from the name of the command
-            PathPlannerPath currentPath = PathPlannerPath.fromPathFile(_commands[i]);
+        return followCommand;
+
+        // // loop through the command strings and add them to the auto
+        // for (int i = 0; i < _commands.length; i++) {
+        //     // get a path file from the name of the command
+        //     PathPlannerPath currentPath = PathPlannerPath.fromPathFile(_commands[i]);
             
-            if (i == 0) {
-                // if this is the first path, create a new path class with it's path points
-                // also include constraints and end state
+        //     if (i == 0) {
+        //         // if this is the first path, create a new path class with it's path points
+        //         // also include constraints and end state
 
-                // NOTE - the constraints defined for the first path will apply to ALL PATHS because they're combined,
-                // this means that you CANNOT define different constraints for the other paths
-                finalPath = new PathPlannerPath(
-                    currentPath.getWaypoints(), 
-                    currentPath.getRotationTargets(),
-                    Collections.emptyList(),
-                    Collections.emptyList(),
-                    Collections.emptyList(),
-                    currentPath.getGlobalConstraints(), 
-                    currentPath.getIdealStartingState(), 
-                    currentPath.getGoalEndState(),
-                    false);
-            }
-            else {
-                // define what points are already a part of the final path and what ones are to be added
-                List<Pose2d> existingPoses = finalPath.getPathPoses();
-                List<Pose2d> newPoses = currentPath.getPathPoses();
+        //         // NOTE - the constraints defined for the first path will apply to ALL PATHS because they're combined,
+        //         // this means that you CANNOT define different constraints for the other paths
+        //         finalPath = new PathPlannerPath(
+        //             currentPath.getWaypoints(), 
+        //             currentPath.getRotationTargets(),
+        //             Collections.emptyList(),
+        //             Collections.emptyList(),
+        //             Collections.emptyList(),
+        //             currentPath.getGlobalConstraints(), 
+        //             currentPath.getIdealStartingState(), 
+        //             currentPath.getGoalEndState(),
+        //             false);
+        //     }
+        //     else {
+        //         // define what points are already a part of the final path and what ones are to be added
+        //         List<Pose2d> existingPoses = finalPath.getPathPoses();
+        //         List<Pose2d> newPoses = currentPath.getPathPoses();
 
-                List<RotationTarget> rotationTargets = finalPath.getRotationTargets();
-                if (rotationTargets.size() == 0) {
-                    rotationTargets = new ArrayList<RotationTarget>();
-                }
-                rotationTargets.add(new RotationTarget(finalPath.getPathPoses().size() - 1, finalPath.getGoalEndState().rotation()));
-                for (int j = 0; j < currentPath.getRotationTargets().size(); j++) {
-                    rotationTargets.add(currentPath.getRotationTargets().get(j));
-                }
+        //         List<RotationTarget> rotationTargets = finalPath.getRotationTargets();
+        //         if (rotationTargets.size() == 0) {
+        //             rotationTargets = new ArrayList<RotationTarget>();
+        //         }
+        //         rotationTargets.add(new RotationTarget(finalPath.getPathPoses().size() - 1, finalPath.getGoalEndState().rotation()));
+        //         for (int j = 0; j < currentPath.getRotationTargets().size(); j++) {
+        //             rotationTargets.add(currentPath.getRotationTargets().get(j));
+        //         }
                     
-                // loop through all new points and throw them on top of the existing points in the list
-                // NOTE - we SKIP THE FIRST POINT because it should already be in the list, the end state of the last path
-                for (int j = 1; j < newPoses.size(); j++) {
-                    Pose2d poseToAdd = newPoses.get(j);
-                    existingPoses.add(poseToAdd);
-                }
+        //         // loop through all new points and throw them on top of the existing points in the list
+        //         // NOTE - we SKIP THE FIRST POINT because it should already be in the list, the end state of the last path
+        //         for (int j = 1; j < newPoses.size(); j++) {
+        //             Pose2d poseToAdd = newPoses.get(j);
+        //             existingPoses.add(poseToAdd);
+        //         }
 
-                // re-construct the path from all the points
-                finalPath = new PathPlannerPath(
-                    PathPlannerPath.waypointsFromPoses(existingPoses),
-                    rotationTargets,
-                    Collections.emptyList(),
-                    Collections.emptyList(),
-                    Collections.emptyList(),
-                    finalPath.getGlobalConstraints(), 
-                    finalPath.getIdealStartingState(), 
-                    currentPath.getGoalEndState(), 
-                    false);
-            }
-        }
+        //         // re-construct the path from all the points
+        //         finalPath = new PathPlannerPath(
+        //             PathPlannerPath.waypointsFromPoses(existingPoses),
+        //             rotationTargets,
+        //             Collections.emptyList(),
+        //             Collections.emptyList(),
+        //             Collections.emptyList(),
+        //             finalPath.getGlobalConstraints(), 
+        //             finalPath.getIdealStartingState(), 
+        //             currentPath.getGoalEndState(), 
+        //             false);
+        //     }
+        // }
 
         
-        RobotConfig robotConfig = geRobotConfig();
+        // RobotConfig robotConfig = geRobotConfig();
 
-            // create a followPath command from the path, then add it to the auto using .andThen()
-            followCommand = followCommand.andThen(
-                new FollowPathCommand(
-                    finalPath,
-                subsystem::getPose, // Robot pose supplier
-                subsystem::getChassisSpeeds, // ChassisSpeeds supplier. MUST BE ROBOT RELATIVE
-                subsystem::setChassisSpeeds, // Method that will drive the robot given ROBOT RELATIVE ChassisSpeeds, AND feedforwards
-                new PPHolonomicDriveController(
-                    Constants.AutoConstants.translationConstants, 
-                    Constants.AutoConstants.rotationConstants, 
-                    0.02),
-                robotConfig, // The robot configuration
-                () -> {
-                  // Boolean supplier that controls when the path will be mirrored for the red alliance
-                  // This will flip the path being followed to the red side of the field.
-                  // THE ORIGIN WILL REMAIN ON THE BLUE SIDE
+        //     // create a followPath command from the path, then add it to the auto using .andThen()
+        //     followCommand = followCommand.andThen(
+        //         new FollowPathCommand(
+        //             finalPath,
+        //         subsystem::getPose, // Robot pose supplier
+        //         subsystem::getChassisSpeeds, // ChassisSpeeds supplier. MUST BE ROBOT RELATIVE
+        //         subsystem::setChassisSpeeds, // Method that will drive the robot given ROBOT RELATIVE ChassisSpeeds, AND feedforwards
+        //         new PPHolonomicDriveController(
+        //             Constants.AutoConstants.translationConstants, 
+        //             Constants.AutoConstants.rotationConstants, 
+        //             0.02),
+        //         robotConfig, // The robot configuration
+        //         () -> {
+        //           // Boolean supplier that controls when the path will be mirrored for the red alliance
+        //           // This will flip the path being followed to the red side of the field.
+        //           // THE ORIGIN WILL REMAIN ON THE BLUE SIDE
 
-                  var alliance = DriverStation.getAlliance();
-                  if (alliance.isPresent()) {
-                    return alliance.get() == DriverStation.Alliance.Red;
-                  }
-                  return false;
-                },
-                subsystem // Reference to this subsystem to set requirements
-        )
-            );
+        //           var alliance = DriverStation.getAlliance();
+        //           if (alliance.isPresent()) {
+        //             return alliance.get() == DriverStation.Alliance.Red;
+        //           }
+        //           return false;
+        //         },
+        //         subsystem // Reference to this subsystem to set requirements
+        // )
+        //     );
 
         // return the auto as a command
-        return followCommand;
+        //return followCommand;
     }
 
     public static RobotConfig geRobotConfig() {
