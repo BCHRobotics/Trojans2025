@@ -116,9 +116,12 @@ public class Robot extends TimedRobot {
     
     //Command setZeroCommand = m_robotContainer.m_elevator.setEncoderPos(0);
     //CommandScheduler.getInstance().schedule(setZeroCommand);
-    Command zeroElevatorCommand = this.m_robotContainer.m_elevator.zeroElevator();
+    m_robotContainer.m_elevator.offset = m_robotContainer.m_elevator.getEncoderPos();
+
+    // Command zeroElevatorCommand = this.m_robotContainer.m_elevator.zeroElevator(); -> Removed this
+
     CommandScheduler.getInstance().cancelAll(); // cancelling all commands first 
-    CommandScheduler.getInstance().schedule(zeroElevatorCommand);
+    // CommandScheduler.getInstance().schedule(zeroElevatorCommand); -> removed this
  // CANCELLING ALL COMMANDS AT THE START
     //CommandScheduler.getInstance().cancelAll();
     

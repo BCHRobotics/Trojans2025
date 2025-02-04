@@ -50,7 +50,7 @@ public class Elevator extends SubsystemBase{
     private final SparkClosedLoopController kLeftController;
     //private double position;
     private double current_encoder_pos;  // the current pos of the encoder, in rotations
-    private double offset =0;
+    public double offset =0;
     private double setpointRotations; // motor rotations to reach setpoint
 
     public Elevator(){
