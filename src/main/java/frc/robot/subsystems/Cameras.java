@@ -55,6 +55,8 @@ public class Cameras extends SubsystemBase {
 
     @Override
     public void periodic() {
+        SmartDashboard.putBoolean("camera is there", cameras[0].isConnected());
+        SmartDashboard.putNumber("estimated x dist", driveSubsystem.getPose().getX() - VisionConstants.tagTransforms[21].xPosition);
         if (isVisionActive) {
             // get the data from the photonvision camera(s)
             updateCameraResults();
@@ -109,7 +111,7 @@ public class Cameras extends SubsystemBase {
                 fieldRelativeOffsets[i].getY(), 
                 fieldRelativeOffsets[i].getRotation());
 
-                SmartDashboard.putNumber("tag id", i);
+                SmartDashboard.putNumber("tag x", offset.getX());
 
                 Pose2d tagPosition = VisionConstants.tagTransforms[i].getPosition();
 
@@ -118,6 +120,8 @@ public class Cameras extends SubsystemBase {
                     tagPosition.getY() - offset.getY(),
                     tagPosition.getRotation().minus(offset.getRotation())
                 );
+
+                SmartDashboard.putNumber("final x", estimatedPosition.getX());
 
                 finalPose = finalPose.plus(estimatedPosition);
 
@@ -130,7 +134,7 @@ public class Cameras extends SubsystemBase {
         Translation2d fieldRelativeRobotToCamera = VisionUtils.applyRotationMatrix(robotToCamera.getTranslation(), finalPose.getRotation().getRadians());
         
         //subtracting that from the estimated pose to get the position of bot center
-        finalPose = finalPose.plus(new Transform2d(fieldRelativeRobotToCamera.times(-1), new Rotation2d()));
+        finalPose = finalPose.plus(new Transform2d(fieldRelativeRobotToCamera, new Rotation2d()));
         return finalPose;
     }
 
