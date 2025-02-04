@@ -90,6 +90,8 @@ public final class Constants {
   }
 
   public static final class VisionConstants{
+    // how far the robot can be from the setpoint during vision alignment
+    // these CANNOT be zero, because then commands won't cancel because the robot cannot be perfect
     public static final double allowedXError = 0.1;
     public static final double allowedYError = 0.1;
 
@@ -180,7 +182,7 @@ public final class Constants {
     public static final double kDrivingP = 0.07;
     public static final double kDrivingI = 0;
     public static final double kDrivingD = 0.01;
-    public static final double kDrivingFF = 0.25; //1 / kDriveWheelFreeSpeedRps;
+    public static final double kDrivingFF = 0.25; //1 / kDriveWheelFreeSpeedRps; // why is this comment here it isn't true?????
     public static final double kDrivingMinOutput = -1;
     public static final double kDrivingMaxOutput = 1;
 

@@ -45,7 +45,7 @@ public class RobotContainer {
     SendableChooser<String> controllerOptions;
 
     /**
-     * The container for the robot. Contains subsystems, OI devices, and commands.
+     * The container for the robot, initializing everything and setting up the controller chooser
      */
     public RobotContainer() {
         m_cameras.setDriveSubsystem(m_robotDrive);
@@ -62,7 +62,10 @@ public class RobotContainer {
         SmartDashboard.putData("Controller Select", controllerOptions);
     }
 
-    // Sets up the drivetrain for teleoperated driving
+    /**
+     * Set up the joystick controls for the main and backup controller, called on teleopInit()
+     * @param isRedAlliance is the robot on the RED SIDE OR BLUE SIDE, used for inverting controls
+     */
     public void configureDriveMode(boolean isRedAlliance) {
         final double invert = isRedAlliance ? -1 : 1;
 
@@ -95,6 +98,7 @@ public class RobotContainer {
     }
 
     /**
+     * [UNUSED]
      * Method for configuring named commands 
      * (used during autos)
      */
@@ -102,8 +106,9 @@ public class RobotContainer {
     }
 
     /**
-     * Binding for driver xbox controller buttons
-     * NOTE - Things are configured for the SHSM event, vision is (ofc) not being used for this
+     * configure what commands are called by what buttons (on both controllers)
+     * @param isRedAlliance is the robot on the RED OR BLUE SIDE
+     * @param useBackup whether the active controller is the backup (XBOX)
      */
     private void configureButtonBindingsDriver(boolean isRedAlliance, boolean useBackup) {
         final double invert = isRedAlliance ? -1 : 1;
@@ -187,7 +192,6 @@ public class RobotContainer {
 
     /**
      * Use this to pass the autonomous command to the main {@link Robot} class.
-     *
      * @return the command to run in autonomous
      * @throws ParseException 
      * @throws IOException 
@@ -201,6 +205,7 @@ public class RobotContainer {
     }
 
     /**
+     * [UNUSED]
      * Initializes the LEDs
      */
     public void initLEDs() {

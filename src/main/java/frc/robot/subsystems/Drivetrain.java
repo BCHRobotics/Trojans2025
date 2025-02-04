@@ -38,21 +38,22 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 public class Drivetrain extends SubsystemBase {
   // Create MAXSwerveModules
+  // front left wheel
   private final MAXSwerveModule m_frontLeft = new MAXSwerveModule(
       DriveConstants.kFrontLeftDrivingCanId,
       DriveConstants.kFrontLeftTurningCanId,
       DriveConstants.kFrontLeftChassisAngularOffset);
-
+  // front right wheel
   private final MAXSwerveModule m_frontRight = new MAXSwerveModule(
       DriveConstants.kFrontRightDrivingCanId,
       DriveConstants.kFrontRightTurningCanId,
       DriveConstants.kFrontRightChassisAngularOffset);
-
+  // rear left wheel
   private final MAXSwerveModule m_rearLeft = new MAXSwerveModule(
       DriveConstants.kRearLeftDrivingCanId,
       DriveConstants.kRearLeftTurningCanId,
       DriveConstants.kBackLeftChassisAngularOffset);
-
+  // rear right wheel
   private final MAXSwerveModule m_rearRight = new MAXSwerveModule(
       DriveConstants.kRearRightDrivingCanId,
       DriveConstants.kRearRightTurningCanId,
@@ -69,6 +70,7 @@ public class Drivetrain extends SubsystemBase {
   // A percentage value (0-1) for the linear speed of the robot
   private double m_maxSpeed = 0.0;
 
+  // slew rates (basically ramp rates?) for the swerve drive
   private SlewRateLimiter m_magLimiter = new SlewRateLimiter(DriveConstants.kMagnitudeSlewRate);
   private SlewRateLimiter m_rotLimiter = new SlewRateLimiter(DriveConstants.kRotationalSlewRate);
   private double m_prevTime = WPIUtilJNI.now() * 1e-6;
@@ -81,6 +83,7 @@ public class Drivetrain extends SubsystemBase {
   public boolean isRedAlliance;
   
   // enum for keeping track of how the robot is driving
+  // this can be used to easily check what mode the robot is in
   private DriveModes driveMode = DriveModes.MANUAL;
 
   private Translation2d odometryOffset = new Translation2d(0, 0);
@@ -110,44 +113,6 @@ public class Drivetrain extends SubsystemBase {
     this.initializeAuto();
   }
 
-  // Very important drive mode functions that make everything work
-  public DriveModes getDriveMode() {
-    return driveMode;
-  }
-
-  public void setDriveMode(DriveModes modeToSet) {
-    driveMode = modeToSet;
-  }
-
-  public void addVisionMeasurement(Pose2d visionMeasurement) {
-    visionPoses.add(new VisionCapture(visionMeasurement, getPose()));
-  }
-
-  public void removeOldVisionMeasurements() {
-    for (int i = 0; i < visionPoses.size(); i++) {
-      if (visionPoses.get(i).timeTaken < Timer.getFPGATimestamp() - visionFadeTime) {
-        visionPoses.remove(i);
-        break;
-      }
-    }
-  }
-
-  public void updateVisionPose() {
-    if (visionPoses.size() == 0) {return;}
-    
-    Transform2d averageVisionPose = new Transform2d(0, 0, new Rotation2d());
-    for (int i = 0; i < visionPoses.size(); i++) {
-      VisionCapture capture = visionPoses.get(i);
-      Transform2d visionOffset = capture.visionMeasurement.minus(capture.odometryMeasurement);
-
-      averageVisionPose = averageVisionPose.plus(visionOffset);
-    }
-
-    averageVisionPose = averageVisionPose.div(visionPoses.size());
-
-    visionPose = averageVisionPose;
-  }
-
   @Override
   public void periodic() {
     // get rid of any outdated pose estimation measurements
@@ -175,46 +140,53 @@ public class Drivetrain extends SubsystemBase {
     this.printToDashboard();
   }
 
-  /*
-   * telling the drivetrain how to offset the odometry to align with the tag
+  /**
+   * Get the current drivemode of the robot
+   * CALL THIS, DO NOT TRY TO GET THE VARIABLE
+   * @return the mode, as a DriveMode
+   */
+  public DriveModes getDriveMode() {
+    return driveMode;
+  }
+
+  /**
+   * Change the drive mode of the robot
+   * CALL THIS AND DO NOT TRY TO SET THE VARIABLE
+   * @param modeToSet the new drivemode
+   */
+  public void setDriveMode(DriveModes modeToSet) {
+    driveMode = modeToSet;
+  }
+
+  /**
+   * ??????
+   * @param offset
    */
   public void setOdometryOffset(Translation2d offset) {
     odometryOffset = offset;
   }
 
-  /*
-   * get the pose, but with LYING involved
+  /**
+   * the same as the below function, but with LYING
+   * @return
    */
   public Pose2d getOffsetedPose() {
     return m_odometry.getPoseMeters().plus(new Transform2d(odometryOffset, new Rotation2d()));
   }
 
   /**
-   * Returns the currently-estimated pose of the robot.
-   *
-   * @return The pose.
+   * Returns the currently-estimated pose of the robot
+   * @return The pose
    */
   public Pose2d getPose() {
     return m_odometry.getPoseMeters();
   }
 
-  /*
-   * odometry and vision
-   */
-  public Pose2d getCompositePose() {
-    if (visionPose != null) {
-      return m_odometry.getPoseMeters().plus(visionPose.times(visionCoefficient));
-    }
-    else {
-      return m_odometry.getPoseMeters();
-    }
-      
-  }
-
   /**
-   * Resets the odometry to the specified pose.
-   *
-   * @param pose The pose to which to set the odometry.
+   * Resets the odometry to the specified pose
+   * KEEP IN MIND this doesn't actually set the gyro,
+   *  the odometry just works with the current heading as an offset
+   * @param pose The pose to which to set the odometry
    */
   public void resetOdometry(Pose2d pose) {
     m_odometry.resetPosition(
@@ -228,16 +200,17 @@ public class Drivetrain extends SubsystemBase {
         pose);
   }
 
-  /*
-   * A function for setting the alliance of the robot
+  /**
+   * set the alliance to either BLUE SIDE or RED SIDE
+   * @param isRed if true set to RED, if false set to BLUE
    */
   public void setAlliance(boolean isRed) {
     isRedAlliance = isRed;
   }
 
-  /*
-   * A function for getting the alliance of the robot
-   * if true, the alliance is RED
+  /**
+   * get whether the robot is on the RED SIDE or BLUE SIDE
+   * @return is the robot on the RED SIDE? (if true red, if false blue)
    */
   public boolean getAlliance() {
     return isRedAlliance;
@@ -333,8 +306,7 @@ public class Drivetrain extends SubsystemBase {
   }
 
   /**
-   * Sets the swerve ModuleStates.
-   *
+   * Sets the swerve ModuleStates
    * @param desiredStates The desired SwerveModule states.
    */
   public void setModuleStates(SwerveModuleState[] desiredStates) {
@@ -348,7 +320,6 @@ public class Drivetrain extends SubsystemBase {
 
   /**
    * Gets the swerve ModuleStates.
-   *
    * @return The current SwerveModule states.
    */
   public SwerveModuleState[] getModuleStates() {
@@ -360,7 +331,11 @@ public class Drivetrain extends SubsystemBase {
     };
   }
 
-  /** Resets the drive encoders to currently read a position of 0. */
+  /**
+   * reset the wheel encoders
+   * in theory this should just reset the odometry,
+   * BUT DO NOT CALL THIS FUNCTION USE THE resetPose() FUNCTION INSTEAD
+   */
   public void resetEncoders() {
     m_frontLeft.resetEncoders();
     m_rearLeft.resetEncoders();
@@ -368,7 +343,10 @@ public class Drivetrain extends SubsystemBase {
     m_rearRight.resetEncoders();
   }
 
-  /** Zeroes the heading of the robot. */
+  /**
+   * tell the gyro to treat the current direction as zero
+   * this will make the robot treat how its facing as field forward
+   */
   public void zeroHeading() {
     m_gyro.reset();
     // Change this after
@@ -377,20 +355,17 @@ public class Drivetrain extends SubsystemBase {
 
   /**
    * Returns the heading of the robot.
-   *
    * @return the robot's heading in degrees, from -Infinity to Infinity
    */
   public double getHeading() {
-    /* I'm multiplying the navx heading by -1 
-    * because WPILib uses CCW as the positive direction
-    * and NavX uses CW as the positive direction
-    */ 
+    // I'm multiplying the navx heading by -1 
+    // * because WPILib uses CCW as the positive direction
+    // * and NavX uses CW as the positive direction
     return Rotation2d.fromDegrees(-m_gyro.getAngle()).getDegrees();
   }
 
   /**
    * Enables and disables slow mode.
-   *
    * @param mode Whether to enable slow mode on or off.
    */
   public void setSlowMode(boolean mode) {
@@ -400,7 +375,6 @@ public class Drivetrain extends SubsystemBase {
 
   /**
    * Enables and disables fast mode.
-   *
    * @param mode Whether to enable fast mode on or off.
    */
   public void setFastMode(boolean mode) {
@@ -409,9 +383,7 @@ public class Drivetrain extends SubsystemBase {
   }
 
   /**
-   * Sets the speed of the robot to a desired m/s value
-   *
-   * @param percent The desired speed in metres per second
+   * Updated the max speed of the robot based on what mode is enabled
    */
   public void setSpeedPercent() {
     if (m_slowMode) {
@@ -423,12 +395,15 @@ public class Drivetrain extends SubsystemBase {
     }
   }
 
-  // /**
-  //  * Initializes the auto builder using PathPlannerLib.
-  //  */
+  /**
+   * Setting up (pathplanner) AutoBuilder
+   * this configuration allows PathPlannerPath classes to be turned into follow commands
+   */
   public void initializeAuto() {
+    // this function in AutoUtils just gets the robot settings from the GUI
     RobotConfig robotConfig = AutoUtils.geRobotConfig();
 
+    // only needs to be called once every deploy (pretty sure)
     AutoBuilder.configure(
       this::getPose, 
       this::resetOdometry, 
@@ -443,25 +418,72 @@ public class Drivetrain extends SubsystemBase {
   }   
   
   /**
-   * Sets the speed of the robot chassis.
-   * @param speed The new chassis speed.
+   * Sets the speed of the robot chassis
+   * @param speed The new chassis speed
    */
   public void setChassisSpeeds(ChassisSpeeds speed, DriveFeedforwards ff) {
     this.setModuleStates(DriveConstants.kDriveKinematics.toSwerveModuleStates(speed));
   }
 
   /**
-   * Gets the speed of the robot chassis.
-   * @return The current chassis speed.
+   * Gets the current speed of the robot chassis
+   * @return The current chassis speed, as a ChassisSpeeds class
    */
   public ChassisSpeeds getChassisSpeeds() {
     return DriveConstants.kDriveKinematics.toChassisSpeeds(this.getModuleStates());
   }
 
-  /** Prints all values to the dashboard. */
+  /**
+   * A space to put periodically updated debug values that need to be put to dashboard
+   * This is called in periodic()
+   */
   public void printToDashboard() {
     SmartDashboard.putNumber("posx", getPose().getX());
     SmartDashboard.putNumber("posy", getPose().getY());
     SmartDashboard.putNumber("rot", getPose().getRotation().getDegrees());
   }
+
+  // sketchy zone, more testing needed
+  // ---------------------------------
+  public void addVisionMeasurement(Pose2d visionMeasurement) {
+    visionPoses.add(new VisionCapture(visionMeasurement, getPose()));
+  }
+  public void removeOldVisionMeasurements() {
+    for (int i = 0; i < visionPoses.size(); i++) {
+      if (visionPoses.get(i).timeTaken < Timer.getFPGATimestamp() - visionFadeTime) {
+        visionPoses.remove(i);
+        break;
+      }
+    }
+  }
+  public void updateVisionPose() {
+    if (visionPoses.size() == 0) {return;}
+    
+    Transform2d averageVisionPose = new Transform2d(0, 0, new Rotation2d());
+    for (int i = 0; i < visionPoses.size(); i++) {
+      VisionCapture capture = visionPoses.get(i);
+      Transform2d visionOffset = capture.visionMeasurement.minus(capture.odometryMeasurement);
+
+      averageVisionPose = averageVisionPose.plus(visionOffset);
+    }
+
+    averageVisionPose = averageVisionPose.div(visionPoses.size());
+
+    visionPose = averageVisionPose;
+  }
+
+  /*
+   * odometry and vision
+   */
+  public Pose2d getCompositePose() {
+    if (visionPose != null) {
+      return m_odometry.getPoseMeters().plus(visionPose.times(visionCoefficient));
+    }
+    else {
+      return m_odometry.getPoseMeters();
+    }
+      
+  }
+  // sketchy zone over
+  // ---------------------------------
 }
