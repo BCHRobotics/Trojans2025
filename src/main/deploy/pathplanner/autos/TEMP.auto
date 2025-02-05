@@ -7,13 +7,7 @@
         {
           "type": "path",
           "data": {
-            "pathName": "Start1-Reef4"
-          }
-        },
-        {
-          "type": "path",
-          "data": {
-            "pathName": "Reef4-Coral2"
+            "pathName": "Reef4Left-Coral2"
           }
         }
       ]

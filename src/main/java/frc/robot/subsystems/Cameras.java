@@ -11,7 +11,7 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.geometry.Translation2d;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.VisionConstants;
 import frc.utils.VisionUtils;
@@ -33,8 +33,11 @@ public class Cameras extends SubsystemBase {
     // USEFUL IF THE COPROCESSOR ISN'T PLUGGED IN!!!
     // -----
     public boolean isVisionActive = true;
-    public boolean periodicPoseEstimation = false;
+    public boolean periodicPoseEstimation = true;
     // -----
+
+    private double lastPoseEstimate = 0;
+    private double estimateFreqency = 1;
     
     public Cameras() {
 
@@ -55,8 +58,6 @@ public class Cameras extends SubsystemBase {
 
     @Override
     public void periodic() {
-        SmartDashboard.putBoolean("camera is there", cameras[0].isConnected());
-        SmartDashboard.putNumber("estimated x dist", driveSubsystem.getPose().getX() - VisionConstants.tagTransforms[21].xPosition);
         if (isVisionActive) {
             // get the data from the photonvision camera(s)
             updateCameraResults();
@@ -64,9 +65,11 @@ public class Cameras extends SubsystemBase {
             // print any relevant debug data to the dashboard
             //printToDashboard();
 
-            // if (periodicPoseEstimation) {
-            //     updateOdometry();
-            // }
+            if (periodicPoseEstimation && Timer.getFPGATimestamp() > lastPoseEstimate + estimateFreqency) {
+                updateOdometry();
+                lastPoseEstimate = Timer.getFPGATimestamp();
+                System.out.println(1);
+            }
         }
     }
 
@@ -75,7 +78,13 @@ public class Cameras extends SubsystemBase {
      */
     public void updateOdometry() {
         if (canSeeAnyTags()) {
-            driveSubsystem.addVisionMeasurement(estimateRobotPoseManual());
+            Pose2d visionPose = estimateRobotPoseManual();
+            Pose2d currentPose = driveSubsystem.getPose();
+
+            if (Math.abs(visionPose.getX() - currentPose.getX()) > 0.05 || 
+            Math.abs(visionPose.getY() - currentPose.getY()) > 0.05) {
+                driveSubsystem.resetOdometry(visionPose);
+            }
         }
     }
     
@@ -101,17 +110,27 @@ public class Cameras extends SubsystemBase {
      */
     public Pose2d estimateRobotPoseManual() {
         Transform2d[] fieldRelativeOffsets = getAllFieldRelativeOffsets();
-        Pose2d finalPose = new Pose2d(0, 0, new Rotation2d());
+        
+        float finalX = 0;
+        float finalY = 0;
+        float finalRot = 0;
+        
+        int balance = 0;
+        int largeAngles = 0;
 
         int tagCount = 0;
 
         for (int i = 1; i < fieldRelativeOffsets.length; i++) {
-            if (fieldRelativeOffsets[i] != null && tagCount == 0) {
+            if (fieldRelativeOffsets[i] != null) {
+                tagCount++;
+            }
+        }
+
+        for (int i = 1; i < fieldRelativeOffsets.length; i++) {
+            if (fieldRelativeOffsets[i] != null) {
                 Pose2d offset = new Pose2d(fieldRelativeOffsets[i].getX(), 
                 fieldRelativeOffsets[i].getY(), 
                 fieldRelativeOffsets[i].getRotation());
-
-                SmartDashboard.putNumber("tag x", offset.getX());
 
                 Pose2d tagPosition = VisionConstants.tagTransforms[i].getPosition();
 
@@ -121,13 +140,36 @@ public class Cameras extends SubsystemBase {
                     tagPosition.getRotation().minus(offset.getRotation())
                 );
 
-                SmartDashboard.putNumber("final x", estimatedPosition.getX());
+                finalX += estimatedPosition.getX() / tagCount;
+                finalY += estimatedPosition.getY() / tagCount;
+                
+                if (estimatedPosition.getRotation().getRadians() >= 0) {
+                    balance++;
+                    finalRot += estimatedPosition.getRotation().getRadians();
+                }
+                else {
+                    balance--;
+                    finalRot += estimatedPosition.getRotation().getRadians();
+                }
 
-                finalPose = finalPose.plus(estimatedPosition);
-
-                tagCount++;
+                if (Math.abs(estimatedPosition.getRotation().getRadians()) > Math.PI / 2) {
+                    largeAngles++;
+                }
             }
         }
+
+        if (Math.abs(balance) < tagCount) {
+            // we have a mix of positive and negative numbers
+            if (largeAngles > tagCount / 2) {
+                finalRot += Math.PI;
+            }
+        } 
+
+        Pose2d finalPose = new Pose2d(
+        finalX,
+        finalY,
+        Rotation2d.fromRadians(finalRot/tagCount)
+        );
         
         //figuring out the field-relative position of the camera relative to the bot
         Transform2d robotToCamera = VisionConstants.cameraOffsets[0].getTransform();

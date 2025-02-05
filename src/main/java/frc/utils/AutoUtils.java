@@ -154,6 +154,9 @@ public class AutoUtils {
         // reset odometry to the defined starting pose
         final Pose2d commandedStartingPose = oldPOI.position;
 
+        SmartDashboard.putNumber("X", commandedStartingPose.getX());
+        SmartDashboard.putNumber("Y", commandedStartingPose.getY());
+
         Command autoCommand = Commands.runOnce(() -> driveSubsystem.resetOdometry(commandedStartingPose));
         RobotConfig robotConfig = geRobotConfig();
         if (commands == null) {return autoCommand;}
@@ -210,7 +213,7 @@ public class AutoUtils {
     public static Command constructPathCommand(PathPlannerPath path, Drivetrain driveSubsystem, RobotConfig config) {
         return new FollowPathCommand(
             path,
-            driveSubsystem::getCompositePose, // Robot pose supplier
+            driveSubsystem::getPose, // Robot pose supplier
             driveSubsystem::getChassisSpeeds, // ChassisSpeeds supplier. MUST BE ROBOT RELATIVE
             driveSubsystem::setChassisSpeeds, // Method that will drive the robot given ROBOT RELATIVE ChassisSpeeds, AND feedforwards
             new PPHolonomicDriveController(

@@ -7,7 +7,6 @@ package frc.robot;
 import java.io.IOException;
 
 import org.json.simple.parser.ParseException;
-
 import com.pathplanner.lib.util.FileVersionException;
 
 import edu.wpi.first.math.MathUtil;
@@ -198,9 +197,9 @@ public class RobotContainer {
      * @throws FileVersionException 
      */ 
     public Command getAutonomousCommand() throws FileVersionException, IOException, ParseException {
-        // using the string provided by the user to build and run an auto
+        //using the string provided by the user to build and run an auto
         return AutoUtils.actuallyBuildAutoFromCommands(
-            "move(Reef4)", m_robotDrive, m_cameras, 0
+            "move(Reef4Left)", m_robotDrive, m_cameras, 0
         );
     }
 
