@@ -16,13 +16,13 @@ import edu.wpi.first.math.filter.SlewRateLimiter;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Transform2d;
-import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.kinematics.SwerveDriveOdometry;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.util.WPIUtilJNI;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.Constants;
 import frc.robot.Constants.DriveConstants;
 import frc.robot.Constants.DriveConstants.DriveModes;
@@ -80,7 +80,7 @@ public class Drivetrain extends SubsystemBase {
   // this can be used to easily check what mode the robot is in
   private DriveModes driveMode = DriveModes.MANUAL;
 
-  private Translation2d odometryOffset = new Translation2d(0, 0);
+  private Transform2d odometryOffset = new Transform2d(0, 0, Rotation2d.fromRadians(0));
 
   // Odometry class for tracking robot pose
   SwerveDriveOdometry m_odometry = new SwerveDriveOdometry(
@@ -136,10 +136,11 @@ public class Drivetrain extends SubsystemBase {
   }
 
   /**
-   * ??????
+   * Adding an offset vector to the odometry, 
+   * this is used to correct thing with pose estimation
    * @param offset
    */
-  public void setOdometryOffset(Translation2d offset) {
+  public void setOdometryOffset(Transform2d offset) {
     odometryOffset = offset;
   }
 
@@ -148,7 +149,13 @@ public class Drivetrain extends SubsystemBase {
    * @return
    */
   public Pose2d getOffsetedPose() {
-    return m_odometry.getPoseMeters().plus(new Transform2d(odometryOffset, new Rotation2d()));
+    Pose2d rawPose = getPose();
+
+    return new Pose2d(
+      rawPose.getX() - odometryOffset.getX(),
+      rawPose.getY() - odometryOffset.getY(),
+      rawPose.getRotation().minus(odometryOffset.getRotation())
+    );
   }
 
   /**
@@ -382,7 +389,7 @@ public class Drivetrain extends SubsystemBase {
 
     // only needs to be called once every deploy (pretty sure)
     AutoBuilder.configure(
-      this::getPose, 
+      this::getOffsetedPose, 
       this::resetOdometry, 
       this::getChassisSpeeds, 
       this::setChassisSpeeds, 

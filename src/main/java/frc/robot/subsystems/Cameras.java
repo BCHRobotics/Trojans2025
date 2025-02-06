@@ -12,6 +12,7 @@ import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.wpilibj.Timer;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.VisionConstants;
 import frc.utils.VisionUtils;
@@ -37,7 +38,7 @@ public class Cameras extends SubsystemBase {
     // -----
 
     private double lastPoseEstimate = 0;
-    private double estimateFreqency = 1;
+    private double estimateFreqency = 0.5;
     
     public Cameras() {
 
@@ -68,7 +69,6 @@ public class Cameras extends SubsystemBase {
             if (periodicPoseEstimation && Timer.getFPGATimestamp() > lastPoseEstimate + estimateFreqency) {
                 updateOdometry();
                 lastPoseEstimate = Timer.getFPGATimestamp();
-                System.out.println(1);
             }
         }
     }
@@ -80,10 +80,14 @@ public class Cameras extends SubsystemBase {
         if (canSeeAnyTags()) {
             Pose2d visionPose = estimateRobotPoseManual();
             Pose2d currentPose = driveSubsystem.getPose();
+            
+            if (currentPose.getX() < 0.1) {return;}
+
+            Transform2d offset = visionPose.minus(currentPose);
 
             if (Math.abs(visionPose.getX() - currentPose.getX()) > 0.05 || 
             Math.abs(visionPose.getY() - currentPose.getY()) > 0.05) {
-                driveSubsystem.resetOdometry(visionPose);
+                driveSubsystem.setOdometryOffset(offset);
             }
         }
     }
@@ -105,8 +109,7 @@ public class Cameras extends SubsystemBase {
     }
 
     /*
-     * WARNING: THIS IS AN UNTESTED FUNCTION
-     * figure out where the robot is based on camera data
+     * silly function
      */
     public Pose2d estimateRobotPoseManual() {
         Transform2d[] fieldRelativeOffsets = getAllFieldRelativeOffsets();

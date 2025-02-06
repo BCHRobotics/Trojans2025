@@ -213,7 +213,7 @@ public class AutoUtils {
     public static Command constructPathCommand(PathPlannerPath path, Drivetrain driveSubsystem, RobotConfig config) {
         return new FollowPathCommand(
             path,
-            driveSubsystem::getPose, // Robot pose supplier
+            driveSubsystem::getOffsetedPose, // Robot pose supplier
             driveSubsystem::getChassisSpeeds, // ChassisSpeeds supplier. MUST BE ROBOT RELATIVE
             driveSubsystem::setChassisSpeeds, // Method that will drive the robot given ROBOT RELATIVE ChassisSpeeds, AND feedforwards
             new PPHolonomicDriveController(
