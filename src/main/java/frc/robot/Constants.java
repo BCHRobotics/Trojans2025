@@ -89,6 +89,53 @@ public final class Constants {
     public static final boolean kGyroReversed = true;
   }
 
+  // TODO: set the elevator constants
+  public static final class ElevatorConstants {
+    public static final int kLeftElevatorMotorCanId = 20;
+    public static final int kRightElevatorMotorCanId = 21;
+
+    public static final int kTopElevatorLimitSwitchPort = 5;
+    public static final int kBottomElevatorLimitSwitchPort = 6;
+
+    public static final double kPThetaController = 10;
+    public static final double kIThetaController = 0;
+    public static final double kDThetaController = 0;
+
+    public static final double kMaxSpeedMetersPerSecond = 3.0;
+    public static final double kMaxAccelerationMetersPerSecondSquared = 3.0;
+
+    public static final double kSVolts = 0.096656;
+    public static final double kGVolts = 0.1647;
+    public static final double kVVolts = 0.0021784;
+    public static final double kAVolts = 0.00019749;
+
+    //20:1 from gearbox to output reduction
+    //18 tooth
+    //1.432in
+    public static final double kElevatorMotorReduction = 20;
+    public static final double kElevatorWheelPitchDiameterInches = 1.432;
+    public static final double kElevatorMotorCPR = 42;
+
+    public static final double kElevatorPositionConversionFactor = 
+                        (kElevatorWheelPitchDiameterInches * Math.PI) / 
+                        (kElevatorMotorReduction * kElevatorMotorCPR);
+      
+    public enum ElevatorPositions {
+      AMP(0.39),
+      SOURCE(0.22),
+      INTAKE(-0.02);
+  
+      private final double goal;
+      ElevatorPositions(double goal) {
+          this.goal = goal;
+      }
+  
+      public double getGoal() {
+          return goal;
+      }
+    }
+  }
+
   public static final class VisionConstants{
     // how far the robot can be from the setpoint during vision alignment
     // these CANNOT be zero, because then commands won't cancel because the robot cannot be perfect
