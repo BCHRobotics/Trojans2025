@@ -35,9 +35,12 @@ public final class Constants {
     //increasing kD leads to slowing down as it approaches setpoint
     public static final double ElevatorkD = 0.00;
     public static final double maxOutput = 0.9;
+
+    public static final double chainDiameter = 1.751; //inch
+    public static final double gearRatio = 5; //5:1 gear ratio
     
     //defining the constant for encoder counts per inch 
-    public static final double countsPerInch = (42*5)/(3.1416*1.751);
+    public static final double countsPerInch = (gearRatio)/(Math.PI*chainDiameter);
 
     //setting the limits for each position (inches)
     public static final double downPos = 0.0;
@@ -50,6 +53,10 @@ public final class Constants {
 
     public static final double feedForward = 0.05; 
   }
+
+  public static final class CONTROLLER {
+    public static final int DRIVER_CONTROLLER_PORT = 0;
+}
   
   public static final class DriveConstants {
     // Ways to drive the robot

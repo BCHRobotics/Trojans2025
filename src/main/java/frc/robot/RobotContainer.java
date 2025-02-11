@@ -33,6 +33,14 @@ public class RobotContainer {
     // The robot's subsystems
     private final Drivetrain m_robotDrive = new Drivetrain();
 
+    private final Elevator elevator = new Elevator();
+
+    private final CommandXboxController driverController = new CommandXboxController(Constants.CONTROLLER.DRIVER_CONTROLLER_PORT);
+
+    public Elevator getElevator() {
+        return elevator;
+    }
+
     // Driving controller
     CommandPS5Controller m_mainController = new CommandPS5Controller(OIConstants.kMainControllerPort);
     CommandXboxController m_backupController = new CommandXboxController(OIConstants.kBackupControllerPort);
@@ -47,6 +55,7 @@ public class RobotContainer {
     public RobotContainer() {
         
         configureNamedCommands();
+        configureButtonBindings();
         
         // the input field for typing in the auto
         SmartDashboard.putString("Auto Command", "");
@@ -58,10 +67,19 @@ public class RobotContainer {
         SmartDashboard.putData("Controller Select", controllerOptions);
     }
 
-    public Elevator getElevator() {
-        return m_elevator;
-    }
+    private void configureButtonBindings() {
+        this.driverController.a()
+        .onTrue(elevator.moveLevel("L1"));
+        this.driverController.b()
+        .onTrue(elevator.moveLevel("L2"));
+        this.driverController.y()
+        .onTrue(elevator.moveLevel("L3"));
+        this.driverController.x()
+        .onTrue(elevator.moveLevel("DOWN"));
 
+        this.driverController.leftTrigger()
+        .onTrue(elevator.moveLevel("L0"));
+    }
     /**
      * Set up the joystick controls for the main and backup controller, called on teleopInit()
      * @param isRedAlliance is the robot on the RED SIDE OR BLUE SIDE, used for inverting controls

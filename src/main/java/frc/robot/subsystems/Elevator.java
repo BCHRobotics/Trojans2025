@@ -24,7 +24,7 @@ public class Elevator extends SubsystemBase{
     private final DigitalInput bottomLimit;
     private final PIDController pidController;
 
-    private double setpoint = 0;
+    private double setpoint = 0; // rotations
     double currentPos;
 
     public Elevator() {
@@ -45,7 +45,7 @@ public class Elevator extends SubsystemBase{
             ElevatorConstants.ElevatorkD
         );
         
-        pidController.setTolerance(0.5);
+        pidController.setTolerance(2.5); // orignally 0.5, rotations
         
         //setting limits for safety
         SparkMaxConfig resetConfig = new SparkMaxConfig();
@@ -91,7 +91,7 @@ public class Elevator extends SubsystemBase{
     }
 
     public void run() {
-        double currentPosition = encoder.getPosition() / ElevatorConstants.countsPerInch;
+        double currentPosition = encoder.getPosition() * ElevatorConstants.countsPerInch; // inches
         //uses kP, kI, and kD constants to calculate pidOutput
         double pidOutput = pidController.calculate(currentPosition, setpoint);
 
@@ -106,6 +106,7 @@ public class Elevator extends SubsystemBase{
         handleBottomLimit();
 
         //printing data onto FRC Driver Station
+        System.out.println("Encoder Position" + encoder.getPosition());
         System.out.println("Elevator Position" + currentPosition);
         System.out.println("Elevator Setpoint" +  setpoint);
         System.out.println("Elevator PID Output" + output);
@@ -117,16 +118,16 @@ public class Elevator extends SubsystemBase{
         return runOnce(()-> {
             switch (level) {
                 case "L1":
-                    setTargetPosition(ElevatorConstants.L1);
+                    this.setTargetPosition(ElevatorConstants.L1);
                     break;   
                 case "L2":
-                    setTargetPosition(ElevatorConstants.L2);
+                    this.setTargetPosition(ElevatorConstants.L2);
                     break;
                 case "L3":
-                    setTargetPosition(ElevatorConstants.L3);
+                    this.setTargetPosition(ElevatorConstants.L3);
                     break;
                 case "DOWN":
-                    setTargetPosition(ElevatorConstants.bottomPos);
+                    this.setTargetPosition(ElevatorConstants.bottomPos);
                     break;
                 case "L0":
                     stopMotors();
