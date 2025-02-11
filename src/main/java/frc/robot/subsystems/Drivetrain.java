@@ -7,9 +7,6 @@ package frc.robot.subsystems;
 import com.studica.frc.AHRS;
 import com.studica.frc.AHRS.NavXComType;
 
-import com.pathplanner.lib.auto.AutoBuilder;
-import com.pathplanner.lib.config.RobotConfig;
-import com.pathplanner.lib.controllers.PPHolonomicDriveController;
 import com.pathplanner.lib.util.DriveFeedforwards;
 
 import edu.wpi.first.math.filter.SlewRateLimiter;
@@ -22,10 +19,8 @@ import edu.wpi.first.math.kinematics.SwerveDriveOdometry;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.util.WPIUtilJNI;
-import frc.robot.Constants;
 import frc.robot.Constants.DriveConstants;
 import frc.robot.Constants.DriveConstants.DriveModes;
-import frc.utils.AutoUtils;
 import frc.utils.SwerveUtils;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
@@ -383,21 +378,6 @@ public class Drivetrain extends SubsystemBase {
    * this configuration allows PathPlannerPath classes to be turned into follow commands
    */
   public void initializeAuto() {
-    // this function in AutoUtils just gets the robot settings from the GUI
-    RobotConfig robotConfig = AutoUtils.geRobotConfig();
-
-    // only needs to be called once every deploy (pretty sure)
-    AutoBuilder.configure(
-      this::getOffsetedPose, 
-      this::resetOdometry, 
-      this::getChassisSpeeds, 
-      this::setChassisSpeeds, 
-      new PPHolonomicDriveController(
-        Constants.AutoConstants.translationConstants, 
-        Constants.AutoConstants.rotationConstants, 0.02), 
-        robotConfig, 
-        this::getAlliance, 
-        this);
   }   
   
   /**

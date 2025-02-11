@@ -10,17 +10,13 @@ import org.json.simple.parser.ParseException;
 import com.pathplanner.lib.util.FileVersionException;
 
 import edu.wpi.first.math.MathUtil;
-import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.Constants.OIConstants;
-import frc.robot.commands.vision.AlignTeleopCommand;
-import frc.robot.commands.drive.HeadingLockDriveCommand;
 import frc.robot.commands.drive.TeleopDriveCommand;
-import frc.robot.subsystems.Cameras;
 import frc.robot.subsystems.Drivetrain;
-import frc.utils.AutoUtils;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandPS5Controller;
@@ -35,7 +31,6 @@ import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 public class RobotContainer {
     // The robot's subsystems
     private final Drivetrain m_robotDrive = new Drivetrain();
-    private final Cameras m_cameras = new Cameras();
 
     // Driving controller
     CommandPS5Controller m_mainController = new CommandPS5Controller(OIConstants.kMainControllerPort);
@@ -47,8 +42,7 @@ public class RobotContainer {
      * The container for the robot, initializing everything and setting up the controller chooser
      */
     public RobotContainer() {
-        m_cameras.setDriveSubsystem(m_robotDrive);
-
+        
         configureNamedCommands();
         
         // the input field for typing in the auto
@@ -126,56 +120,10 @@ public class RobotContainer {
             
             // Reset Gyro
             m_mainController.triangle().onTrue(new InstantCommand(() -> m_robotDrive.zeroHeading()));
-
-            m_mainController.square().onTrue(
-                new InstantCommand(() -> {
-                    if(m_cameras.isVisionActive) {
-                        new AlignTeleopCommand(
-                            18, 
-                            true, 
-                            true, 
-                            m_robotDrive, 
-                            m_cameras, 
-                            new Translation2d(0.3, 0)
-                            ).schedule();
-                        }
-                    })
-                    );
-
-            m_mainController.circle().onTrue(new HeadingLockDriveCommand(
-                () -> -MathUtil.applyDeadband(m_mainController.getLeftY() * invert, 0.05),
-            () -> -MathUtil.applyDeadband(m_mainController.getLeftX() * invert, 0.05),
-            () -> -MathUtil.applyDeadband(m_mainController.getRightX(), 0.05),
-            () -> OIConstants.kFieldRelative, () -> OIConstants.kRateLimited,
-            m_robotDrive
-            ));
         }
         else {
             // Reset Gyro
             m_backupController.y().onTrue(new InstantCommand(() -> m_robotDrive.zeroHeading()));
-
-            m_backupController.x().onTrue(
-                new InstantCommand(() -> {
-                    if(m_cameras.isVisionActive) {
-                        new AlignTeleopCommand(
-                            18, 
-                            true, 
-                            true, 
-                            m_robotDrive, 
-                            m_cameras, 
-                            new Translation2d(0.3, 0)
-                            ).schedule();
-                        }
-                    })
-                    );
-
-            m_backupController.b().onTrue(new HeadingLockDriveCommand(
-                () -> -MathUtil.applyDeadband(m_backupController.getLeftY() * invert, 0.05),
-            () -> -MathUtil.applyDeadband(m_backupController.getLeftX() * invert, 0.05),
-            () -> -MathUtil.applyDeadband(m_backupController.getRightX(), 0.05),
-            () -> OIConstants.kFieldRelative, () -> OIConstants.kRateLimited,
-            m_robotDrive
-            ));
 
             // Slow mode command (Left Bumper)
             m_backupController.leftBumper().onTrue(new InstantCommand(() -> m_robotDrive.setSlowMode(true)));
@@ -198,9 +146,7 @@ public class RobotContainer {
      */ 
     public Command getAutonomousCommand() throws FileVersionException, IOException, ParseException {
         //using the string provided by the user to build and run an auto
-        return AutoUtils.actuallyBuildAutoFromCommands(
-            "move(Reef4Left)/path(Coral2)", m_robotDrive, m_cameras, 0
-        );
+        return Commands.none();
     }
 
     /**
