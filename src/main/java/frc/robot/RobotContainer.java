@@ -15,6 +15,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.Constants.OIConstants;
 import frc.robot.commands.drive.TeleopDriveCommand;
 import frc.robot.subsystems.Drivetrain;
+import frc.robot.subsystems.Elevator;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
@@ -38,6 +39,8 @@ public class RobotContainer {
 
     SendableChooser<String> controllerOptions;
 
+    private final Elevator m_elevator = new Elevator();
+
     /**
      * The container for the robot, initializing everything and setting up the controller chooser
      */
@@ -53,6 +56,10 @@ public class RobotContainer {
         controllerOptions.addOption("Xbox Controller", "XBOX");
         controllerOptions.addOption("Playstation Controller", "PS");
         SmartDashboard.putData("Controller Select", controllerOptions);
+    }
+
+    public Elevator getElevator() {
+        return m_elevator;
     }
 
     /**
