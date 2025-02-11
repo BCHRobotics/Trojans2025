@@ -1,7 +1,9 @@
 package frc.utils;
 
 import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
+import frc.robot.Constants.VisionConstants;
 
 /*
  * point of interest for use in autos
@@ -38,5 +40,25 @@ public class AutoPOI {
         this.position = position;
         this.name = name;
         tagId = -1;
+    }
+
+    public static AutoPOI createPOIFromTag(String name, int tagId, Translation2d tagOffset) {
+        Translation2d fieldRelativeOffset = VisionUtils.applyRotationMatrix(
+            tagOffset, VisionConstants.tagTransforms[tagId].headingAngle);
+
+        Pose2d tagFieldPose = VisionConstants.tagTransforms[tagId].getPosition();
+
+        Pose2d fieldPoseWithOffset = new Pose2d(
+            tagFieldPose.getX() + fieldRelativeOffset.getX(),
+            tagFieldPose.getY() + fieldRelativeOffset.getY(),
+            tagFieldPose.getRotation().plus(Rotation2d.fromDegrees(180))
+        );
+
+        return new AutoPOI(
+            fieldPoseWithOffset,
+            name,
+            tagId,
+            tagOffset
+        );
     }
 }

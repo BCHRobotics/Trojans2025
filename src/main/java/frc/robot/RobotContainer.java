@@ -199,7 +199,7 @@ public class RobotContainer {
     public Command getAutonomousCommand() throws FileVersionException, IOException, ParseException {
         //using the string provided by the user to build and run an auto
         return AutoUtils.actuallyBuildAutoFromCommands(
-            "move(Reef4Left)", m_robotDrive, m_cameras, 0
+            "move(Reef4Left)/path(Coral2)", m_robotDrive, m_cameras, 0
         );
     }
 

@@ -246,24 +246,30 @@ public final class Constants {
     //   new AutoPOI(new Pose2d(1.200, 7.100, Rotation2d.fromDegrees(-126)), "Coral2"),
     // };
 
-    // should be 14 total
+    // should be 28 total
+    // TODO: red side
     public static final AutoPOI[] fieldPOIs = new AutoPOI[] {
       // corals
-      new AutoPOI(new Pose2d(1.199, 7.010, Rotation2d.fromDegrees(126)), "Coral1"),
-      new AutoPOI(new Pose2d(1.199, 0.968, Rotation2d.fromDegrees(-126.000)), "Coral2"),
-      // reefs
-      new AutoPOI(new Pose2d(3.2256073152146305, 4.190908051816104, Rotation2d.fromDegrees(0)), "Reef1Left", 18, new Translation2d(0.432, -0.165)),
-      new AutoPOI(new Pose2d(3.2256073152146305, 3.8609080518161036, Rotation2d.fromDegrees(0)), "Reef1Right", 18, new Translation2d(0.432, 0.165)),
-      new AutoPOI(new Pose2d(4.000808339452728, 5.20211446541786, Rotation2d.fromDegrees(-60)), "Reef2Left", 19, new Translation2d(0.432, -0.165)),
-      new AutoPOI(new Pose2d(3.7150199562038635, 5.037114465417861, Rotation2d.fromDegrees(-60)), "Reef2Right", 19, new Translation2d(0.432, 0.165)),
-      new AutoPOI(new Pose2d(5.263644001124051, 5.03711446541786, Rotation2d.fromDegrees(-120)), "Reef3Left", 20, new Translation2d(0.432, -0.165)),
-      new AutoPOI(new Pose2d(4.9778556178751865, 5.20211446541786, Rotation2d.fromDegrees(-120)), "Reef3Right", 20, new Translation2d(0.432, 0.165)),
-      new AutoPOI(new Pose2d(5.953056642113285, 3.8609080518161036, Rotation2d.fromDegrees(180)), "Reef4Left", 21, new Translation2d(0.632, -0.165)),
-      new AutoPOI(new Pose2d(5.953056642113285, 4.190908051816104, Rotation2d.fromDegrees(180)), "Reef4Right", 21, new Translation2d(0.532, 0.165)),
-      new AutoPOI(new Pose2d(4.9778556178751865, 2.8497016382143476, Rotation2d.fromDegrees(120)), "Reef5Left", 22, new Translation2d(0.432, -0.165)),
-      new AutoPOI(new Pose2d(5.263644001124051, 3.0147016382143477, Rotation2d.fromDegrees(120)), "Reef5Right", 22, new Translation2d(0.432, 0.165)),
-      new AutoPOI(new Pose2d(3.715019956203863, 3.0147016382143477, Rotation2d.fromDegrees(60)), "Reef6Left", 17, new Translation2d(0.432, -0.165)),
-      new AutoPOI(new Pose2d(4.000808339452727, 2.8497016382143476, Rotation2d.fromDegrees(60)), "Reef6Right", 17, new Translation2d(0.432, 0.165)),
+      new AutoPOI(new Pose2d(1.199, 7.010, Rotation2d.fromDegrees(126)), "BlueCoral1"),
+      new AutoPOI(new Pose2d(1.199, 0.968, Rotation2d.fromDegrees(-126.000)), "BlueCoral2"),
+      // reefs (offset of 0.432 on x, +/-0.165 on y)
+      AutoPOI.createPOIFromTag("BlueReef1Left", 18, new Translation2d(0.432, -0.165)),
+      AutoPOI.createPOIFromTag("BlueReef1Right", 18, new Translation2d(0.432, 0.165)),
+
+      AutoPOI.createPOIFromTag("BlueReef2Left", 19, new Translation2d(0.432, -0.165)),
+      AutoPOI.createPOIFromTag("BlueReef2Right", 19, new Translation2d(0.432, 0.165)),
+
+      AutoPOI.createPOIFromTag("BlueReef3Left", 20, new Translation2d(0.432, -0.165)),
+      AutoPOI.createPOIFromTag("BlueReef3Right", 20, new Translation2d(0.432, 0.165)),
+
+      AutoPOI.createPOIFromTag("BlueReef4Left", 21, new Translation2d(0.432, -0.165)),
+      AutoPOI.createPOIFromTag("BlueReef4Right", 21, new Translation2d(0.432, 0.165)),
+
+      AutoPOI.createPOIFromTag("BlueReef5Left", 22, new Translation2d(0.432, -0.165)),
+      AutoPOI.createPOIFromTag("BlueReef5Right", 22, new Translation2d(0.432, 0.165)),
+
+      AutoPOI.createPOIFromTag("BlueReef6Left", 17, new Translation2d(0.432, -0.165)),
+      AutoPOI.createPOIFromTag("BlueReef6Right", 17, new Translation2d(0.432, 0.165)),
     };
   }
 

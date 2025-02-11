@@ -154,9 +154,6 @@ public class AutoUtils {
         // reset odometry to the defined starting pose
         final Pose2d commandedStartingPose = oldPOI.position;
 
-        SmartDashboard.putNumber("X", commandedStartingPose.getX());
-        SmartDashboard.putNumber("Y", commandedStartingPose.getY());
-
         Command autoCommand = Commands.runOnce(() -> driveSubsystem.resetOdometry(commandedStartingPose));
         RobotConfig robotConfig = geRobotConfig();
         if (commands == null) {return autoCommand;}
@@ -245,24 +242,18 @@ public class AutoUtils {
         // creating an empty list for event markers, filled if the POI has a tag id
         List<EventMarker> eventMarkers = new LinkedList<EventMarker>();
 
-        // checking if the finish POI involves a tag
-        // if (finish.tagId != -1) {
-        //     eventMarkers.add(
-        //     new EventMarker(
-        //         "Activate Vision", 
-        //     0.5,
-        //     -1,
-        //     new AlignAutoCommand(
-        //         finish.tagId, 
-        //         finish.desiredTagOffset, 
-        //         driveSubsystem, 
-        //         cameraSubsystem))
-        //     );
-        // }
+        Translation2d alignmentOffset = VisionUtils.applyRotationMatrix(
+            new Translation2d(1, 0), 
+            finish.position.getRotation().getRadians() + Math.PI);
+
+        Pose2d alignmentPose = new Pose2d(
+            finish.position.getX() + alignmentOffset.getX(),
+            finish.position.getY() + alignmentOffset.getY(),
+            finish.position.getRotation());
 
         // construct the path using the POIs and the built-in constructor
         PathPlannerPath toReturn = new PathPlannerPath(
-            PathPlannerPath.waypointsFromPoses(new Pose2d[]{start.position, finish.position}),
+            PathPlannerPath.waypointsFromPoses(new Pose2d[]{start.position, alignmentPose, finish.position}),
             new LinkedList<RotationTarget>(),
             Collections.emptyList(),
             Collections.emptyList(),
