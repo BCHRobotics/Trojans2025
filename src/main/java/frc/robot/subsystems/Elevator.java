@@ -79,10 +79,15 @@ public class Elevator extends SubsystemBase{
     
     public void setTargetPosition(double positionInches) {
         //set limits on the target position
-        setpoint = MathUtil.clamp(
+        setpoint = positionInches;
+        /* 
+        
+        MathUtil.clamp(
             positionInches, 
             ElevatorConstants.bottomPos, 
             ElevatorConstants.topPos);
+        */
+        
     }
 
     public void stopMotors() {
