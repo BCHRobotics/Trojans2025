@@ -4,9 +4,19 @@
 
 package frc.robot;
 
+import com.pathplanner.lib.config.PIDConstants;
+import com.pathplanner.lib.path.PathConstraints;
+
+import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
+import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.math.util.Units;
+import frc.utils.AutoPOI;
+import frc.utils.CameraTransform;
+import frc.utils.TagTransform;
+import frc.utils.VisionUtils;
 
 
 /**
@@ -25,33 +35,41 @@ import edu.wpi.first.math.util.Units;
 public final class Constants {
   public static class ElevatorConstants {
 
-    //setting the motor IDs
+    // possible positions for the elevator,
+    // an enum is a bit nicer than separate variables
+    public enum ElevatorPosition {
+      BOTTOM(0),;
+      
+      // ------
+      private final double setpoint;
+      ElevatorPosition(double setpoint) {
+          this.setpoint = setpoint;
+      }
+  
+      public double getSetpoint() {
+          return setpoint;
+      }
+    }
+
+    // elevator CAN IDs
     public static final int leftElevatorID = 21;
     public static final int rightElevatorID = 20;
 
+    // PID terms for elevator up/down motion
     public static final double ElevatorkP = 0.065;
-    //increasing kI leads to acceleration (I is calculated by kI * (sum of past errors))
     public static final double ElevatorkI = 0.001;
-    //increasing kD leads to slowing down as it approaches setpoint
     public static final double ElevatorkD = 0.000;
-    public static final double maxOutput = 0.5;
-    public static final double maxVelocity = 300;
 
+    // supplied current limit
+    public static final double maxOutput = 0.5;
+    // speed limit
+    public static final double maxVelocity = 300;
+    
+    // not used yet
     public static final double chainDiameter = 1.751; //inch
     public static final double gearRatio = 5; //5:1 gear ratio
-    
     //defining the constant for encoder counts per inch 
     public static final double countsPerInch = (gearRatio)/(Math.PI*chainDiameter);
-
-    //setting the limits for each position (inches)
-    public static final double downPos = 0.0;
-    public static final double bottomPos = 0.0;
-    public static final double topPos = 72.5;
-    public static final double L1 = 10;
-    public static final double L2 = 20;
-    public static final int limitSwitchPort = 0;
-
-    public static final double feedForward = 0.1; 
   }
 
   public static final class CONTROLLER {
@@ -112,6 +130,62 @@ public final class Constants {
     public static final int kRearRightTurningCanId = 17;
 
     public static final boolean kGyroReversed = true;
+  }
+
+  public static final class VisionConstants{
+    // how far the robot can be from the setpoint during vision alignment
+    // these CANNOT be zero, because then commands won't cancel because the robot cannot be perfect
+    public static final double allowedXError = 0.1;
+    public static final double allowedYError = 0.1;
+
+    // camera names, transforms, etc.
+    public static final String[] cameraNames = new String[] {"Front"};
+    public static final CameraTransform[] cameraOffsets = 
+    new CameraTransform[] {
+      new CameraTransform(0.356, 0, 0),
+    };
+
+    // these are the actual ones for 2025
+    // TagTransform class for holding position, heading, y-rot, etc.
+
+    // since First decided to provide units in inches, I've left the raw units here
+    // and just decided to make a function to correct them
+    public static final TagTransform[] tagTransforms = new TagTransform[] {
+      VisionUtils.correctTagUnits(new TagTransform(0, 0, 0, 0, 0)), // null tag so indexing makes sense
+      VisionUtils.correctTagUnits(new TagTransform(657.37, 25.80, 58.50, 126, 0)), // 1
+      VisionUtils.correctTagUnits(new TagTransform(657.37, 291.20, 58.50, 234, 0)), // 2
+      VisionUtils.correctTagUnits(new TagTransform(455.15, 317.15, 51.25, 270, 0)), // 3
+      VisionUtils.correctTagUnits(new TagTransform(365.20, 241.64, 73.54, 0, 30)), // 4
+      VisionUtils.correctTagUnits(new TagTransform(365.20, 75.39, 12.13, 0, 30)), // 5
+      VisionUtils.correctTagUnits(new TagTransform(530.49, 130.17, 12.13, 300, 0)), // 6
+      VisionUtils.correctTagUnits(new TagTransform(546.87, 158.50, 12.13, 0, 0)), // 7
+      VisionUtils.correctTagUnits(new TagTransform(530.49, 186.83, 12.13, 60, 0)), // 8
+      VisionUtils.correctTagUnits(new TagTransform(497.77, 186.83, 12.13, 120, 0)), // 9
+      VisionUtils.correctTagUnits(new TagTransform(481.39, 158.50, 12.13, 180, 0)), // 10
+      VisionUtils.correctTagUnits(new TagTransform(497.77, 130.17, 12.13, 240, 0)), // 11
+      VisionUtils.correctTagUnits(new TagTransform(33.51, 25.80, 58.50, 54, 0)), // 12
+      VisionUtils.correctTagUnits(new TagTransform(33.51, 291.20, 58.50, 306, 0)), // 13
+      VisionUtils.correctTagUnits(new TagTransform(325.68, 241.64, 73.54, 180, 30)), // 14
+      VisionUtils.correctTagUnits(new TagTransform(325.68, 75.39, 73.54, 180, 30)), // 15
+      VisionUtils.correctTagUnits(new TagTransform(235.73, -0.15, 51.25, 90, 0)), // 16
+      VisionUtils.correctTagUnits(new TagTransform(160.39, 130.17, 12.13, 240, 0)), // 17
+      VisionUtils.correctTagUnits(new TagTransform(144.00, 158.50, 12.13, 180, 0)), // 18
+      VisionUtils.correctTagUnits(new TagTransform(160.39, 186.83, 12.13, 120, 0)), // 19
+      VisionUtils.correctTagUnits(new TagTransform(193.10, 186.83, 12.13, 60, 0)), // 20
+      VisionUtils.correctTagUnits(new TagTransform(209.49, 158.50, 12.13, 0, 0)), // 21
+      VisionUtils.correctTagUnits(new TagTransform(193.10, 130.17, 12.13, 300, 0)), // 22
+    };
+
+    // the constants used for moving the bot towards the apriltag during vision alignment
+    // NOTE - y axis doesn't go through PID, this is only for x
+    public static double kAlignP = 1;
+    public static double kAlignI = 0.05;
+    public static double kAlignD = 0;
+
+    // the constants used for rotation alignment (heading lock and vision alignment)
+    public static double kRotP = 0.018;
+    public static double kRotI = 0.00001;
+    public static double kRotD = 0;
   }
 
   public static final class ModuleConstants {
@@ -180,5 +254,88 @@ public final class Constants {
 
   public static final class NeoMotorConstants {
     public static final double kFreeSpeedRpm = 5676;
+  }
+
+  public static final class AutoConstants {
+    public static final PathConstraints defaultGlobalContstraints = new PathConstraints(1,0.5, 540, 720);
+
+    public static final PIDConstants translationConstants = new PIDConstants(2, 1, 0);
+    public static final PIDConstants rotationConstants = new PIDConstants(1, 0, 0);
+
+    public static final double kMaxSpeedMetersPerSecond = 3.0;
+    public static final double kMaxAccelerationMetersPerSecondSquared = 3.0;
+    public static final double kMaxAngularSpeedRadiansPerSecond = Math.PI;
+    public static final double kMaxAngularSpeedRadiansPerSecondSquared = Math.PI;
+
+    //distance from robot center to furthest module
+    public static final double kDriveBase = Units.inchesToMeters((Math.sqrt(Math.pow(DriveConstants.kTrackWidth, 2) 
+        + Math.pow(DriveConstants.kWheelBase, 2))) / 2);
+
+    // Constraint for the motion profiled robot angle controller
+    public static final TrapezoidProfile.Constraints kThetaControllerConstraints = new TrapezoidProfile.Constraints(
+        kMaxAngularSpeedRadiansPerSecond, kMaxAngularSpeedRadiansPerSecondSquared);
+
+    // POI numbers:
+    // Start_ (1, 2, 3, 4, 5, 6) -> fallback starting positions
+    // Reef_ (1, 2, 3, 4, 5, 6) -> sides of the reef
+    // Station_ (1, 2) -> coral stations
+
+    // test fallback positions
+    public static final AutoPOI[] fallbackPositions = new AutoPOI[] {
+      // tag indices are set to -1 because these poses have nothing to do with apriltags
+      new AutoPOI(new Pose2d(8.000, 4.045, Rotation2d.fromDegrees(180)), "Start1"), // centered on the start line, per actual field
+    };
+
+    // should be 28 total
+    // TODO: red side
+    public static final AutoPOI[] fieldPOIs = new AutoPOI[] {
+      // BLUE corals
+      new AutoPOI(new Pose2d(1.199, 7.010, Rotation2d.fromDegrees(126)), "BlueCoral1"),
+      new AutoPOI(new Pose2d(1.199, 0.968, Rotation2d.fromDegrees(-126)), "BlueCoral2"),
+
+      // BLUE reefs (offset of 0.432 on x, +/-0.165 on y)
+      AutoPOI.createPOIFromTag("BlueReef1Left", 18, new Translation2d(0.432, -0.165)),
+      AutoPOI.createPOIFromTag("BlueReef1Right", 18, new Translation2d(0.432, 0.165)),
+
+      AutoPOI.createPOIFromTag("BlueReef2Left", 19, new Translation2d(0.432, -0.165)),
+      AutoPOI.createPOIFromTag("BlueReef2Right", 19, new Translation2d(0.432, 0.165)),
+
+      AutoPOI.createPOIFromTag("BlueReef3Left", 20, new Translation2d(0.432, -0.165)),
+      AutoPOI.createPOIFromTag("BlueReef3Right", 20, new Translation2d(0.432, 0.165)),
+
+      AutoPOI.createPOIFromTag("BlueReef4Left", 21, new Translation2d(0.432, -0.165)),
+      AutoPOI.createPOIFromTag("BlueReef4Right", 21, new Translation2d(0.432, 0.165)),
+
+      AutoPOI.createPOIFromTag("BlueReef5Left", 22, new Translation2d(0.432, -0.165)),
+      AutoPOI.createPOIFromTag("BlueReef5Right", 22, new Translation2d(0.432, 0.165)),
+
+      AutoPOI.createPOIFromTag("BlueReef6Left", 17, new Translation2d(0.432, -0.165)),
+      AutoPOI.createPOIFromTag("BlueReef6Right", 17, new Translation2d(0.432, 0.165)),
+      
+      // -----------------------
+
+      // RED corals
+      new AutoPOI(new Pose2d(16.351, 1.016, Rotation2d.fromDegrees(-54)), "RedCoral1"),
+      new AutoPOI(new Pose2d(16.351, 7.046, Rotation2d.fromDegrees(54)), "RedCoral2"),
+
+      // RED reefs (offset of 0.432 on x, +/-0.165 on y)
+      AutoPOI.createPOIFromTag("RedReef1Left", 7, new Translation2d(0.432, -0.165)),
+      AutoPOI.createPOIFromTag("RedReef1Right", 7, new Translation2d(0.432, 0.165)),
+
+      AutoPOI.createPOIFromTag("RedReef2Left", 6, new Translation2d(0.432, -0.165)),
+      AutoPOI.createPOIFromTag("RedReef2Right", 6, new Translation2d(0.432, 0.165)),
+
+      AutoPOI.createPOIFromTag("RedReef3Left", 11, new Translation2d(0.432, -0.165)),
+      AutoPOI.createPOIFromTag("RedReef3Right", 11, new Translation2d(0.432, 0.165)),
+
+      AutoPOI.createPOIFromTag("RedReef4Left", 10, new Translation2d(0.432, -0.165)),
+      AutoPOI.createPOIFromTag("RedReef4Right", 10, new Translation2d(0.432, 0.165)),
+
+      AutoPOI.createPOIFromTag("RedReef5Left", 9, new Translation2d(0.432, -0.165)),
+      AutoPOI.createPOIFromTag("RedReef5Right", 9, new Translation2d(0.432, 0.165)),
+
+      AutoPOI.createPOIFromTag("RedReef6Left", 8, new Translation2d(0.432, -0.165)),
+      AutoPOI.createPOIFromTag("RedReef6Right", 8, new Translation2d(0.432, 0.165)),
+    };
   }
 }

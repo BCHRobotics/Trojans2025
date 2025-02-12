@@ -7,17 +7,21 @@ package frc.robot;
 import java.io.IOException;
 
 import org.json.simple.parser.ParseException;
+
+import com.pathplanner.lib.auto.NamedCommands;
+import com.pathplanner.lib.commands.PathPlannerAuto;
 import com.pathplanner.lib.util.FileVersionException;
 
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.Constants.OIConstants;
+import frc.robot.Constants.ElevatorConstants.ElevatorPosition;
+import frc.robot.commands.MoveElevatorCommand;
 import frc.robot.commands.drive.TeleopDriveCommand;
 import frc.robot.subsystems.Drivetrain;
 import frc.robot.subsystems.Elevator;
 import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandPS5Controller;
@@ -47,9 +51,6 @@ public class RobotContainer {
     public RobotContainer() {
         
         configureNamedCommands();
-        
-        // the input field for typing in the auto
-        SmartDashboard.putString("Auto Command", "");
         
         // setting up a dropdown for switching between xbox and playstation
         controllerOptions = new SendableChooser<String>();
@@ -99,6 +100,7 @@ public class RobotContainer {
      * (used during autos)
      */
     public void configureNamedCommands() {
+        NamedCommands.registerCommand("Elevator L0", new MoveElevatorCommand(elevator, ElevatorPosition.BOTTOM));
     }
 
     /**
@@ -107,7 +109,7 @@ public class RobotContainer {
      * @param useBackup whether the active controller is the backup (XBOX)
      */
     private void configureButtonBindingsDriver(boolean isRedAlliance, boolean useBackup) {
-        final double invert = isRedAlliance ? -1 : 1;
+        //final double invert = isRedAlliance ? -1 : 1;
 
         if (!useBackup) {
             // NOTE FOR SLOW/FAST MODE COMMANDS
@@ -139,11 +141,7 @@ public class RobotContainer {
             m_backupController.leftTrigger().whileFalse(new RunCommand(() -> m_robotDrive.setX(), m_robotDrive));
 
             this.m_backupController.a()
-            .onTrue(elevator.moveLevel("L1"));
-            this.m_backupController.b()
-            .onTrue(elevator.moveLevel("L2"));
-            this.m_backupController.x()
-            .onTrue(elevator.moveLevel("L0"));
+            .onTrue(new MoveElevatorCommand(elevator, ElevatorPosition.BOTTOM));
         }
     }
 
@@ -156,7 +154,7 @@ public class RobotContainer {
      */ 
     public Command getAutonomousCommand() throws FileVersionException, IOException, ParseException {
         //using the string provided by the user to build and run an auto
-        return Commands.none();
+        return new PathPlannerAuto("Test Auto");
     }
 
     /**
