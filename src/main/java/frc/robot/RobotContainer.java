@@ -142,12 +142,7 @@ public class RobotContainer {
             .onTrue(elevator.moveLevel("L1"));
             this.m_backupController.b()
             .onTrue(elevator.moveLevel("L2"));
-            this.m_backupController.y()
-            .onTrue(elevator.moveLevel("L3"));
             this.m_backupController.x()
-            .onTrue(elevator.moveLevel("DOWN"));
-    
-            this.m_backupController.leftTrigger()
             .onTrue(elevator.moveLevel("L0"));
         }
     }
