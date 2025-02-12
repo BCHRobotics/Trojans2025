@@ -33,10 +33,15 @@
   "pointTowardsZones": [],
   "eventMarkers": [
     {
-      "name": "Elevator L1",
-      "waypointRelativePos": 0.7319378798109455,
+      "name": "Elevator Up",
+      "waypointRelativePos": 0.380823767724511,
       "endWaypointRelativePos": null,
-      "command": null
+      "command": {
+        "type": "named",
+        "data": {
+          "name": "Elevator L1"
+        }
+      }
     }
   ],
   "globalConstraints": {

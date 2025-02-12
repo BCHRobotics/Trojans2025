@@ -82,11 +82,14 @@ public class Elevator extends SubsystemBase{
         SparkMaxConfig followerConfig = new SparkMaxConfig();
         followerConfig.follow(primaryMotor, false);
         followerMotor.configure(followerConfig, null, null); 
+    } 
 
+    public void resetElevator() {
         // set the position of the encoder to 0, since the elevator should be resting at the bottom
         // THIS CAUSES ISSUES IF YOU DEPLOY WHILE THE ELEVATOR IS UP, SAME AS LAST YEAR
         encoder.setPosition(0);
-    } 
+        setpoint = 0;
+    }
 
     @Override
     public void periodic() {

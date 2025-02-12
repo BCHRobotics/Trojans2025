@@ -11,12 +11,15 @@ public class MoveElevatorCommand extends Command {
     public MoveElevatorCommand(Elevator elevatorSubsystem, ElevatorPosition position) {
         this.elevatorSubsystem = elevatorSubsystem;
         this.position = position;
+
+        this.addRequirements(elevatorSubsystem);
     }
 
     @Override
     public void initialize() {
         // we only need to set the setpoint once, that's it
         elevatorSubsystem.setSetpoint(position.getSetpoint());
+        System.out.println("ELEVATOR TIME");
     }
 
     @Override

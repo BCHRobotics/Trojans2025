@@ -8,8 +8,8 @@ import java.io.IOException;
 
 import org.json.simple.parser.ParseException;
 
+import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.auto.NamedCommands;
-import com.pathplanner.lib.commands.PathPlannerAuto;
 import com.pathplanner.lib.util.FileVersionException;
 
 import edu.wpi.first.math.MathUtil;
@@ -94,6 +94,10 @@ public class RobotContainer {
         m_robotDrive.setAlliance(isRedAlliance);
     }
 
+    public void initializeElevator() {
+        elevator.resetElevator();
+    }
+
     /**
      * [UNUSED]
      * Method for configuring named commands 
@@ -158,7 +162,7 @@ public class RobotContainer {
      */ 
     public Command getAutonomousCommand() throws FileVersionException, IOException, ParseException {
         //using the string provided by the user to build and run an auto
-        return new PathPlannerAuto("Test Auto");
+        return AutoBuilder.buildAuto("Test Auto");
     }
 
     /**
