@@ -100,7 +100,7 @@ public class RobotContainer {
      * (used during autos)
      */
     public void configureNamedCommands() {
-        NamedCommands.registerCommand("Elevator L0", new MoveElevatorCommand(elevator, ElevatorPosition.BOTTOM));
+        NamedCommands.registerCommand("Elevator L1", new MoveElevatorCommand(elevator, ElevatorPosition.MID));
     }
 
     /**
@@ -142,6 +142,10 @@ public class RobotContainer {
 
             this.m_backupController.a()
             .onTrue(new MoveElevatorCommand(elevator, ElevatorPosition.BOTTOM));
+            this.m_backupController.x()
+            .onTrue(new MoveElevatorCommand(elevator, ElevatorPosition.MID));
+            this.m_backupController.b()
+            .onTrue(new MoveElevatorCommand(elevator, ElevatorPosition.TOP));
         }
     }
 
