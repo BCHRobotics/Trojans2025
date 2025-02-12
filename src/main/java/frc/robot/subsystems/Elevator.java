@@ -95,6 +95,11 @@ public class Elevator extends SubsystemBase{
         pidController.reset();
     }
 
+    @Override
+    public void periodic() {
+        run();
+    }
+
     public void run() {
         double currentPosition = encoder.getPosition() * ElevatorConstants.countsPerInch; // inches
         //uses kP, kI, and kD constants to calculate pidOutput
