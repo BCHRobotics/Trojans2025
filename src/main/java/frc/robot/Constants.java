@@ -74,10 +74,27 @@ public final class Constants {
     public static final double countsPerInch = (gearRatio)/(Math.PI*chainDiameter);
   }
 
+  public static final class HarpoonConstants {
+    public static final int kIntakeMotorCANID = 30; // TO be changed to the actual intake motor ID
+    public static final int kRotationMotorCANID = 31; // TO be changed to the actual rotation motor ID
+
+    public static final double harpoonP = 0.1;
+    public static final double harpoonI = 0.01;
+    public static final double harpoonD = 0.001;
+
+
+    public static final double gearConversionFactor = 5; // This is the conversion factor from degrees to rotations
+
+    
+
+  }
+  
+
   public static final class CONTROLLER {
     public static final int DRIVER_CONTROLLER_PORT = 0;
 }
-  
+
+
   public static final class DriveConstants {
     // Ways to drive the robot
     public enum DriveModes {
