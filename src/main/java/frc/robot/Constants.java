@@ -80,7 +80,7 @@ public final class Constants {
       BOTTOM(15),
       MID(30),
       TOP(45);
-      
+    
       // ------
       private final double setpoint;
       HarpoonPosition(double setpoint) {

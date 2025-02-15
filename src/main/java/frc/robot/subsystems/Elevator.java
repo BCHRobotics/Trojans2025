@@ -13,6 +13,8 @@ import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.PIDController;
 import frc.robot.Constants.ElevatorConstants;
 
+// we may want to switch to using the maxmotion controller
+
 /*
  * Subsystem for managing elevator movement
  */
