@@ -77,9 +77,9 @@ public final class Constants {
   public static final class HarpoonConstants {
 
     public enum HarpoonPosition {
-      BOTTOM(0),
-      MID(7),
-      TOP(15);
+      BOTTOM(15),
+      MID(30),
+      TOP(45);
       
       // ------
       private final double setpoint;
@@ -91,7 +91,7 @@ public final class Constants {
           return setpoint;
       }
     }
-    
+
     public static final int kIntakeMotorCANID = 30; // TO be changed to the actual intake motor ID
     public static final int kRotationMotorCANID = 31; // TO be changed to the actual rotation motor ID
 
