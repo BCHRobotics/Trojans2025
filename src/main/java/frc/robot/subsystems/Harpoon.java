@@ -44,34 +44,41 @@ public class Harpoon extends SubsystemBase{
     // private Elevator m_elevator = Elevator.getInstance(); This method is not defined in this code base
 
     public Harpoon(){
+        // set up the motors
         this.kIntakeMotor = new SparkMax(Constants.HarpoonConstants.kIntakeMotorCANID, MotorType.kBrushless);
         this.kRotationMotor = new SparkMax(Constants.HarpoonConstants.kRotationMotorCANID, MotorType.kBrushless);
 
-
+        // important configurations. Idlemode is just the mode the sensor is in when it is not being commanded. 
         this.kRotationConfig.inverted(false);
         this.kRotationConfig.idleMode(IdleMode.kBrake);
 
+        // super helpful position conversion factor. If using REV's maxmotion, this is important because it eliminates the need to adjust the setpoints based on the converion, making the code less elusive
         this.kRotationConfig.encoder.positionConversionFactor(
             Constants.HarpoonConstants.gearConversionFactor*(Math.PI/180));
 
+        // more important configs
         this.kIntakeConfig.inverted(false);
         this.kIntakeConfig.idleMode(IdleMode.kBrake);
-        
+
+        // closed loop controller for the rotation motor - we're using a pid feedforward controller
         this.kRotationConfig.closedLoop.feedbackSensor(FeedbackSensor.kAbsoluteEncoder).pidf(
             Constants.HarpoonConstants.harpoonP,
             Constants.HarpoonConstants.harpoonI,
             Constants.HarpoonConstants.harpoonD,
             0);
         
+        // maxmotion! This is a really cool feature that REV has. It allows you to set the max velocity and acceleration of the motor. This is super helpful for tuning the motor.
         this.kRotationConfig.closedLoop.maxMotion
             .maxVelocity(maxVelocity)
             .maxAcceleration(maxAcceleration)
             .allowedClosedLoopError(0.5);
+
         
+        // get the controller for the rotation motor
         this.kRotationController = kRotationMotor.getClosedLoopController();
 
+        // finally, configure the motors
         this.kRotationMotor.configure(kRotationConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
-  
     }
 
     public double degreesToRotations(double degrees){
@@ -91,5 +98,6 @@ public class Harpoon extends SubsystemBase{
     @Override
     public void periodic() {
         SmartDashboard.putNumber("Wrist Position", kRotationMotor.getEncoder().getPosition());
+        // we gotta get SmartDashboard sorted since there's already a lot of stuff being sent to it
     }
 }
