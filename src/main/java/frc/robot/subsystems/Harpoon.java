@@ -20,6 +20,7 @@ import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
 import edu.wpi.first.wpilibj.DigitalInput;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.Constants;
 
 
@@ -50,13 +51,17 @@ public class Harpoon extends SubsystemBase{
         this.kRotationConfig.inverted(false);
         this.kRotationConfig.idleMode(IdleMode.kBrake);
 
+        this.kRotationConfig.encoder.positionConversionFactor(
+            Constants.HarpoonConstants.gearConversionFactor*(Math.PI/180));
+
         this.kIntakeConfig.inverted(false);
         this.kIntakeConfig.idleMode(IdleMode.kBrake);
         
-        this.kRotationConfig.closedLoop.feedbackSensor(FeedbackSensor.kAbsoluteEncoder).pid(
+        this.kRotationConfig.closedLoop.feedbackSensor(FeedbackSensor.kAbsoluteEncoder).pidf(
             Constants.HarpoonConstants.harpoonP,
             Constants.HarpoonConstants.harpoonI,
-            Constants.HarpoonConstants.harpoonD);
+            Constants.HarpoonConstants.harpoonD,
+            0);
         
         this.kRotationConfig.closedLoop.maxMotion
             .maxVelocity(maxVelocity)
@@ -74,8 +79,17 @@ public class Harpoon extends SubsystemBase{
     }
 
     public void setRotationMotorPosition(double positionInDegrees){
-        this.kRotationController.setReference(
-            degreesToRotations(positionInDegrees)*Constants.HarpoonConstants.gearConversionFactor,
+        kRotationController.setReference(
+            degreesToRotations(positionInDegrees),
             SparkBase.ControlType.kMAXMotionPositionControl);
+    }
+
+    public void setIntakeMotorVelocity(double velocity){
+        kIntakeMotor.set(velocity);
+    }
+
+    @Override
+    public void periodic() {
+        SmartDashboard.putNumber("Wrist Position", kRotationMotor.getEncoder().getPosition());
     }
 }

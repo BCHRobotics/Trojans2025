@@ -3,16 +3,20 @@ package frc.robot.commands;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.Constants.ElevatorConstants.ElevatorPosition;
 import frc.robot.subsystems.Elevator;
+import frc.robot.subsystems.Harpoon;
 
 public class MoveElevatorCommand extends Command {
     private Elevator elevatorSubsystem;
+    private Harpoon harpoonSubsystem;
     private ElevatorPosition position;
+    
 
     public MoveElevatorCommand(Elevator elevatorSubsystem, ElevatorPosition position) {
         this.elevatorSubsystem = elevatorSubsystem;
         this.position = position;
 
         this.addRequirements(elevatorSubsystem);
+
     }
 
     @Override

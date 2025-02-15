@@ -21,6 +21,7 @@ import frc.robot.commands.MoveElevatorCommand;
 import frc.robot.commands.drive.TeleopDriveCommand;
 import frc.robot.subsystems.Drivetrain;
 import frc.robot.subsystems.Elevator;
+import frc.robot.subsystems.Harpoon;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.RunCommand;
@@ -38,6 +39,7 @@ public class RobotContainer {
     private final Drivetrain m_robotDrive = new Drivetrain();
 
     private final Elevator elevator = new Elevator();
+    private final Harpoon harpoon = new Harpoon();
 
     // Driving controller
     CommandPS5Controller m_mainController = new CommandPS5Controller(OIConstants.kMainControllerPort);
@@ -150,6 +152,7 @@ public class RobotContainer {
             .onTrue(new MoveElevatorCommand(elevator, ElevatorPosition.MID));
             this.m_backupController.b()
             .onTrue(new MoveElevatorCommand(elevator, ElevatorPosition.TOP));
+            this.m_backupController.a().onTrue(new InstantCommand(()-> harpoon.setIntakeMotorVelocity(-0.5)));
         }
     }
 

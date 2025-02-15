@@ -75,6 +75,23 @@ public final class Constants {
   }
 
   public static final class HarpoonConstants {
+
+    public enum HarpoonPosition {
+      BOTTOM(0),
+      MID(7),
+      TOP(15);
+      
+      // ------
+      private final double setpoint;
+      HarpoonPosition(double setpoint) {
+          this.setpoint = setpoint;
+      }
+  
+      public double getSetpoint() {
+          return setpoint;
+      }
+    }
+    
     public static final int kIntakeMotorCANID = 30; // TO be changed to the actual intake motor ID
     public static final int kRotationMotorCANID = 31; // TO be changed to the actual rotation motor ID
 
@@ -85,8 +102,10 @@ public final class Constants {
 
     public static final double gearConversionFactor = 5; // This is the conversion factor from degrees to rotations
 
-    
-
+    public static final double scoreL1Angle = 0; // to be changed to actual value
+    public static final double scoreL2Angle = 0;
+    public static final double scoreL3Angle = 0;
+    public static final double scoreR1Angle = 0;
   }
   
 
