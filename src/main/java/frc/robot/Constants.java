@@ -108,6 +108,17 @@ public final class Constants {
     public static final double scoreR1Angle = 0;
   }
   
+  public static final class ClimberConstants{
+    public static final int kLeftCanID = 40;
+    public static final int kRightCanID = 41;
+
+    public static final double climberP = 0.1;
+    public static final double climberI = 0.01;
+    public static final double climberD = 0.001;
+
+    public static final double gearConversionFactor = 5; // This is the conversion factor from degrees to rotations
+    public static final double fullyRotatedPositionDegrees = 360;
+  }
 
   public static final class CONTROLLER {
     public static final int DRIVER_CONTROLLER_PORT = 0;
