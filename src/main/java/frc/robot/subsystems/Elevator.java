@@ -116,8 +116,6 @@ public class Elevator extends SubsystemBase{
         output = MathUtil.clamp(output, -ElevatorConstants.maxOutput, ElevatorConstants.maxOutput);
         
         primaryMotor.set(applyLimits(output));
-
-        //printing data onto FRC Driver Station
     }
 
     /**
@@ -146,7 +144,7 @@ public class Elevator extends SubsystemBase{
         }
 
         if (input < 0) {
-            input *= 0.6 * MathUtil.clamp(1 / (Math.abs(encoder.getVelocity()) / 1200), 0, 1);
+            input *= 0.5 * MathUtil.clamp(1 / (Math.abs(encoder.getVelocity()) / 400), 0, 1);
         }
 
         return MathUtil.clamp(input, -ElevatorConstants.maxOutput, ElevatorConstants.maxOutput);
