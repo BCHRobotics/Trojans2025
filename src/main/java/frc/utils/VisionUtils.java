@@ -1,11 +1,14 @@
 package frc.utils;
 
+import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.util.Units;
 import frc.robot.Constants.VisionConstants;
+import frc.robot.subsystems.Cameras;
+import frc.robot.subsystems.Drivetrain;
 
 /*
  * This script is for helper functions related to vision and related math
@@ -16,23 +19,23 @@ public class VisionUtils {
      * figure out if a robot is done aligning, given some data
      * NOTE - offset is tag-relative
      */
-    // public static boolean hasReachedPosition(int tagId, Translation2d offset, Drivetrain driveSubsystem, Cameras cameraSubsystem) {
-    //     if (!cameraSubsystem.canSeeTag(tagId)) {
-    //         return false;
-    //     }
-    //     else {
-    //         Translation2d fieldRelativeTagOffset = applyRotationMatrix(offset, -VisionConstants.tagTransforms[tagId].headingAngle * Math.PI / 180);
-    //         Pose2d fieldRelativeTagPosition = VisionConstants.tagTransforms[tagId].getPosition();
-    //         Pose2d robotPosition = driveSubsystem.getPose();
+    public static boolean hasReachedPosition(int tagId, Translation2d offset, Drivetrain driveSubsystem, Cameras cameraSubsystem) {
+        if (!cameraSubsystem.canSeeTag(tagId)) {
+            return false;
+        }
+        else {
+            Translation2d fieldRelativeTagOffset = applyRotationMatrix(offset, -VisionConstants.tagTransforms[tagId].headingAngle * Math.PI / 180);
+            Pose2d fieldRelativeTagPosition = VisionConstants.tagTransforms[tagId].getPosition();
+            Pose2d robotPosition = driveSubsystem.getPose();
 
-    //         Translation2d desiredPosition = new Translation2d(fieldRelativeTagPosition.getX() + fieldRelativeTagOffset.getX(), fieldRelativeTagPosition.getY() + fieldRelativeTagOffset.getY());
+            Translation2d desiredPosition = new Translation2d(fieldRelativeTagPosition.getX() + fieldRelativeTagOffset.getX(), fieldRelativeTagPosition.getY() + fieldRelativeTagOffset.getY());
 
-    //         Translation2d currentOffsetVector = desiredPosition.minus(new Translation2d(robotPosition.getX(), robotPosition.getY()));
+            Translation2d currentOffsetVector = desiredPosition.minus(new Translation2d(robotPosition.getX(), robotPosition.getY()));
 
-    //         return (Math.abs(currentOffsetVector.getX()) < VisionConstants.allowedXError
-    //         && Math.abs(currentOffsetVector.getY()) < VisionConstants.allowedYError);
-    //     }
-    // }
+            return (Math.abs(currentOffsetVector.getX()) < VisionConstants.allowedXError
+            && Math.abs(currentOffsetVector.getY()) < VisionConstants.allowedYError);
+        }
+    }
 
     /**
      * Since FRC provides tag position in inches, this function corrects them to meters
