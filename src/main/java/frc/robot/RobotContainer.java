@@ -17,6 +17,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.Constants.OIConstants;
 import frc.robot.Constants.ElevatorConstants.ElevatorPosition;
+import frc.robot.Constants.HarpoonConstants.HarpoonPosition;
 import frc.robot.commands.MoveElevatorCommand;
 import frc.robot.commands.ScoreCommand;
 import frc.robot.commands.drive.TeleopDriveCommand;
@@ -107,6 +108,7 @@ public class RobotContainer {
      */
     public void configureNamedCommands() {
         NamedCommands.registerCommand("Elevator L1", new MoveElevatorCommand(elevator, ElevatorPosition.MID));
+        NamedCommands.registerCommand("Harpoon L1", new ScoreCommand(harpoon, HarpoonPosition.TOP.getSetpoint()));
     }
 
     /**
