@@ -27,7 +27,6 @@ public class SetLEDCommand extends Command{
 
     @Override
     public boolean isFinished() {
-        // this is called after we have set the setpoint, so we can just end the command
         return true;
     }
 }
