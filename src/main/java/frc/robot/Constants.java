@@ -100,7 +100,7 @@ public final class Constants {
     public static final double harpoonD = 0.001;
 
 
-    public static final double gearConversionFactor = 5; // This is the conversion factor from degrees to rotations
+    public static final double gearConversionFactor = 9; // This is the conversion factor from degrees to rotations
 
     public static final double scoreL1Angle = 0; // to be changed to actual value
     public static final double scoreL2Angle = 0;
