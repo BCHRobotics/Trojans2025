@@ -21,6 +21,8 @@ import edu.wpi.first.math.kinematics.SwerveDriveOdometry;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.util.WPIUtilJNI;
+import edu.wpi.first.wpilibj.Timer;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.Constants.AutoConstants;
 import frc.robot.Constants.DriveConstants;
 import frc.robot.Constants.DriveConstants.DriveModes;
@@ -420,8 +422,8 @@ public class Drivetrain extends SubsystemBase {
    * This is called in periodic()
    */
   public void printToDashboard() {
-    // SmartDashboard.putNumber("x", getPose().getX());
-    // SmartDashboard.putNumber("y", getPose().getY());
-    // SmartDashboard.putNumber("time", Timer.getFPGATimestamp());
+    SmartDashboard.putNumber("x", getPose().getX());
+    SmartDashboard.putNumber("y", getPose().getY());
+    SmartDashboard.putNumber("time", Timer.getFPGATimestamp());
   }
 }

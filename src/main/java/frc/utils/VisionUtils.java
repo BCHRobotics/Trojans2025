@@ -21,7 +21,20 @@ public class VisionUtils {
      */
     public static boolean hasReachedPosition(int tagId, Translation2d offset, Drivetrain driveSubsystem, Cameras cameraSubsystem) {
         if (!cameraSubsystem.canSeeTag(tagId)) {
-            return false;
+            Translation2d fieldRelativeTagOffset = applyRotationMatrix(offset, -VisionConstants.tagTransforms[tagId].headingAngle * Math.PI / 180);
+            Pose2d fieldRelativeTagPosition = VisionConstants.tagTransforms[tagId].getPosition();
+            Pose2d robotPosition = driveSubsystem.getPose();
+
+            Translation2d desiredPosition = new Translation2d(
+                fieldRelativeTagPosition.getX() + fieldRelativeTagOffset.getX(), 
+                fieldRelativeTagPosition.getY() + fieldRelativeTagOffset.getY());
+
+            Translation2d currentOffsetVector = 
+            desiredPosition.minus(new Translation2d(robotPosition.getX(), 
+            robotPosition.getY()));
+
+            return (Math.abs(currentOffsetVector.getX()) < VisionConstants.allowedXError
+            && Math.abs(currentOffsetVector.getY()) < VisionConstants.allowedYError);
         }
         else {
             Translation2d fieldRelativeTagOffset = applyRotationMatrix(offset, -VisionConstants.tagTransforms[tagId].headingAngle * Math.PI / 180);

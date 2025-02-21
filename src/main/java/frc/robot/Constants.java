@@ -185,7 +185,7 @@ public final class Constants {
     // how far the robot can be from the setpoint during vision alignment
     // these CANNOT be zero, because then commands won't cancel because the robot cannot be perfect
     public static final double allowedXError = 0.1;
-    public static final double allowedYError = 0.1;
+    public static final double allowedYError = 0.025; 
 
     // camera names, transforms, etc.
     public static final String[] cameraNames = new String[] {"Front"};

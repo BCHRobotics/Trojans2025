@@ -12,6 +12,7 @@ import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.wpilibj.Timer;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.VisionConstants;
 import frc.utils.VisionUtils;
@@ -40,7 +41,6 @@ public class Cameras extends SubsystemBase {
     private double estimateFreqency = 0.5;
     
     public Cameras() {
-
         // initialize and fill any necessary arrays
         cameras = new PhotonCamera[VisionConstants.cameraNames.length];
         for (int i = 0; i < cameras.length; i++) {
@@ -163,6 +163,11 @@ public class Cameras extends SubsystemBase {
                 Pose2d offset = new Pose2d(fieldRelativeOffsets[i].getX(), 
                 fieldRelativeOffsets[i].getY(), 
                 fieldRelativeOffsets[i].getRotation());
+
+                if (i == 18) {
+                    System.out.println(1);
+                    SmartDashboard.putNumber("inside offset", fieldRelativeOffsets[i].getX());
+                }
                 
                 // then define where the tag is in field space
                 Pose2d tagPosition = VisionConstants.tagTransforms[i].getPosition();
@@ -244,6 +249,8 @@ public class Cameras extends SubsystemBase {
         
         //subtracting that from the estimated pose to get the position of bot center
         finalPose = finalPose.plus(new Transform2d(fieldRelativeRobotToCamera, new Rotation2d()));
+
+        SmartDashboard.putNumber("offset", finalPose.getX() - VisionConstants.tagTransforms[18].getPosition().getX());
 
         // this is now our final pose which can be returned
         return finalPose;

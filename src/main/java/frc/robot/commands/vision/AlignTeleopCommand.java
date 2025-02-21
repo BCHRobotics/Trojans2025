@@ -29,6 +29,8 @@ public class AlignTeleopCommand extends Command{
    int tagId;
    Translation2d desiredOffset;
 
+   boolean lockedIn;
+
    public AlignTeleopCommand(int targetTagId, Boolean fieldRelative, Boolean rateLimit, Drivetrain driveSubsystem, Cameras cameraSubsystem, Translation2d offset){
         tagId  = targetTagId;
         desiredOffset = offset;
@@ -40,6 +42,8 @@ public class AlignTeleopCommand extends Command{
         this.cameraSubsystem = cameraSubsystem;
 
         addRequirements(driveSubsystem);
+
+        lockedIn = false;
    } 
    @Override
    public void initialize() {
@@ -60,7 +64,7 @@ public class AlignTeleopCommand extends Command{
         driveSubsystem.setFastMode(false);
 
         // if we cannot see the tag, use the last known location of the tag
-        if (fieldRelativeRobotToTag == null) {
+        if (fieldRelativeRobotToTag == null && !lockedIn) {
             // if null, cannot see tag
             Pose2d tagPose = VisionConstants.tagTransforms[tagId].getPosition();
             if (tagPose != null) {fieldRelativeRobotToTag = tagPose.minus(driveSubsystem.getPose());}
@@ -78,9 +82,10 @@ public class AlignTeleopCommand extends Command{
 
         // making sure the var isn't null (something may have gone wrong in the previous step)
         if (fieldRelativeRobotToTag != null) {
+            lockedIn = true;
             // figure out what speeds to command to the drivetrain on 2 axis
             double commandedX = pid.calculate(-actualOffset.getX(), 0);
-            double commandedY = actualOffset.getY();
+            double commandedY = actualOffset.getY() * 0.1;
             
             // the rotational speed
             double commandedRot = pidRot.calculate(
@@ -90,8 +95,12 @@ public class AlignTeleopCommand extends Command{
                 .getDegrees(), 0);
 
             // clamp x and y speeds for testing, don't want the robot hitting anything
-            commandedX = MathUtil.clamp(commandedX, -0.1, 0.1);
-            commandedY = MathUtil.clamp(commandedY, -0.1, 0.1);
+            commandedX = MathUtil.clamp(commandedX, -0.15, 0.15);
+            commandedY = MathUtil.clamp(commandedY, -0.15, 0.15);
+
+            if (Math.abs(commandedY) < VisionConstants.allowedYError) {
+                commandedY = 0;
+            }
 
             // pass all values to the drivetrain
             driveSubsystem.drive(commandedX, commandedY, -commandedRot, isFieldRelative, isRateLimited);

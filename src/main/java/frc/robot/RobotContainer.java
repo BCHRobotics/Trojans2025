@@ -56,6 +56,7 @@ public class RobotContainer {
      * The container for the robot, initializing everything and setting up the controller chooser
      */
     public RobotContainer() {
+        m_cameras.setDriveSubsystem(m_robotDrive);
         
         configureNamedCommands();
         
@@ -140,7 +141,7 @@ public class RobotContainer {
         }
         else {
             // Reset Gyro
-            m_backupController.y().onTrue(new InstantCommand(() -> m_robotDrive.zeroHeading()));
+            m_backupController.y().onTrue(new InstantCommand(() -> { m_robotDrive.zeroHeading(); m_robotDrive.resetOdometry(m_cameras.estimateRobotPoseManual()); }));
 
             // Slow mode command (Left Bumper)
             m_backupController.leftBumper().onTrue(new InstantCommand(() -> m_robotDrive.setSlowMode(true)));
@@ -161,7 +162,7 @@ public class RobotContainer {
                             true, 
                             m_robotDrive, 
                             m_cameras, 
-                            new Translation2d(0.3, 0)
+                            new Translation2d(1, 0)
                             ).schedule();
                         }
                     })
