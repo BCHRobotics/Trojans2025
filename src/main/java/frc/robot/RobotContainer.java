@@ -152,7 +152,20 @@ public class RobotContainer {
 
             m_backupController.leftTrigger().whileFalse(new RunCommand(() -> m_robotDrive.setX(), m_robotDrive));
 
-            m_backupController.x().onTrue(new AlignTeleopCommand(18, true, true, m_robotDrive, m_cameras, new Translation2d(1, 0)));
+            m_backupController.x().onTrue(
+                new InstantCommand(() -> {
+                    if(m_cameras.isVisionActive) {
+                        new AlignTeleopCommand(
+                            18, 
+                            true, 
+                            true, 
+                            m_robotDrive, 
+                            m_cameras, 
+                            new Translation2d(0.3, 0)
+                            ).schedule();
+                        }
+                    })
+                    );
 
             // this.m_backupController.a()
             // .onTrue(new MoveElevatorCommand(elevator, ElevatorPosition.BOTTOM));
