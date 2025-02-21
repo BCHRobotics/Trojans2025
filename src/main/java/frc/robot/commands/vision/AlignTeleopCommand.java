@@ -90,8 +90,8 @@ public class AlignTeleopCommand extends Command{
                 .getDegrees(), 0);
 
             // clamp x and y speeds for testing, don't want the robot hitting anything
-            commandedX = MathUtil.clamp(commandedX, -0.2, 0.2);
-            commandedY = MathUtil.clamp(commandedY, -0.2, 0.2);
+            commandedX = MathUtil.clamp(commandedX, -0.1, 0.1);
+            commandedY = MathUtil.clamp(commandedY, -0.1, 0.1);
 
             // pass all values to the drivetrain
             driveSubsystem.drive(commandedX, commandedY, -commandedRot, isFieldRelative, isRateLimited);

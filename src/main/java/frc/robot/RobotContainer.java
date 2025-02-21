@@ -13,6 +13,7 @@ import com.pathplanner.lib.auto.NamedCommands;
 import com.pathplanner.lib.util.FileVersionException;
 
 import edu.wpi.first.math.MathUtil;
+import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.Constants.OIConstants;
@@ -21,6 +22,8 @@ import frc.robot.Constants.HarpoonConstants.HarpoonPosition;
 import frc.robot.commands.MoveElevatorCommand;
 import frc.robot.commands.ScoreCommand;
 import frc.robot.commands.drive.TeleopDriveCommand;
+import frc.robot.commands.vision.AlignTeleopCommand;
+import frc.robot.subsystems.Cameras;
 import frc.robot.subsystems.Drivetrain;
 import frc.robot.subsystems.Elevator;
 import frc.robot.subsystems.Harpoon;
@@ -39,8 +42,9 @@ import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 public class RobotContainer {
     // The robot's subsystems
     private final Drivetrain m_robotDrive = new Drivetrain();
-    private final Elevator elevator = new Elevator();
-    private final Harpoon harpoon = new Harpoon();
+    private final Cameras m_cameras = new Cameras();
+    //private final Elevator elevator = new Elevator();
+    //private final Harpoon harpoon = new Harpoon();
 
     // Driving controller
     CommandPS5Controller m_mainController = new CommandPS5Controller(OIConstants.kMainControllerPort);
@@ -98,7 +102,7 @@ public class RobotContainer {
     }
 
     public void initializeElevator() {
-        elevator.resetElevator();
+        //elevator.resetElevator();
     }
 
     /**
@@ -107,8 +111,8 @@ public class RobotContainer {
      * (used during autos)
      */
     public void configureNamedCommands() {
-        NamedCommands.registerCommand("Elevator L1", new MoveElevatorCommand(elevator, ElevatorPosition.MID));
-        NamedCommands.registerCommand("Harpoon L1", new ScoreCommand(harpoon, HarpoonPosition.TOP.getSetpoint()));
+        //NamedCommands.registerCommand("Elevator L1", new MoveElevatorCommand(elevator, ElevatorPosition.MID));
+        //NamedCommands.registerCommand("Harpoon L1", new ScoreCommand(harpoon, HarpoonPosition.TOP.getSetpoint()));
     }
 
     /**
@@ -148,21 +152,23 @@ public class RobotContainer {
 
             m_backupController.leftTrigger().whileFalse(new RunCommand(() -> m_robotDrive.setX(), m_robotDrive));
 
-            this.m_backupController.a()
-            .onTrue(new MoveElevatorCommand(elevator, ElevatorPosition.BOTTOM));
-            this.m_backupController.x()
-            .onTrue(new MoveElevatorCommand(elevator, ElevatorPosition.MID));
-            this.m_backupController.b()
-            .onTrue(new MoveElevatorCommand(elevator, ElevatorPosition.TOP));
+            m_backupController.x().onTrue(new AlignTeleopCommand(18, true, true, m_robotDrive, m_cameras, new Translation2d(1, 0)));
 
-            this.m_backupController.povUp()
-            .onTrue(new ScoreCommand(harpoon, 0));
+            // this.m_backupController.a()
+            // .onTrue(new MoveElevatorCommand(elevator, ElevatorPosition.BOTTOM));
+            // this.m_backupController.x()
+            // .onTrue(new MoveElevatorCommand(elevator, ElevatorPosition.MID));
+            // this.m_backupController.b()
+            // .onTrue(new MoveElevatorCommand(elevator, ElevatorPosition.TOP));
 
-            this.m_backupController.povDown()
-            .onTrue(new ScoreCommand(harpoon, 30));
+            // this.m_backupController.povUp()
+            // .onTrue(new ScoreCommand(harpoon, 0));
 
-            this.m_backupController.povDown()
-            .onTrue(new ScoreCommand(harpoon, 45));
+            // this.m_backupController.povDown()
+            // .onTrue(new ScoreCommand(harpoon, 30));
+
+            // this.m_backupController.povDown()
+            // .onTrue(new ScoreCommand(harpoon, 45));
         }
     }
 
