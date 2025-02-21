@@ -56,6 +56,8 @@ public class Cameras extends SubsystemBase {
         driveSubsystem = subsystem;
     }
 
+
+
     @Override
     public void periodic() {
         if (isVisionActive) {
@@ -361,6 +363,10 @@ public class Cameras extends SubsystemBase {
      */
     public PhotonTrackedTarget getBestTarget(int cameraIndex) {
         return results[cameraIndex].getBestTarget();
+    }
+
+    public int getBestTargetID(PhotonTrackedTarget target){
+        return target.fiducialId;
     }
 
     /*

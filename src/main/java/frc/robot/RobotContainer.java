@@ -164,9 +164,9 @@ public class RobotContainer {
                             m_cameras, 
                             new Translation2d(1, 0)
                             ).schedule();
-                        }
-                    })
-                    );
+                    }
+                })
+            );
 
             // this.m_backupController.a()
             // .onTrue(new MoveElevatorCommand(elevator, ElevatorPosition.BOTTOM));
