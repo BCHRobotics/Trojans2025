@@ -149,6 +149,8 @@ public class Cameras extends SubsystemBase {
             }
         }
 
+        SmartDashboard.putNumber("tag count", tagCount);
+
         // looping through all the results again to actually add up the measurements
         for (int i = 1; i < fieldRelativeOffsets.length; i++) {
             if (fieldRelativeOffsets[i] != null) {
@@ -165,7 +167,6 @@ public class Cameras extends SubsystemBase {
                 fieldRelativeOffsets[i].getRotation());
 
                 if (i == 18) {
-                    System.out.println(1);
                     SmartDashboard.putNumber("inside offset", fieldRelativeOffsets[i].getX());
                 }
                 
@@ -178,6 +179,8 @@ public class Cameras extends SubsystemBase {
                     tagPosition.getY() - offset.getY(),
                     tagPosition.getRotation().minus(offset.getRotation())
                 );
+
+                SmartDashboard.putNumber("inside offset 2", tagPosition.getX() - estimatedPosition.getX());
 
                 // dealing with the x and y estimate
                 // -----------------
