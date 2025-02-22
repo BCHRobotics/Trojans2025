@@ -196,11 +196,13 @@ public final class Constants {
     public static final double allowedYError = 0.025; 
 
     // camera names, transforms, etc.
-    public static final String[] cameraNames = new String[] {"Front"};
+    public static final String[] cameraNames = new String[] {"Front Left", 
+    "Front Right"
+  };
     public static final CameraTransform[] cameraOffsets = 
     new CameraTransform[] {
-      new CameraTransform(0.3556, Units.inchesToMeters(-4.5), 0),
-      new CameraTransform(0.3556, Units.inchesToMeters(5), 0),
+      new CameraTransform(Units.inchesToMeters(14), Units.inchesToMeters(5), 0),
+      new CameraTransform(Units.inchesToMeters(14), Units.inchesToMeters(-4.5), 0),
     };
 
     // these are the actual ones for 2025

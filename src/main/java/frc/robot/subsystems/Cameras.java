@@ -26,8 +26,8 @@ public class Cameras extends SubsystemBase {
     // results for each camera (this array should have the same length as above!!)
     private PhotonPipelineResult[] results; // this is for each individual camera
 
-    private int[] bestResultsIDs; // this is for cameras 1, 2, and 3
-    private double[] bestResultsIDsDistances; // this is the distance from each of the tag IDs to the robot
+    //private int[] bestResultsIDs; // this is for cameras 1, 2, and 3
+    //private double[] bestResultsIDsDistances; // this is the distance from each of the tag IDs to the robot
 
     // how many apriltags there are on the field
     // (we're using last year's family, so there are only 16)
@@ -40,7 +40,7 @@ public class Cameras extends SubsystemBase {
     // USEFUL IF THE COPROCESSOR ISN'T PLUGGED IN!!!
     // -----
     public boolean isVisionActive = true;
-    public boolean periodicPoseEstimation = true;
+    public boolean periodicPoseEstimation = false;
     // -----
 
     private double lastPoseEstimate = 0;
@@ -73,7 +73,7 @@ public class Cameras extends SubsystemBase {
             updateCameraResults();
 
             // print any relevant debug data to the dashboard
-            //printToDashboard();
+            printToDashboard();
 
             if (periodicPoseEstimation && Timer.getFPGATimestamp() > lastPoseEstimate + estimateFreqency) {
                 updateOdometry();
@@ -162,8 +162,6 @@ public class Cameras extends SubsystemBase {
             }
         }
 
-        SmartDashboard.putNumber("tag count", tagCount);
-
         // looping through all the results again to actually add up the measurements
         for (int i = 1; i < fieldRelativeOffsets.length; i++) {
             if (fieldRelativeOffsets[i] != null) {
@@ -250,16 +248,6 @@ public class Cameras extends SubsystemBase {
         Rotation2d.fromRadians(finalRot/tagCount)
         );
 
-        // accounting for an offseted camera
-        // -----------------------------
-        
-        //figuring out the field-relative position of the camera relative to the bot
-        Transform2d robotToCamera = VisionConstants.cameraOffsets[0].getTransform();
-        Translation2d fieldRelativeRobotToCamera = VisionUtils.applyRotationMatrix(robotToCamera.getTranslation(), finalPose.getRotation().getRadians());
-        
-        //subtracting that from the estimated pose to get the position of bot center
-        finalPose = finalPose.plus(new Transform2d(fieldRelativeRobotToCamera.times(-1), new Rotation2d()));
-
         // this is now our final pose which can be returned
         return finalPose;
     }
@@ -283,6 +271,10 @@ public class Cameras extends SubsystemBase {
      * printing debug stuff to the dashboard
      */
     public void printToDashboard() {
+        SmartDashboard.putBoolean("Left Cam", cameras[0].isConnected());
+        SmartDashboard.putBoolean("Right Cam", cameras[1].isConnected());
+
+        SmartDashboard.putNumber("x dist", VisionConstants.tagTransforms[18].xPosition - driveSubsystem.getPose().getX());
     }
 
     /*
@@ -309,6 +301,8 @@ public class Cameras extends SubsystemBase {
         Transform3d rawOffset = null;
         int cameraIndex = -1;
 
+        // TODO: if multiple cameras see the tag, average the results
+
         for (int i = 0; i < results.length; i++) {
             if (results[i]==null){continue;}
             for (int j = 0; j < results[i].getTargets().size(); j++) {
@@ -322,7 +316,30 @@ public class Cameras extends SubsystemBase {
 
         if (cameraIndex == -1){ return null;}
 
-        return VisionUtils.rawToFieldOriented(tagId, rawOffset);
+        Transform2d fieldRelativeOffset = VisionUtils.rawToFieldOriented(tagId, rawOffset);
+
+        SmartDashboard.putNumber("offseted x", fieldRelativeOffset.getX());
+
+        // accounting for an offseted camera
+        // -----------------------------
+
+        SmartDashboard.putNumber("robot heading", driveSubsystem.getHeading() / 180 * Math.PI);
+        
+        //figuring out the field-relative position of the camera relative to the bot
+        Transform2d robotToCamera = VisionConstants.cameraOffsets[0].getTransform();
+        Translation2d fieldRelativeRobotToCamera = VisionUtils.applyRotationMatrix(robotToCamera.getTranslation(), driveSubsystem.getHeading() / 180 * Math.PI);
+
+        SmartDashboard.putNumber("offseted cam", fieldRelativeRobotToCamera.getX());
+        
+        //subtracting that from the estimated pose to get the position of bot center
+        // this is done MANUALLY because WPILib's built-in functions are terrible :(
+        fieldRelativeOffset = new Transform2d(
+            fieldRelativeOffset.getX() + fieldRelativeRobotToCamera.getX(),
+            fieldRelativeOffset.getY() + fieldRelativeRobotToCamera.getY(),
+            fieldRelativeOffset.getRotation()
+        );
+
+        return fieldRelativeOffset;
     }
 
     /*
@@ -350,9 +367,6 @@ public class Cameras extends SubsystemBase {
             if (currentResults.size() > 0) {
                 results[i] = currentResults.get(0);
             }
-        }
-        for(int i=0; i<results.length; i++){
-            bestResultsIDs[i] = results[i].getBestTarget().fiducialId;
         }
     }
 
@@ -383,18 +397,18 @@ public class Cameras extends SubsystemBase {
         return results[cameraIndex].getTargets();
     }
 
-    public int getBestAprilTag(){
-        for(int i=0; i<bestResultsIDs.length; i++){
-            bestResultsIDsDistances[i] = PhotonUtils
-                                            .getDistanceToPose(
-                                                driveSubsystem.getPose(),
-                                                VisionConstants.tagTransforms[i].getPosition());    
-        }
-        double smallestDistance = Arrays.stream(bestResultsIDsDistances).min().getAsDouble();
-        List<double[]> tempList = Arrays.asList(bestResultsIDsDistances);
+    // public int getBestAprilTag(){
+    //     for(int i=0; i<bestResultsIDs.length; i++){
+    //         bestResultsIDsDistances[i] = PhotonUtils
+    //                                         .getDistanceToPose(
+    //                                             driveSubsystem.getPose(),
+    //                                             VisionConstants.tagTransforms[i].getPosition());    
+    //     }
+    //     double smallestDistance = Arrays.stream(bestResultsIDsDistances).min().getAsDouble();
+    //     List<double[]> tempList = Arrays.asList(bestResultsIDsDistances);
 
         
-        return bestResultsIDs[tempList.indexOf(smallestDistance)];
-    }
+    //     return bestResultsIDs[tempList.indexOf(smallestDistance)];
+    // }
 
 }
