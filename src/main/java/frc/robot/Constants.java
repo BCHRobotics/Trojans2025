@@ -74,6 +74,10 @@ public final class Constants {
     public static final double countsPerInch = (gearRatio)/(Math.PI*chainDiameter);
   }
 
+  public static final class PhotoElectricSensorConstants {
+    public static final int kPhotoElectricSensorPort = 0;
+  }
+
   public static final class HarpoonConstants {
 
     public enum HarpoonPosition {

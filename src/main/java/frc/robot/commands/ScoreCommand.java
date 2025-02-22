@@ -1,10 +1,12 @@
 package frc.robot.commands;
 
 import frc.robot.subsystems.Harpoon;
+import frc.robot.subsystems.PhotoElectricSensor;
 import edu.wpi.first.wpilibj2.command.Command;
 
 public class ScoreCommand extends Command {
-     private Harpoon harpoonSubsystem;
+    private Harpoon harpoonSubsystem;
+    private PhotoElectricSensor sensorSubsystem;
     private double scoreAngle;
 
     public ScoreCommand(Harpoon harpoonSubsystem, double scoreAngle) {
@@ -37,7 +39,12 @@ public class ScoreCommand extends Command {
     @Override
     public boolean isFinished() {
         // this is called after we have set the setpoint, so we can just end the command once the sensor sees the coral
-        return true;
+        if(sensorSubsystem.isCoralDetected()) {
+            return true;
+        }
+        else{
+            return false;
+        }
     }
     
 }
