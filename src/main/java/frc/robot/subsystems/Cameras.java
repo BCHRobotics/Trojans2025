@@ -178,10 +178,6 @@ public class Cameras extends SubsystemBase {
                 Pose2d offset = new Pose2d(fieldRelativeOffsets[i].getX(), 
                 fieldRelativeOffsets[i].getY(), 
                 fieldRelativeOffsets[i].getRotation());
-
-                if (i == 18) {
-                    SmartDashboard.putNumber("inside offset", fieldRelativeOffsets[i].getX());
-                }
                 
                 // then define where the tag is in field space
                 Pose2d tagPosition = VisionConstants.tagTransforms[i].getPosition();
@@ -192,8 +188,6 @@ public class Cameras extends SubsystemBase {
                     tagPosition.getY() - offset.getY(),
                     tagPosition.getRotation().minus(offset.getRotation())
                 );
-
-                SmartDashboard.putNumber("inside offset 2", tagPosition.getX() - estimatedPosition.getX());
 
                 // dealing with the x and y estimate
                 // -----------------
@@ -264,9 +258,7 @@ public class Cameras extends SubsystemBase {
         Translation2d fieldRelativeRobotToCamera = VisionUtils.applyRotationMatrix(robotToCamera.getTranslation(), finalPose.getRotation().getRadians());
         
         //subtracting that from the estimated pose to get the position of bot center
-        finalPose = finalPose.plus(new Transform2d(fieldRelativeRobotToCamera, new Rotation2d()));
-
-        SmartDashboard.putNumber("offset", finalPose.getX() - VisionConstants.tagTransforms[18].getPosition().getX());
+        finalPose = finalPose.plus(new Transform2d(fieldRelativeRobotToCamera.times(-1), new Rotation2d()));
 
         // this is now our final pose which can be returned
         return finalPose;
@@ -330,7 +322,7 @@ public class Cameras extends SubsystemBase {
 
         if (cameraIndex == -1){ return null;}
 
-        return VisionUtils.rawToFieldOriented(tagId, rawOffset, VisionConstants.cameraOffsets[cameraIndex]);
+        return VisionUtils.rawToFieldOriented(tagId, rawOffset);
     }
 
     /*

@@ -115,7 +115,7 @@ public class VisionUtils {
      * @param camTransform The transform data of the camera
      * @return The 2D field oriented offset from the tag
      */
-    public static Transform2d rawToFieldOriented(int tagId, Transform3d rawOffset, CameraTransform camTransform) {
+    public static Transform2d rawToFieldOriented(int tagId, Transform3d rawOffset) {
         // first, we figure out where the camera is facing based on the static tag heading and the offset
         // this allows us to get a robot heading without the gyro, and is important for pose estimation
         double cameraHeading = constructCameraHeading(tagId, rawOffset.getRotation().getZ()).getRadians();
