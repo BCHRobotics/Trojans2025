@@ -44,8 +44,6 @@ public class Cameras extends SubsystemBase {
     private double estimateFreqency = 0.5;
     
     public Cameras() {
-
-        
         // initialize and fill any necessary arrays
         cameras = new PhotonCamera[VisionConstants.cameraNames.length];
         for (int i = 0; i < cameras.length; i++) {
@@ -61,8 +59,6 @@ public class Cameras extends SubsystemBase {
         driveSubsystem = subsystem;
     }
 
-
-    
     @Override
     public void periodic() {
         if (isVisionActive) {
@@ -96,10 +92,7 @@ public class Cameras extends SubsystemBase {
                 driveSubsystem.setOdometryOffset(offset);
             }
         }
-    }
-    
-    
-        
+    }   
 
     /*
      * whether the camera can see any tags at all
@@ -394,18 +387,23 @@ public class Cameras extends SubsystemBase {
         return results[cameraIndex].getTargets();
     }
 
-    // public int getBestAprilTag(){
-    //     for(int i=0; i<bestResultsIDs.length; i++){
-    //         bestResultsIDsDistances[i] = PhotonUtils
-    //                                         .getDistanceToPose(
-    //                                             driveSubsystem.getPose(),
-    //                                             VisionConstants.tagTransforms[i].getPosition());    
-    //     }
-    //     double smallestDistance = Arrays.stream(bestResultsIDsDistances).min().getAsDouble();
-    //     List<double[]> tempList = Arrays.asList(bestResultsIDsDistances);
+    /*
+     * get whichever tag index is closest
+     */
+    public int getClosestTagId() {
+        int closetId = -1;
+        double closestDistance = 0;
 
+        for (int i = 1; i <= tagCount; i++) {
+            if (getRawTagOffset(i) != null) {
+                if (closetId == -1 || getRawTagOffset(i).getX() < closestDistance) {
+                    closetId = i;
+                    closestDistance = getRawTagOffset(i).getX();
+                }
+            }
+        }
         
-    //     return bestResultsIDs[tempList.indexOf(smallestDistance)];
-    // }
-
+        // WARNING: this will be -1 if you can't see any tags!!
+        return closetId;
+    }
 }
