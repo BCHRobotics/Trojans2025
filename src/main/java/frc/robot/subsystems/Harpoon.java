@@ -9,9 +9,12 @@ import com.revrobotics.spark.SparkBase.ResetMode;
 //import com.revrobotics.spark.SparkBase;
 import com.revrobotics.spark.SparkMax;
 import com.revrobotics.spark.config.ClosedLoopConfig.FeedbackSensor;
+import com.revrobotics.spark.config.LimitSwitchConfig;
+import com.revrobotics.spark.config.LimitSwitchConfig.Type;
 import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
 import com.revrobotics.spark.config.SparkMaxConfig;
 import com.revrobotics.spark.SparkClosedLoopController;
+import com.revrobotics.spark.SparkLimitSwitch;
 
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -33,7 +36,7 @@ public class Harpoon extends SubsystemBase{
 
     // private final RelativeEncoder kLeftEncoder;
     private final SparkClosedLoopController kRotationController;
-
+    private final SparkLimitSwitch sensorLimitSwitch;
 
     // private Elevator m_elevator = Elevator.getInstance(); This method is not defined in this code base
 
@@ -41,6 +44,10 @@ public class Harpoon extends SubsystemBase{
         // set up the motors
         this.kIntakeMotor = new SparkMax(Constants.HarpoonConstants.kIntakeMotorCANID, MotorType.kBrushless);
         this.kRotationMotor = new SparkMax(Constants.HarpoonConstants.kRotationMotorCANID, MotorType.kBrushless);
+
+        this.sensorLimitSwitch = kRotationMotor.getForwardLimitSwitch();
+        LimitSwitchConfig sensorConfig = new LimitSwitchConfig();
+        sensorConfig.forwardLimitSwitchType(Type.kNormallyClosed);
 
         // important configurations. Idlemode is just the mode the sensor is in when it is not being commanded. 
         this.kRotationConfig.inverted(false);
@@ -70,9 +77,10 @@ public class Harpoon extends SubsystemBase{
         
         // get the controller for the rotation motor
         this.kRotationController = kRotationMotor.getClosedLoopController();
+        this.kRotationConfig.apply(sensorConfig);
 
         // finally, configure the motors
-        this.kRotationMotor.configure(kRotationConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
+        this.kRotationMotor.configure(this.kRotationConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
     }
 
     public double degreesToRotations(double degrees){
@@ -96,6 +104,11 @@ public class Harpoon extends SubsystemBase{
             kIntakeMotor.stopMotor();
         });
     }
+
+    public boolean isCoralDetected() {
+        return this.sensorLimitSwitch.isPressed();  // Returns true if sensor is triggered
+    }
+
     
     @Override
     public void periodic() {
