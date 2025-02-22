@@ -9,20 +9,22 @@ import edu.wpi.first.wpilibj2.command.Command;
 public class PivotHarpoon extends Command {
     private Harpoon harpoonSubsystem;
     private LED LEDSubsystem;
+    private double setpoint;
    
 
-    public PivotHarpoon(Harpoon harpoonSubsystem) {
+    public PivotHarpoon(Harpoon harpoonSubsystem, double setpoint) {
         // creating subsystem, adding the subsystem as a requirement so it is not used elsewhere which could cause problems. 
         this.harpoonSubsystem = harpoonSubsystem;
         this.addRequirements(harpoonSubsystem);
         this.addRequirements(LEDSubsystem);
+        this.setpoint = setpoint;
         
     }
 
     @Override
     public void initialize() {
         // we only need to set the reference once. This is true for probably all closed loop control systems
-        harpoonSubsystem.setRotationMotorPosition(HarpoonConstants.HarpoonPosition.INTAKE.getSetpoint());
+        harpoonSubsystem.setRotationMotorPosition(this.setpoint);
         //harpoonSubsystem.setIntakeMotorVelocity(-1);
         LEDSubsystem.setLEDColor(-0.3); // I don't know what this colour is. Will read the documentation later. Maybe a good idea to create an LED constants class?
         System.out.println("PIVOR TIME");

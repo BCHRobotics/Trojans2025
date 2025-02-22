@@ -18,6 +18,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.Constants.ElevatorConstants.ElevatorPosition;
 import frc.robot.Constants.OIConstants;
 import frc.robot.commands.MoveElevatorCommand;
+import frc.robot.commands.PivotHarpoon;
 import frc.robot.commands.ScoreCommand;
 import frc.robot.commands.drive.TeleopDriveCommand;
 import frc.robot.commands.vision.AlignTeleopCommand;
@@ -174,14 +175,17 @@ public class RobotContainer {
              .onTrue(new MoveElevatorCommand(elevator, ElevatorPosition.L3));
             this.m_operatorController.y().onTrue(this.elevator.emergencyStop()); // E-stop elevator
 
-             this.m_operatorController.povUp()
-             .onTrue(new ScoreCommand(harpoon, 0));
+             //this.m_operatorController.povUp()
+             //.onTrue(new ScoreCommand(harpoon, 0));
+
+            this.m_operatorController.povUp()
+            .onTrue(new PivotHarpoon(this.harpoon,Constants.HarpoonConstants.HarpoonPosition.L1.getSetpoint()));
 
              this.m_operatorController.povDown()
-             .onTrue(new ScoreCommand(harpoon, 30));
+             .onTrue(new ScoreCommand(this.harpoon, 30));
 
              this.m_operatorController.povLeft()
-             .onTrue(new ScoreCommand(harpoon, 45));
+             .onTrue(new ScoreCommand(this.harpoon, 45));
 
              // emergency brake for harpoon for testing
              this.m_operatorController.povRight()
