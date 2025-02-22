@@ -77,8 +77,11 @@ public class AlignTeleopCommand extends Command{
             driveSubsystem.setFastMode(true);
         }
 
+        Transform2d robotToCameraVector = VisionConstants.cameraOffsets[0].getTransform().times(-1);
+
         // combine the robotToTag with the tagOffset
-        Transform2d actualOffset = fieldRelativeRobotToTag.plus(new Transform2d(fieldRelativeTagOffset.times(-1), new Rotation2d()));
+        Transform2d actualOffset = fieldRelativeRobotToTag.plus(new Transform2d(fieldRelativeTagOffset.times(-1), new Rotation2d()))
+        .plus(new Transform2d(robotToCameraVector.getX(), robotToCameraVector.getY() * -1, robotToCameraVector.getRotation()));
 
         // making sure the var isn't null (something may have gone wrong in the previous step)
         if (fieldRelativeRobotToTag != null) {
