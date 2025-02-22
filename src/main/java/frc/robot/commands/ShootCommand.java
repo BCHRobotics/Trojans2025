@@ -6,12 +6,12 @@ import frc.robot.subsystems.Harpoon;
 import frc.robot.subsystems.LED;
 import edu.wpi.first.wpilibj2.command.Command;
 
-public class IntakeCommand extends Command {
+public class ShootCommand extends Command {
     private Harpoon harpoonSubsystem;
     private LED LEDSubsystem;
    
 
-    public IntakeCommand(Harpoon harpoonSubsystem) {
+    public ShootCommand(Harpoon harpoonSubsystem) {
         // creating subsystem, adding the subsystem as a requirement so it is not used elsewhere which could cause problems. 
         this.harpoonSubsystem = harpoonSubsystem;
         this.addRequirements(harpoonSubsystem);
@@ -22,8 +22,7 @@ public class IntakeCommand extends Command {
     @Override
     public void initialize() {
         // we only need to set the reference once. This is true for probably all closed loop control systems
-        //harpoonSubsystem.setRotationMotorPosition(HarpoonConstants.HarpoonPosition.INTAKE.getSetpoint());
-        harpoonSubsystem.setIntakeMotorVelocity(-1);
+        harpoonSubsystem.setIntakeMotorVelocity(1);
         LEDSubsystem.setLEDColor(-0.3); // I don't know what this colour is. Will read the documentation later. Maybe a good idea to create an LED constants class?
         System.out.println("HARPOON TIME");
     }
@@ -38,7 +37,7 @@ public class IntakeCommand extends Command {
     public void end(boolean interrupted) {
         //we want to stop the intake motor velocity after we've scored. We also want to stow the elevator
         harpoonSubsystem.setIntakeMotorVelocity(0);
-        // harpoonSubsystem.setRotationMotorPosition(0); // could change the angle. We don't know what the home angle is. We could also just reset it with the hardware client.
+        //harpoonSubsystem.setRotationMotorPosition(0); // could change the angle. We don't know what the home angle is. We could also just reset it with the hardware client.
         LEDSubsystem.setLEDColor(0);
     }
 

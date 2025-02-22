@@ -39,7 +39,7 @@ public class ScoreCommand extends Command {
     @Override
     public boolean isFinished() {
         // this is called after we have set the setpoint, so we can just end the command once the sensor sees the coral
-        if(sensorSubsystem.isCoralDetected()) {
+        if(!harpoonSubsystem.isCoralDetected()) {
             return true;
         }
         else{
