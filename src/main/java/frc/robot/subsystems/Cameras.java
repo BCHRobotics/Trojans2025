@@ -3,9 +3,9 @@ package frc.robot.subsystems;
 import java.util.List;
 
 import org.photonvision.PhotonCamera;
+import org.photonvision.PhotonUtils;
 import org.photonvision.targeting.PhotonPipelineResult;
 import org.photonvision.targeting.PhotonTrackedTarget;
-
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Transform2d;
@@ -17,11 +17,17 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.VisionConstants;
 import frc.utils.VisionUtils;
 
+import java.util.Arrays;
+
+
 public class Cameras extends SubsystemBase {
     // the cameras, it's an array cuz we're gonna have like 5 and that's too many variables
     private PhotonCamera[] cameras;
     // results for each camera (this array should have the same length as above!!)
-    private PhotonPipelineResult[] results;
+    private PhotonPipelineResult[] results; // this is for each individual camera
+
+    private int[] bestResultsIDs; // this is for cameras 1, 2, and 3
+    private double[] bestResultsIDsDistances; // this is the distance from each of the tag IDs to the robot
 
     // how many apriltags there are on the field
     // (we're using last year's family, so there are only 16)
@@ -41,6 +47,8 @@ public class Cameras extends SubsystemBase {
     private double estimateFreqency = 0.5;
     
     public Cameras() {
+
+        
         // initialize and fill any necessary arrays
         cameras = new PhotonCamera[VisionConstants.cameraNames.length];
         for (int i = 0; i < cameras.length; i++) {
@@ -56,6 +64,8 @@ public class Cameras extends SubsystemBase {
         driveSubsystem = subsystem;
     }
 
+
+    
     @Override
     public void periodic() {
         if (isVisionActive) {
@@ -91,6 +101,9 @@ public class Cameras extends SubsystemBase {
         }
     }
     
+    
+        
+
     /*
      * whether the camera can see any tags at all
      * (check all the tags and see if one is visible)
@@ -338,7 +351,11 @@ public class Cameras extends SubsystemBase {
                 results[i] = currentResults.get(0);
             }
         }
+        for(int i=0; i<results.length; i++){
+            bestResultsIDs[i] = results[i].getBestTarget().fiducialId;
+        }
     }
+
 
     /*
      * check if a given camera has any targets
@@ -355,10 +372,29 @@ public class Cameras extends SubsystemBase {
         return results[cameraIndex].getBestTarget();
     }
 
+    public int getBestTargetID(PhotonTrackedTarget target){
+        return target.fiducialId;
+    }
+
     /*
      * get all the targets (just like raw photonvision data) from a given camera
      */
     public List<PhotonTrackedTarget> getAllTargets(int cameraIndex) {
         return results[cameraIndex].getTargets();
     }
+
+    public int getBestAprilTag(){
+        for(int i=0; i<bestResultsIDs.length; i++){
+            bestResultsIDsDistances[i] = PhotonUtils
+                                            .getDistanceToPose(
+                                                driveSubsystem.getPose(),
+                                                VisionConstants.tagTransforms[i].getPosition());    
+        }
+        double smallestDistance = Arrays.stream(bestResultsIDsDistances).min().getAsDouble();
+        List<double[]> tempList = Arrays.asList(bestResultsIDsDistances);
+
+        
+        return bestResultsIDs[tempList.indexOf(smallestDistance)];
+    }
+
 }

@@ -33,7 +33,7 @@ public class Elevator extends SubsystemBase{
     private final PIDController pidController;
 
     // the current setpoint of the elevator
-    private double setpoint = 0;
+    private double setpoint = 0; // rotations
 
     public Elevator() {
         
@@ -106,7 +106,7 @@ public class Elevator extends SubsystemBase{
      * Driving the elevator motors based on the setpoint and current position
      */
     public void drive() {
-        double currentPosition = encoder.getPosition(); // inches
+        double currentPosition = encoder.getPosition(); // rotations
         //uses kP, kI, and kD constants to calculate pidOutput
         double pidOutput = pidController.calculate(currentPosition, setpoint);
 

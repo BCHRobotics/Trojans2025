@@ -37,7 +37,7 @@ public final class Constants {
 
     // possible positions for the elevator,
     // an enum is a bit nicer than separate variables
-    public enum ElevatorPosition {
+    public enum ElevatorPosition { // rotations
       BOTTOM(0),
       MID(7),
       TOP(15);
@@ -74,12 +74,18 @@ public final class Constants {
     public static final double countsPerInch = (gearRatio)/(Math.PI*chainDiameter);
   }
 
+  public static final class PhotoElectricSensorConstants {
+    public static final int kPhotoElectricSensorPort = 0;
+  }
+
   public static final class HarpoonConstants {
 
     public enum HarpoonPosition {
-      BOTTOM(15),
-      MID(30),
-      TOP(45);
+      L1(15),
+      L2(30),
+      L3(45),
+      L4(50),
+      INTAKE(0);
     
       // ------
       private final double setpoint;
@@ -98,7 +104,6 @@ public final class Constants {
     public static final double harpoonP = 0.1;
     public static final double harpoonI = 0.01;
     public static final double harpoonD = 0.001;
-
 
     public static final double gearConversionFactor = 9; // This is the conversion factor from degrees to rotations
 
