@@ -48,7 +48,7 @@ public class RobotContainer {
 
     // Driving controller
     CommandPS5Controller m_mainController = new CommandPS5Controller(OIConstants.kMainControllerPort);
-    CommandXboxController m_backupController = new CommandXboxController(OIConstants.kBackupControllerPort);
+    CommandXboxController m_operatorController = new CommandXboxController(OIConstants.kBackupControllerPort);
 
     SendableChooser<String> controllerOptions;
 
@@ -79,9 +79,9 @@ public class RobotContainer {
         // If no other command is running on the drivetrain, then this manual driving command (driving via controller) is used
         if (controller == "XBOX") {
             m_robotDrive.setDefaultCommand(new TeleopDriveCommand(
-            () -> -MathUtil.applyDeadband(m_backupController.getLeftY() * invert, 0.05),
-            () -> -MathUtil.applyDeadband(m_backupController.getLeftX() * invert, 0.05),
-            () -> -MathUtil.applyDeadband(m_backupController.getRightX(), 0.05),
+            () -> -MathUtil.applyDeadband(m_operatorController.getLeftY() * invert, 0.05),
+            () -> -MathUtil.applyDeadband(m_operatorController.getLeftX() * invert, 0.05),
+            () -> -MathUtil.applyDeadband(m_operatorController.getRightX(), 0.05),
             () -> OIConstants.kFieldRelative, () -> OIConstants.kRateLimited,
             m_robotDrive));
         }
@@ -141,19 +141,19 @@ public class RobotContainer {
         }
         else {
             // Reset Gyro
-            m_backupController.y().onTrue(new InstantCommand(() -> { m_robotDrive.zeroHeading(); m_robotDrive.resetOdometry(m_cameras.estimateRobotPoseManual()); }));
+            m_operatorController.y().onTrue(new InstantCommand(() -> { m_robotDrive.zeroHeading(); m_robotDrive.resetOdometry(m_cameras.estimateRobotPoseManual()); }));
 
             // Slow mode command (Left Bumper)
-            m_backupController.leftBumper().onTrue(new InstantCommand(() -> m_robotDrive.setSlowMode(true)));
-            m_backupController.leftBumper().onFalse(new InstantCommand(() -> m_robotDrive.setSlowMode(false)));
+            m_operatorController.leftBumper().onTrue(new InstantCommand(() -> m_robotDrive.setSlowMode(true)));
+            m_operatorController.leftBumper().onFalse(new InstantCommand(() -> m_robotDrive.setSlowMode(false)));
 
             // Fast mode command (Right Bumper)
-            m_backupController.rightBumper().onTrue(new InstantCommand(() -> m_robotDrive.setFastMode(true)));
-            m_backupController.rightBumper().onFalse(new InstantCommand(() -> m_robotDrive.setFastMode(false)));
+            m_operatorController.rightBumper().onTrue(new InstantCommand(() -> m_robotDrive.setFastMode(true)));
+            m_operatorController.rightBumper().onFalse(new InstantCommand(() -> m_robotDrive.setFastMode(false)));
 
-            m_backupController.leftTrigger().whileFalse(new RunCommand(() -> m_robotDrive.setX(), m_robotDrive));
+            m_operatorController.leftTrigger().whileFalse(new RunCommand(() -> m_robotDrive.setX(), m_robotDrive));
 
-            m_backupController.x().onTrue(
+            m_operatorController.x().onTrue(
                 new InstantCommand(() -> {
                     if(m_cameras.isVisionActive) {
                         new AlignTeleopCommand(
@@ -168,24 +168,25 @@ public class RobotContainer {
                 })
             );
 
-             this.m_backupController.a()
-             .onTrue(new MoveElevatorCommand(elevator, ElevatorPosition.BOTTOM));
-             this.m_backupController.x()
-             .onTrue(new MoveElevatorCommand(elevator, ElevatorPosition.MID));
-             this.m_backupController.b()
-             .onTrue(new MoveElevatorCommand(elevator, ElevatorPosition.TOP));
+             this.m_operatorController.a() 
+             .onTrue(new MoveElevatorCommand(elevator, ElevatorPosition.L1));
+             this.m_operatorController.x()
+             .onTrue(new MoveElevatorCommand(elevator, ElevatorPosition.L2));
+             this.m_operatorController.b()
+             .onTrue(new MoveElevatorCommand(elevator, ElevatorPosition.L3));
+            this.m_operatorController.y().onTrue(this.elevator.emergencyStop()); // E-stop elevator
 
-             this.m_backupController.povUp()
+             this.m_operatorController.povUp()
              .onTrue(new ScoreCommand(harpoon, 0));
 
-             this.m_backupController.povDown()
+             this.m_operatorController.povDown()
              .onTrue(new ScoreCommand(harpoon, 30));
 
-             this.m_backupController.povLeft()
+             this.m_operatorController.povLeft()
              .onTrue(new ScoreCommand(harpoon, 45));
 
              // emergency brake for harpoon for testing
-             this.m_backupController.povRight()
+             this.m_operatorController.povRight()
              .onTrue(this.harpoon.emergencyStop()); 
         }
     }

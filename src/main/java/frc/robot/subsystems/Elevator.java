@@ -1,7 +1,9 @@
 package frc.robot.subsystems;
+import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 import com.revrobotics.RelativeEncoder;
+import com.revrobotics.spark.SparkBase;
 import com.revrobotics.spark.SparkBase.ResetMode;
 import com.revrobotics.spark.SparkMax;
 import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
@@ -91,6 +93,13 @@ public class Elevator extends SubsystemBase{
         // THIS CAUSES ISSUES IF YOU DEPLOY WHILE THE ELEVATOR IS UP, SAME AS LAST YEAR
         encoder.setPosition(0);
         setpoint = 0;
+    }
+    // EMERGENCY STOP THE ELEVATOR
+    public Command emergencyStop() {
+             return this.runOnce(() -> {
+                this.primaryMotor.stopMotor();
+                this.followerMotor.stopMotor();
+        });
     }
 
     @Override
