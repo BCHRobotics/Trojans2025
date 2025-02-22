@@ -15,16 +15,11 @@ import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-import frc.robot.Constants.ElevatorConstants.ElevatorPosition;
 import frc.robot.Constants.OIConstants;
-import frc.robot.commands.MoveElevatorCommand;
-import frc.robot.commands.ScoreCommand;
 import frc.robot.commands.drive.TeleopDriveCommand;
 import frc.robot.commands.vision.AlignTeleopCommand;
 import frc.robot.subsystems.Cameras;
 import frc.robot.subsystems.Drivetrain;
-import frc.robot.subsystems.Elevator;
-import frc.robot.subsystems.Harpoon;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.RunCommand;
@@ -41,8 +36,8 @@ public class RobotContainer {
     // The robot's subsystems
     private final Drivetrain m_robotDrive = new Drivetrain();
     private final Cameras m_cameras = new Cameras();
-    private final Elevator elevator = new Elevator();
-    private final Harpoon harpoon = new Harpoon();
+    // private final Elevator elevator = new Elevator();
+    // private final Harpoon harpoon = new Harpoon();
 
     // Driving controller
     CommandPS5Controller m_mainController = new CommandPS5Controller(OIConstants.kMainControllerPort);
@@ -110,8 +105,6 @@ public class RobotContainer {
      * (used during autos)
      */
     public void configureNamedCommands() {
-        //NamedCommands.registerCommand("Elevator L1", new MoveElevatorCommand(elevator, ElevatorPosition.MID));
-        //NamedCommands.registerCommand("Harpoon L1", new ScoreCommand(harpoon, HarpoonPosition.TOP.getSetpoint()));
     }
 
     /**
@@ -166,26 +159,26 @@ public class RobotContainer {
                 })
             );
 
-             this.m_operatorController.a() 
-             .onTrue(new MoveElevatorCommand(elevator, ElevatorPosition.L1));
-             this.m_operatorController.x()
-             .onTrue(new MoveElevatorCommand(elevator, ElevatorPosition.L2));
-             this.m_operatorController.b()
-             .onTrue(new MoveElevatorCommand(elevator, ElevatorPosition.L3));
-            this.m_operatorController.y().onTrue(this.elevator.emergencyStop()); // E-stop elevator
+            //  this.m_operatorController.a() 
+            //  .onTrue(new MoveElevatorCommand(elevator, ElevatorPosition.L1));
+            //  this.m_operatorController.x()
+            //  .onTrue(new MoveElevatorCommand(elevator, ElevatorPosition.L2));
+            //  this.m_operatorController.b()
+            //  .onTrue(new MoveElevatorCommand(elevator, ElevatorPosition.L3));
+            // this.m_operatorController.y().onTrue(this.elevator.emergencyStop()); // E-stop elevator
 
-             this.m_operatorController.povUp()
-             .onTrue(new ScoreCommand(harpoon, 0));
+            //  this.m_operatorController.povUp()
+            //  .onTrue(new ScoreCommand(harpoon, 0));
 
-             this.m_operatorController.povDown()
-             .onTrue(new ScoreCommand(harpoon, 30));
+            //  this.m_operatorController.povDown()
+            //  .onTrue(new ScoreCommand(harpoon, 30));
 
-             this.m_operatorController.povLeft()
-             .onTrue(new ScoreCommand(harpoon, 45));
+            //  this.m_operatorController.povLeft()
+            //  .onTrue(new ScoreCommand(harpoon, 45));
 
-             // emergency brake for harpoon for testing
-             this.m_operatorController.povRight()
-             .onTrue(this.harpoon.emergencyStop()); 
+            //  // emergency brake for harpoon for testing
+            //  this.m_operatorController.povRight()
+            //  .onTrue(this.harpoon.emergencyStop()); 
         }
     }
 

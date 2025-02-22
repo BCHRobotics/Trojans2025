@@ -1,6 +1,5 @@
 package frc.robot.commands;
 
-import frc.robot.Constants.HarpoonConstants;
 import frc.robot.subsystems.Harpoon;
 
 import frc.robot.subsystems.LED;
