@@ -51,7 +51,7 @@ public class Harpoon extends SubsystemBase{
 
         // important configurations. Idlemode is just the mode the sensor is in when it is not being commanded. 
         this.kRotationConfig.inverted(false); // 
-        this.kRotationConfig.idleMode(IdleMode.kCoast); // IdleMode.kBrake
+        this.kRotationConfig.idleMode(IdleMode.kBrake); // IdleMode.kBrake
 
         // super helpful position conversion factor. If using REV's maxmotion, this is important because it eliminates the need to adjust the setpoints based on the converion, making the code less elusive
         this.kRotationConfig.encoder.positionConversionFactor(
@@ -91,6 +91,8 @@ public class Harpoon extends SubsystemBase{
         kRotationController.setReference(
             degreesToRotations(positionInDegrees),
             SparkBase.ControlType.kMAXMotionPositionControl);
+        SmartDashboard.putNumber("Desired Setpoint", positionInDegrees);
+        
     }
 
     public void setIntakeMotorVelocity(double velocity){
@@ -113,6 +115,7 @@ public class Harpoon extends SubsystemBase{
     @Override
     public void periodic() {
         SmartDashboard.putNumber("Wrist Position", kRotationMotor.getAbsoluteEncoder().getPosition());
+        
         // we gotta get SmartDashboard sorted since there's already a lot of stuff being sent to it
     }
 }

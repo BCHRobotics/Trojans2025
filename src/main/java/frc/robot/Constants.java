@@ -88,7 +88,8 @@ public final class Constants {
       L2(120),
       L3(120),
       L4(130),
-      INTAKE(55);
+      INTAKE(55),
+      HOME(100);
     
       // ------
       private final double setpoint;
@@ -114,18 +115,6 @@ public final class Constants {
     public static final double scoreL2Angle = 130;
     public static final double scoreL3Angle = 130;
     public static final double scoreL4Angle = 130;
-  }
-  
-  public static final class ClimberConstants{
-    public static final int kLeftCanID = 40;
-    public static final int kRightCanID = 41;
-
-    public static final double climberP = 0.1;
-    public static final double climberI = 0.01;
-    public static final double climberD = 0.001;
-
-    public static final double gearConversionFactor = 5; // This is the conversion factor from degrees to rotations
-    public static final double fullyRotatedPositionDegrees = 360;
   }
 
   public static final class CONTROLLER {
