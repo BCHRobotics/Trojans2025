@@ -105,15 +105,15 @@ public final class Constants {
     public static final int kRotationMotorCANID = 31; // TO be changed to the actual rotation motor ID
 
     public static final double harpoonP = 0.1;
-    public static final double harpoonI = 0.01;
-    public static final double harpoonD = 0.001;
+    public static final double harpoonI = 0;
+    public static final double harpoonD = 0;
 
     public static final double gearConversionFactor = 9; // This is the conversion factor from degrees to rotations
 
-    public static final double scoreL1Angle = 0; // to be changed to actual value
-    public static final double scoreL2Angle = 0;
-    public static final double scoreL3Angle = 0;
-    public static final double scoreR1Angle = 0;
+    public static final double scoreL1Angle = 100; // to be changed to actual value
+    public static final double scoreL2Angle = 130;
+    public static final double scoreL3Angle = 130;
+    public static final double scoreL4Angle = 130;
   }
   
   public static final class ClimberConstants{
