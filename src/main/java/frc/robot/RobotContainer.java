@@ -17,9 +17,11 @@ import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.Constants.ElevatorConstants.ElevatorPosition;
 import frc.robot.Constants.OIConstants;
+import frc.robot.commands.IntakeCommand;
 import frc.robot.commands.MoveElevatorCommand;
 import frc.robot.commands.PivotHarpoon;
 import frc.robot.commands.ScoreCommand;
+import frc.robot.commands.ShootCommand;
 import frc.robot.commands.drive.TeleopDriveCommand;
 import frc.robot.commands.vision.AlignTeleopCommand;
 import frc.robot.subsystems.Cameras;
@@ -178,18 +180,25 @@ public class RobotContainer {
              //this.m_operatorController.povUp()
              //.onTrue(new ScoreCommand(harpoon, 0));
 
-            this.m_operatorController.povUp()
+            this.m_operatorController.povUp() // rotates claw to 100 degrees 
             .onTrue(new PivotHarpoon(this.harpoon,Constants.HarpoonConstants.HarpoonPosition.L1.getSetpoint()));
 
-             this.m_operatorController.povDown()
-             .onTrue(new ScoreCommand(this.harpoon, 30));
+             this.m_operatorController.povDown() // rotates claw to 120 degrees
+             .onTrue(new PivotHarpoon(this.harpoon,Constants.HarpoonConstants.HarpoonPosition.L2.getSetpoint()));
 
-             this.m_operatorController.povLeft()
-             .onTrue(new ScoreCommand(this.harpoon, 45));
+             this.m_operatorController.povLeft() // rotates claw to 120 degrees
+             .onTrue(new PivotHarpoon(this.harpoon,Constants.HarpoonConstants.HarpoonPosition.L3.getSetpoint()));
 
              // emergency brake for harpoon for testing
              this.m_operatorController.povRight()
              .onTrue(this.harpoon.emergencyStop()); 
+            
+             // intaking the claw
+             //this.m_operatorController.a() 
+             //.onTrue(new IntakeCommand(this.harpoon));
+             // shooting the claw
+             //this.m_operatorController.x()
+             //.onTrue(new ShootCommand(this.harpoon));
         }
     }
 
