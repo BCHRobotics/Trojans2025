@@ -43,8 +43,8 @@ public class RobotContainer {
     // The robot's subsystems
     private final Drivetrain m_robotDrive = new Drivetrain();
     private final Cameras m_cameras = new Cameras();
-    //private final Elevator elevator = new Elevator();
-    //private final Harpoon harpoon = new Harpoon();
+    private final Elevator elevator = new Elevator();
+    private final Harpoon harpoon = new Harpoon();
 
     // Driving controller
     CommandPS5Controller m_mainController = new CommandPS5Controller(OIConstants.kMainControllerPort);
@@ -168,21 +168,25 @@ public class RobotContainer {
                 })
             );
 
-            // this.m_backupController.a()
-            // .onTrue(new MoveElevatorCommand(elevator, ElevatorPosition.BOTTOM));
-            // this.m_backupController.x()
-            // .onTrue(new MoveElevatorCommand(elevator, ElevatorPosition.MID));
-            // this.m_backupController.b()
-            // .onTrue(new MoveElevatorCommand(elevator, ElevatorPosition.TOP));
+             this.m_backupController.a()
+             .onTrue(new MoveElevatorCommand(elevator, ElevatorPosition.BOTTOM));
+             this.m_backupController.x()
+             .onTrue(new MoveElevatorCommand(elevator, ElevatorPosition.MID));
+             this.m_backupController.b()
+             .onTrue(new MoveElevatorCommand(elevator, ElevatorPosition.TOP));
 
-            // this.m_backupController.povUp()
-            // .onTrue(new ScoreCommand(harpoon, 0));
+             this.m_backupController.povUp()
+             .onTrue(new ScoreCommand(harpoon, 0));
 
-            // this.m_backupController.povDown()
-            // .onTrue(new ScoreCommand(harpoon, 30));
+             this.m_backupController.povDown()
+             .onTrue(new ScoreCommand(harpoon, 30));
 
-            // this.m_backupController.povDown()
-            // .onTrue(new ScoreCommand(harpoon, 45));
+             this.m_backupController.povLeft()
+             .onTrue(new ScoreCommand(harpoon, 45));
+
+             // emergency brake for harpoon for testing
+             this.m_backupController.povRight()
+             .onTrue(this.harpoon.emergencyStop()); 
         }
     }
 
