@@ -196,7 +196,8 @@ public final class Constants {
     public static final String[] cameraNames = new String[] {"Front"};
     public static final CameraTransform[] cameraOffsets = 
     new CameraTransform[] {
-      new CameraTransform(0.3556, 0.1524, 0),
+      new CameraTransform(0.3556, Units.inchesToMeters(-4.5), 0),
+      new CameraTransform(0.3556, Units.inchesToMeters(5), 0),
     };
 
     // these are the actual ones for 2025

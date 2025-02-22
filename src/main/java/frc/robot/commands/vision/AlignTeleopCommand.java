@@ -32,7 +32,8 @@ public class AlignTeleopCommand extends Command{
    boolean lockedIn;
 
    public AlignTeleopCommand(int targetTagId, Boolean fieldRelative, Boolean rateLimit, Drivetrain driveSubsystem, Cameras cameraSubsystem, Translation2d offset){
-        tagId  = cameraSubsystem.getBestTargetID(cameraSubsystem.getBestTarget(1)); // to be changed. We need to reference the 3 front cameras 
+        //tagId  = cameraSubsystem.getBestTargetID(cameraSubsystem.getBestTarget(1)); // to be changed. We need to reference the 3 front cameras 
+        tagId = targetTagId;
         desiredOffset = offset;
 
         isFieldRelative = fieldRelative;
