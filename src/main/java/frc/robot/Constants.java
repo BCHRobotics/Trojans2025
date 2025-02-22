@@ -38,9 +38,12 @@ public final class Constants {
     // possible positions for the elevator,
     // an enum is a bit nicer than separate variables
     public enum ElevatorPosition { // rotations
-      BOTTOM(0),
-      MID(7),
-      TOP(15);
+      L1(0),
+      L2(7),
+      L3(15),
+      L4(20),
+      INTAKE(15);
+      
       
       // ------
       private final double setpoint;
