@@ -36,7 +36,7 @@ public class Cameras extends SubsystemBase {
     // IF YOU WANT TO DISABLE THE VISION CODE USE THIS!!!
     // USEFUL IF THE COPROCESSOR ISN'T PLUGGED IN!!!
     // -----
-    public boolean isVisionActive = true;
+    public boolean isVisionActive = false;
     public boolean periodicPoseEstimation = false;
     // -----
 

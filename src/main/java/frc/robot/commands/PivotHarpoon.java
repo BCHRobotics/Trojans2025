@@ -27,7 +27,7 @@ public class PivotHarpoon extends Command {
         harpoonSubsystem.setRotationMotorPosition(this.setpoint);
         //harpoonSubsystem.setIntakeMotorVelocity(-1);
         LEDSubsystem.setLEDColor(-0.3); // I don't know what this colour is. Will read the documentation later. Maybe a good idea to create an LED constants class?
-        System.out.println("PIVOR TIME");
+        System.out.println("PIVOT TIME");
     }
 
     @Override

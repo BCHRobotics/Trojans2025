@@ -30,8 +30,8 @@ public class Harpoon extends SubsystemBase{
 
     private final SparkMaxConfig kIntakeConfig = new SparkMaxConfig();
     private final SparkMaxConfig kRotationConfig = new SparkMaxConfig();
-    private final double maxVelocity = 1000; // This is in rpm
-    private final double maxAcceleration = 1000; // This is in rpm/second 
+    private final double maxVelocity = 100; // This is in rpm
+    private final double maxAcceleration = 100; // This is in rpm/second 
 
 
     // private final RelativeEncoder kLeftEncoder;
@@ -50,15 +50,15 @@ public class Harpoon extends SubsystemBase{
         sensorConfig.forwardLimitSwitchType(Type.kNormallyClosed);
 
         // important configurations. Idlemode is just the mode the sensor is in when it is not being commanded. 
-        this.kRotationConfig.inverted(false);
-        this.kRotationConfig.idleMode(IdleMode.kBrake);
+        this.kRotationConfig.inverted(false); // 
+        this.kRotationConfig.idleMode(IdleMode.kCoast); // IdleMode.kBrake
 
         // super helpful position conversion factor. If using REV's maxmotion, this is important because it eliminates the need to adjust the setpoints based on the converion, making the code less elusive
         this.kRotationConfig.encoder.positionConversionFactor(
             Constants.HarpoonConstants.gearConversionFactor*(Math.PI/180));
 
         // more important configs
-        this.kIntakeConfig.inverted(false);
+        this.kIntakeConfig.inverted(false); // inverting intake motor
         this.kIntakeConfig.idleMode(IdleMode.kBrake);
 
         // closed loop controller for the rotation motor - we're using a pid feedforward controller
@@ -112,7 +112,7 @@ public class Harpoon extends SubsystemBase{
     
     @Override
     public void periodic() {
-        SmartDashboard.putNumber("Wrist Position", kRotationMotor.getEncoder().getPosition());
+        SmartDashboard.putNumber("Wrist Position", kRotationMotor.getAbsoluteEncoder().getPosition());
         // we gotta get SmartDashboard sorted since there's already a lot of stuff being sent to it
     }
 }
