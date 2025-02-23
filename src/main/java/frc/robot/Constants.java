@@ -84,9 +84,9 @@ public final class Constants {
   public static final class HarpoonConstants {
 
     public enum HarpoonPosition {
-      L1(0.8), //degrees
-      L2(0.7),
-      L3(0.69),
+      L1(1), //degrees
+      L2(1),
+      L3(7),
       L4(0.75),
       INTAKE(0.88),
       HOME(0.85);

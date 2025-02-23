@@ -59,7 +59,7 @@ public class Harpoon extends SubsystemBase{
             Constants.HarpoonConstants.harpoonP,
             Constants.HarpoonConstants.harpoonI,
             Constants.HarpoonConstants.harpoonD,
-            0.1);
+            1);
         
         // maxmotion! This is a really cool feature that REV has. It allows you to set the max velocity and acceleration of the motor. This is super helpful for tuning the motor.
         this.kRotationConfig.closedLoop.maxMotion
@@ -86,7 +86,7 @@ public class Harpoon extends SubsystemBase{
             SparkBase.ControlType.kMAXMotionPositionControl);
 
         this.kRotationSetpoint = positionInRotations;
-        SmartDashboard.putNumber("Rotation Setpoint",this.kRotationSetpoint);
+        SmartDashboard.putNumber("Rotation Setpoint",positionInRotations);
     }
 
     public void setIntakeMotorVelocity(double velocity){
@@ -109,6 +109,7 @@ public class Harpoon extends SubsystemBase{
     @Override
     public void periodic() {
         SmartDashboard.putNumber("Wrist Position", kRotationMotor.getAbsoluteEncoder().getPosition());
+        SmartDashboard.putNumber("Desired Setpoint",this.kRotationSetpoint);
 
         
         // we gotta get SmartDashboard sorted since there's already a lot of stuff being sent to it
