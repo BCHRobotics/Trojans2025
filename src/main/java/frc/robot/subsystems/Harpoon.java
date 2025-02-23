@@ -30,7 +30,7 @@ public class Harpoon extends SubsystemBase{
     private final double maxVelocity = 100; // This is in rpm
     private final double maxAcceleration = 100; // This is in rpm/second 
 
-
+    private double kRotationSetpoint;
     // private final RelativeEncoder kLeftEncoder;
     private final SparkClosedLoopController kRotationController;
     private final SparkLimitSwitch sensorLimitSwitch;
@@ -51,7 +51,7 @@ public class Harpoon extends SubsystemBase{
         this.kRotationConfig.idleMode(IdleMode.kCoast); // IdleMode.kBrake
 
         // super helpful position conversion factor. If using REV's maxmotion, this is important because it eliminates the need to adjust the setpoints based on the converion, making the code less elusive
-        this.kRotationConfig.encoder.positionConversionFactor(
+        this.kRotationConfig.absoluteEncoder.positionConversionFactor(
             Constants.HarpoonConstants.gearConversionFactor*(Math.PI/180));
 
         // more important configs
@@ -87,7 +87,8 @@ public class Harpoon extends SubsystemBase{
         kRotationController.setReference(
             degreesToRotations(positionInDegrees),
             SparkBase.ControlType.kMAXMotionPositionControl);
-        SmartDashboard.putNumber("Desired Setpoint", positionInDegrees);
+        this.kRotationSetpoint = positionInDegrees*(Math.PI/180);
+        
         
     }
 
@@ -111,6 +112,7 @@ public class Harpoon extends SubsystemBase{
     @Override
     public void periodic() {
         SmartDashboard.putNumber("Wrist Position", kRotationMotor.getAbsoluteEncoder().getPosition());
+        SmartDashboard.putNumber("Desired Setpoint", kRotationSetpoint);
         
         // we gotta get SmartDashboard sorted since there's already a lot of stuff being sent to it
     }

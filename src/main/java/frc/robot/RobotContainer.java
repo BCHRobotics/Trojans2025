@@ -26,6 +26,7 @@ import frc.robot.commands.drive.TeleopDriveCommand;
 import frc.robot.commands.vision.AlignTeleopCommand;
 import frc.robot.subsystems.Cameras;
 import frc.robot.subsystems.Drivetrain;
+import frc.robot.subsystems.LED;
 import frc.robot.subsystems.Elevator;
 import frc.robot.subsystems.Harpoon;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -46,6 +47,8 @@ public class RobotContainer {
     private final Cameras m_cameras = new Cameras();
     private final Elevator elevator = new Elevator();
     private final Harpoon harpoon = new Harpoon();
+    private final LED ledRight = new LED(0);
+    private final LED ledLeft = new LED(1);
 
     // Driving controller
     CommandPS5Controller m_mainController = new CommandPS5Controller(OIConstants.kMainControllerPort);
