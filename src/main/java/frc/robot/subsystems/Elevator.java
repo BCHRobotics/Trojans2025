@@ -7,12 +7,14 @@ import com.revrobotics.spark.SparkBase;
 import com.revrobotics.spark.SparkBase.ResetMode;
 import com.revrobotics.spark.SparkMax;
 import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
+import com.revrobotics.spark.config.ClosedLoopConfig;
 import com.revrobotics.spark.config.LimitSwitchConfig;
 import com.revrobotics.spark.config.SparkMaxConfig;
 import com.revrobotics.spark.config.LimitSwitchConfig.Type;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.PIDController;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.Constants.ElevatorConstants;
 
 // we may want to switch to using the maxmotion controller
@@ -62,7 +64,7 @@ public class Elevator extends SubsystemBase{
         // motor config
         SparkMaxConfig motorConfig = new SparkMaxConfig();
         motorConfig.idleMode(IdleMode.kBrake);
-        motorConfig.smartCurrentLimit(40);
+        motorConfig.smartCurrentLimit(120);
         motorConfig.voltageCompensation(12.0);
 
         // limit switch config,
@@ -81,11 +83,16 @@ public class Elevator extends SubsystemBase{
         // apply the motor config to BOTH motors
         primaryMotor.configure(motorConfig, ResetMode.kResetSafeParameters, null);
         followerMotor.configure(motorConfig, ResetMode.kResetSafeParameters, null);
+
+        SmartDashboard.putBoolean("invert 1", primaryMotor.getInverted());
+        SmartDashboard.putBoolean("invert 2", followerMotor.getInverted());
         
         // configuring one motor to follow the other
         SparkMaxConfig followerConfig = new SparkMaxConfig();
         followerConfig.follow(primaryMotor, false);
         followerMotor.configure(followerConfig, null, null); 
+
+        SmartDashboard.putNumber("Elevator Power", 0);
     } 
 
     public void resetElevator() {
@@ -124,11 +131,15 @@ public class Elevator extends SubsystemBase{
         //set limits on the output of the motor
         output = MathUtil.clamp(output, -ElevatorConstants.maxOutput, ElevatorConstants.maxOutput);
         
+        SmartDashboard.putNumber("Running Power", applyLimits(output));
+
+        SmartDashboard.putNumber("Motor 1", primaryMotor.getAppliedOutput());
+        SmartDashboard.putNumber("Motor 2", followerMotor.getAppliedOutput());
         primaryMotor.set(applyLimits(output));
     }
 
     /**
-     * Set the setpoint of the elevator, 
+     * Set the szetpoint of the elevator, 
      * in other words the target position
      * @param newSetpoint the desired position
      */
@@ -142,8 +153,8 @@ public class Elevator extends SubsystemBase{
      * @return The transformed output, ready to be passed to the motors
      */
     double applyLimits(double input) {
-        boolean isBottomPressed = primaryMotor.getReverseLimitSwitch().isPressed();
-        boolean isTopPressed = primaryMotor.getForwardLimitSwitch().isPressed();
+        boolean isTopPressed = primaryMotor.getReverseLimitSwitch().isPressed();
+        boolean isBottomPressed = primaryMotor.getForwardLimitSwitch().isPressed();
         
         if (isBottomPressed) {
             return MathUtil.clamp(input, 0, ElevatorConstants.maxOutput);
@@ -156,7 +167,9 @@ public class Elevator extends SubsystemBase{
             input *= 0.5 * MathUtil.clamp(1 / (Math.abs(encoder.getVelocity()) / 400), 0, 1);
         }
 
-        return MathUtil.clamp(input, -ElevatorConstants.maxOutput, ElevatorConstants.maxOutput);
+        //return MathUtil.clamp(input, -ElevatorConstants.maxOutput, ElevatorConstants.maxOutput);
+
+        return 1;
     }
 
     /**
@@ -182,11 +195,11 @@ public class Elevator extends SubsystemBase{
      * This is called in periodic()
      */
     public void printToDashboard() {
-        // SmartDashboard.putNumber("Encoder Position", encoder.getPosition());
-        // SmartDashboard.putNumber("velocity", getVelocity());
-        // SmartDashboard.putNumber("Elevator Error", (setpoint-getPosition()));
+        SmartDashboard.putNumber("Encoder Position", encoder.getPosition());
+        SmartDashboard.putNumber("velocity", getVelocity());
+        SmartDashboard.putNumber("Elevator Error", (setpoint-getPosition()));
 
-        // SmartDashboard.putBoolean("Top Limit", primaryMotor.getForwardLimitSwitch().isPressed());
-        // SmartDashboard.putBoolean("Bottom Limit", primaryMotor.getReverseLimitSwitch().isPressed());
+        SmartDashboard.putBoolean("Top Limit", primaryMotor.getForwardLimitSwitch().isPressed());
+        SmartDashboard.putBoolean("Bottom Limit", primaryMotor.getReverseLimitSwitch().isPressed());
     }
 }

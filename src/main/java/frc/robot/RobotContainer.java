@@ -171,7 +171,7 @@ public class RobotContainer {
                     }
                 })
             );
-            /*
+            
              this.m_operatorController.a() 
              .onTrue(new MoveElevatorCommand(elevator, ElevatorPosition.L1));
              this.m_operatorController.x()
@@ -179,10 +179,12 @@ public class RobotContainer {
              this.m_operatorController.b()
              .onTrue(new MoveElevatorCommand(elevator, ElevatorPosition.L3));
             this.m_operatorController.y().onTrue(this.elevator.emergencyStop()); // E-stop elevator
-                 */
+            
+             
              //this.m_operatorController.povUp()
              //.onTrue(new ScoreCommand(harpoon, 0));
 
+            /*
             this.m_operatorController.a() // rotates claw to 100 degrees 
             .onTrue(new PivotHarpoon(this.harpoon,0.7));
 
@@ -195,7 +197,7 @@ public class RobotContainer {
             .onFalse(new ShootCommand(harpoon,0));
              //this.m_operatorController.x() // rotates claw to 120 degrees
              //.onTrue(new PivotHarpoon(this.harpoon,Constants.HarpoonConstants.HarpoonPosition.L3.getSetpoint()));
-
+ */
              // emergency brake for harpoon for testing
              //this.m_operatorController.y()
              //.onTrue(this.harpoon.emergencyStop()); 
