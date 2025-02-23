@@ -113,10 +113,15 @@ public class Harpoon extends SubsystemBase{
     
     @Override
     public void periodic() {
-        SmartDashboard.putNumber("Wrist Position", kRotationMotor.getAbsoluteEncoder().getPosition());
-        SmartDashboard.putNumber("Desired Setpoint",this.kRotationSetpoint);
+        printToDashboard();
 
         
         // we gotta get SmartDashboard sorted since there's already a lot of stuff being sent to it
+    }
+
+
+    public void printToDashboard() {
+        SmartDashboard.putNumber("Wrist Position", kRotationMotor.getAbsoluteEncoder().getPosition());
+        SmartDashboard.putNumber("Desired Setpoint",this.kRotationSetpoint);
     }
 }
