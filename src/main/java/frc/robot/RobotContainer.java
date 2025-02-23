@@ -193,8 +193,8 @@ public class RobotContainer {
              .onTrue(new PivotHarpoon(this.harpoon,Constants.HarpoonConstants.HarpoonPosition.L3.getSetpoint()));
 
              // emergency brake for harpoon for testing
-             this.m_operatorController.y()
-             .onTrue(this.harpoon.emergencyStop()); 
+             //this.m_operatorController.y()
+             //.onTrue(this.harpoon.emergencyStop()); 
             
              // intaking the claw
              //this.m_operatorController.a() 

@@ -50,10 +50,6 @@ public class Harpoon extends SubsystemBase{
         this.kRotationConfig.inverted(false); // 
         this.kRotationConfig.idleMode(IdleMode.kCoast); // IdleMode.kBrake
 
-        // super helpful position conversion factor. If using REV's maxmotion, this is important because it eliminates the need to adjust the setpoints based on the converion, making the code less elusive
-        this.kRotationConfig.absoluteEncoder.positionConversionFactor(
-            Constants.HarpoonConstants.gearConversionFactor*(Math.PI/180));
-
         // more important configs
         this.kIntakeConfig.inverted(false); // inverting intake motor
         this.kIntakeConfig.idleMode(IdleMode.kBrake);
@@ -63,7 +59,7 @@ public class Harpoon extends SubsystemBase{
             Constants.HarpoonConstants.harpoonP,
             Constants.HarpoonConstants.harpoonI,
             Constants.HarpoonConstants.harpoonD,
-            0);
+            0.1);
         
         // maxmotion! This is a really cool feature that REV has. It allows you to set the max velocity and acceleration of the motor. This is super helpful for tuning the motor.
         this.kRotationConfig.closedLoop.maxMotion
@@ -78,18 +74,19 @@ public class Harpoon extends SubsystemBase{
         // finally, configure the motors
         this.kRotationMotor.configure(this.kRotationConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
     }
-
+/* 
     public double degreesToRotations(double degrees){
         return degrees/360;
     }
-
+*/
     public void setRotationMotorPosition(double positionInDegrees){
+        double positionInRotations = positionInDegrees*Constants.HarpoonConstants.gearConversionFactor;
         kRotationController.setReference(
-            degreesToRotations(positionInDegrees),
+            positionInRotations,
             SparkBase.ControlType.kMAXMotionPositionControl);
-        this.kRotationSetpoint = positionInDegrees*(Math.PI/180);
-        
-        
+
+        this.kRotationSetpoint = positionInRotations;
+        SmartDashboard.putNumber("Rotation Setpoint",this.kRotationSetpoint);
     }
 
     public void setIntakeMotorVelocity(double velocity){
@@ -112,7 +109,7 @@ public class Harpoon extends SubsystemBase{
     @Override
     public void periodic() {
         SmartDashboard.putNumber("Wrist Position", kRotationMotor.getAbsoluteEncoder().getPosition());
-        SmartDashboard.putNumber("Desired Setpoint", kRotationSetpoint);
+
         
         // we gotta get SmartDashboard sorted since there's already a lot of stuff being sent to it
     }
