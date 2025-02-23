@@ -33,7 +33,7 @@ public class Harpoon extends SubsystemBase{
     private final double maxVelocity = 100; // This is in rpm
     private final double maxAcceleration = 100; // This is in rpm/second 
 
-
+    private double kRotationSetpoint;
     // private final RelativeEncoder kLeftEncoder;
     private final SparkClosedLoopController kRotationController;
     private final SparkLimitSwitch sensorLimitSwitch;
@@ -91,7 +91,8 @@ public class Harpoon extends SubsystemBase{
         kRotationController.setReference(
             degreesToRotations(positionInDegrees),
             SparkBase.ControlType.kMAXMotionPositionControl);
-        SmartDashboard.putNumber("Desired Setpoint", positionInDegrees);
+        this.kRotationSetpoint = positionInDegrees*(Math.PI/180);
+        
         
     }
 
@@ -115,6 +116,7 @@ public class Harpoon extends SubsystemBase{
     @Override
     public void periodic() {
         SmartDashboard.putNumber("Wrist Position", kRotationMotor.getAbsoluteEncoder().getPosition());
+        SmartDashboard.putNumber("Desired Setpoint", kRotationSetpoint);
         
         // we gotta get SmartDashboard sorted since there's already a lot of stuff being sent to it
     }
