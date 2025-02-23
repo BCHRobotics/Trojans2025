@@ -29,7 +29,7 @@ public class PivotHarpoon extends Command {
     @Override
     public void initialize() {
         // we only need to set the reference once. This is true for probably all closed loop control systems
-        harpoonSubsystem.setRotationMotorPosition(this.setpoint);
+        harpoonSubsystem.setRotationMotorPosition(setpoint);
         //harpoonSubsystem.setIntakeMotorVelocity(-1);
         //LEDSubsystem.setLEDColor(-0.3); // I don't know what this colour is. Will read the documentation later. Maybe a good idea to create an LED constants class?
         //System.out.println("PIVOT TIME");
@@ -46,7 +46,7 @@ public class PivotHarpoon extends Command {
     public void end(boolean interrupted) {
         //we want to stop the intake motor velocity after we've scored. We also want to stow the elevator
         //harpoonSubsystem.setIntakeMotorVelocity(0);
-        harpoonSubsystem.setRotationMotorPosition(0); // could change the angle. We don't know what the home angle is. We could also just reset it with the hardware client.
+        //harpoonSubsystem.setRotationMotorPosition(0); // could change the angle. We don't know what the home angle is. We could also just reset it with the hardware client.
         //LEDSubsystem.setLEDColor(0);
     }
 
