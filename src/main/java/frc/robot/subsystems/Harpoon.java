@@ -54,7 +54,7 @@ public class Harpoon extends SubsystemBase{
         this.kRotationConfig.idleMode(IdleMode.kBrake); // IdleMode.kBrake
 
         // super helpful position conversion factor. If using REV's maxmotion, this is important because it eliminates the need to adjust the setpoints based on the converion, making the code less elusive
-        this.kRotationConfig.encoder.positionConversionFactor(
+        this.kRotationConfig.absoluteEncoder.positionConversionFactor(
             Constants.HarpoonConstants.gearConversionFactor*(Math.PI/180));
 
         // more important configs
