@@ -79,16 +79,19 @@ public class Harpoon extends SubsystemBase{
         return degrees/360;
     }
 */
-    public void setRotationMotorPosition(double positionInDegrees){
-        double positionInRotations = positionInDegrees*Constants.HarpoonConstants.gearConversionFactor;
+    public void setRotationMotorPosition(double HarpoonPosition){ // HarpoonPosition is 0-1, (1 is stowed, 0.6 is reaching bumpers)
+        
+        //double positionInRotations = positionInDegrees*Constants.HarpoonConstants.gearConversionFactor;
         kRotationController.setReference(
-            positionInRotations,
+            HarpoonPosition,
             SparkBase.ControlType.kMAXMotionPositionControl);
 
-        this.kRotationSetpoint = positionInRotations;
-        SmartDashboard.putNumber("Rotation Setpoint",positionInRotations);
-           // Retrieve and display the applied output percentage
-
+        this.kRotationSetpoint = HarpoonPosition; //between 0 and 1
+        SmartDashboard.putNumber("Rotation Setpoint",HarpoonPosition);
+        // Retrieve and display the applied output percentage
+    double appliedOutput = kRotationMotor.getAppliedOutput();
+    SmartDashboard.putNumber("Applied Output", appliedOutput);
+    
     }
 
     public void setIntakeMotorVelocity(double velocity){
@@ -113,8 +116,8 @@ public class Harpoon extends SubsystemBase{
         SmartDashboard.putNumber("Wrist Position", kRotationMotor.getAbsoluteEncoder().getPosition());
         SmartDashboard.putNumber("Desired Setpoint",this.kRotationSetpoint);
 
-        double appliedOutput = kRotationMotor.getAppliedOutput();
-        SmartDashboard.putNumber("Applied Output", appliedOutput);
+        
         // we gotta get SmartDashboard sorted since there's already a lot of stuff being sent to it
     }
+
 }
