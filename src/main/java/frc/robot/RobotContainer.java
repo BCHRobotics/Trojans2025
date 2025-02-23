@@ -184,13 +184,17 @@ public class RobotContainer {
              //.onTrue(new ScoreCommand(harpoon, 0));
 
             this.m_operatorController.a() // rotates claw to 100 degrees 
-            .onTrue(new PivotHarpoon(this.harpoon,Constants.HarpoonConstants.HarpoonPosition.HOME.getSetpoint()));
+            .onTrue(new PivotHarpoon(this.harpoon,0.7));
 
              this.m_operatorController.b() // rotates claw to 120 degrees
-             .onTrue(new PivotHarpoon(this.harpoon,Constants.HarpoonConstants.HarpoonPosition.L2.getSetpoint()));
+             .onTrue(new ShootCommand(harpoon,0.6))
+             .onFalse(new ShootCommand(harpoon,0));
 
-             this.m_operatorController.x() // rotates claw to 120 degrees
-             .onTrue(new PivotHarpoon(this.harpoon,Constants.HarpoonConstants.HarpoonPosition.L3.getSetpoint()));
+            this.m_operatorController.x()
+            .onTrue(new ShootCommand(harpoon,-0.6))
+            .onFalse(new ShootCommand(harpoon,0));
+             //this.m_operatorController.x() // rotates claw to 120 degrees
+             //.onTrue(new PivotHarpoon(this.harpoon,Constants.HarpoonConstants.HarpoonPosition.L3.getSetpoint()));
 
              // emergency brake for harpoon for testing
              //this.m_operatorController.y()

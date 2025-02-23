@@ -88,8 +88,7 @@ public class Harpoon extends SubsystemBase{
         this.kRotationSetpoint = positionInRotations;
         SmartDashboard.putNumber("Rotation Setpoint",positionInRotations);
            // Retrieve and display the applied output percentage
-    double appliedOutput = kRotationMotor.getAppliedOutput();
-    SmartDashboard.putNumber("Applied Output", appliedOutput);
+
     }
 
     public void setIntakeMotorVelocity(double velocity){
@@ -114,7 +113,8 @@ public class Harpoon extends SubsystemBase{
         SmartDashboard.putNumber("Wrist Position", kRotationMotor.getAbsoluteEncoder().getPosition());
         SmartDashboard.putNumber("Desired Setpoint",this.kRotationSetpoint);
 
-        
+        double appliedOutput = kRotationMotor.getAppliedOutput();
+        SmartDashboard.putNumber("Applied Output", appliedOutput);
         // we gotta get SmartDashboard sorted since there's already a lot of stuff being sent to it
     }
 }
