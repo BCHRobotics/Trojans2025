@@ -20,9 +20,6 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.Constants;
-
-
-
 public class Harpoon extends SubsystemBase{
 
     private final SparkMax kIntakeMotor; // intake motor is the same as the "shooter" motor
@@ -51,7 +48,7 @@ public class Harpoon extends SubsystemBase{
 
         // important configurations. Idlemode is just the mode the sensor is in when it is not being commanded. 
         this.kRotationConfig.inverted(false); // 
-        this.kRotationConfig.idleMode(IdleMode.kBrake); // IdleMode.kBrake
+        this.kRotationConfig.idleMode(IdleMode.kCoast); // IdleMode.kBrake
 
         // super helpful position conversion factor. If using REV's maxmotion, this is important because it eliminates the need to adjust the setpoints based on the converion, making the code less elusive
         this.kRotationConfig.encoder.positionConversionFactor(
@@ -73,7 +70,6 @@ public class Harpoon extends SubsystemBase{
             .maxVelocity(maxVelocity)
             .maxAcceleration(maxAcceleration)
             .allowedClosedLoopError(0.5);
-
         
         // get the controller for the rotation motor
         this.kRotationController = kRotationMotor.getClosedLoopController();
