@@ -79,14 +79,15 @@ public class Harpoon extends SubsystemBase{
         return degrees/360;
     }
 */
-    public void setRotationMotorPosition(double positionInDegrees){
-        double positionInRotations = positionInDegrees*Constants.HarpoonConstants.gearConversionFactor;
+    public void setRotationMotorPosition(double HarpoonPosition){ // HarpoonPosition is 0-1, (1 is stowed, 0.6 is reaching bumpers)
+        
+        //double positionInRotations = positionInDegrees*Constants.HarpoonConstants.gearConversionFactor;
         kRotationController.setReference(
-            positionInRotations,
+            HarpoonPosition,
             SparkBase.ControlType.kMAXMotionPositionControl);
 
-        this.kRotationSetpoint = positionInRotations;
-        SmartDashboard.putNumber("Rotation Setpoint",positionInRotations);
+        this.kRotationSetpoint = HarpoonPosition; //between 0 and 1
+        SmartDashboard.putNumber("Rotation Setpoint",HarpoonPosition);
     }
 
     public void setIntakeMotorVelocity(double velocity){
