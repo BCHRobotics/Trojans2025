@@ -91,6 +91,12 @@ public class Elevator extends SubsystemBase{
 
         followerMotor.configure(followerConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
 
+
+        SmartDashboard.putBoolean("invert 1", primaryMotor.getInverted()); // Deprecated !!
+        SmartDashboard.putBoolean("invert 2", followerMotor.getInverted());
+        
+        // configuring one motor to follow the other
+
         // SmartDashboard.putNumber("Elevator Power", primaryMotor.getAppliedOutput());
     } 
 
