@@ -4,6 +4,7 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 import com.revrobotics.RelativeEncoder;
 import com.revrobotics.spark.SparkBase;
+import com.revrobotics.spark.SparkBase.PersistMode;
 import com.revrobotics.spark.SparkBase.ResetMode;
 import com.revrobotics.spark.SparkMax;
 import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
@@ -90,7 +91,7 @@ public class Elevator extends SubsystemBase{
         // configuring one motor to follow the other
         SparkMaxConfig followerConfig = new SparkMaxConfig();
         followerConfig.follow(primaryMotor, false);
-        followerMotor.configure(followerConfig, null, null); 
+        followerMotor.configure(followerConfig, null, PersistMode.kPersistParameters); 
 
         SmartDashboard.putNumber("Elevator Power", 0);
     } 

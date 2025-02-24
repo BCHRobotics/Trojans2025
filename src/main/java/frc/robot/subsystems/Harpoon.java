@@ -72,7 +72,7 @@ public class Harpoon extends SubsystemBase{
         this.kRotationConfig.apply(sensorConfig);
 
         // finally, configure the motors
-        this.kRotationMotor.configure(this.kRotationConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
+        this.kRotationMotor.configure(this.kRotationConfig, null, PersistMode.kPersistParameters);
     }
 /* 
     public double degreesToRotations(double degrees){
