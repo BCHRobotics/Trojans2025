@@ -1,12 +1,10 @@
 package frc.robot.commands;
 
 import frc.robot.subsystems.Harpoon;
-import frc.robot.subsystems.PhotoElectricSensor;
 import edu.wpi.first.wpilibj2.command.Command;
 
 public class ScoreCommand extends Command {
     private Harpoon harpoonSubsystem;
-    private PhotoElectricSensor sensorSubsystem;
     private double scoreAngle;
 
     public ScoreCommand(Harpoon harpoonSubsystem, double scoreAngle) {

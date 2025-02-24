@@ -1,15 +1,10 @@
 package frc.robot.commands;
 
-import frc.robot.Constants.HarpoonConstants;
 import frc.robot.subsystems.Harpoon;
-
-import frc.robot.subsystems.LED;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 
 public class PivotHarpoon extends Command {
     private Harpoon harpoonSubsystem;
-    private LED LEDSubsystem;
     private double setpoint;
    
 

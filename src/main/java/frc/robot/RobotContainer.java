@@ -12,7 +12,6 @@ import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.util.FileVersionException;
 
 import edu.wpi.first.math.MathUtil;
-import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.Constants.ElevatorConstants.ElevatorPosition;
@@ -20,11 +19,9 @@ import frc.robot.Constants.OIConstants;
 import frc.robot.commands.IntakeCommand;
 import frc.robot.commands.MoveElevatorCommand;
 import frc.robot.commands.PivotHarpoon;
-import frc.robot.commands.ScoreCommand;
 import frc.robot.commands.ShootCommand;
 import frc.robot.commands.SetLEDCommand;
 import frc.robot.commands.drive.TeleopDriveCommand;
-import frc.robot.commands.vision.AlignTeleopCommand;
 import frc.robot.subsystems.Cameras;
 import frc.robot.subsystems.Drivetrain;
 import frc.robot.subsystems.LED;
@@ -249,7 +246,7 @@ public class RobotContainer {
 
             this.m_operatorController.povDown() // rotates claw to 100 degrees 
             .onTrue(new PivotHarpoon(this.harpoon,0.98)
-            .andThen(new MoveElevatorCommand(elevator, ElevatorPosition.Bottom))
+            .andThen(new MoveElevatorCommand(elevator, ElevatorPosition.STOWED))
             .andThen(new SetLEDCommand(ledLeft, -0.58))
             .andThen(new SetLEDCommand(ledRight, -0.58)));
 

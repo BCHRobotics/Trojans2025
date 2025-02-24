@@ -3,12 +3,10 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 import com.revrobotics.RelativeEncoder;
-import com.revrobotics.spark.SparkBase;
 import com.revrobotics.spark.SparkBase.PersistMode;
 import com.revrobotics.spark.SparkBase.ResetMode;
 import com.revrobotics.spark.SparkMax;
 import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
-import com.revrobotics.spark.config.ClosedLoopConfig;
 import com.revrobotics.spark.config.LimitSwitchConfig;
 import com.revrobotics.spark.config.SparkMaxConfig;
 import com.revrobotics.spark.config.LimitSwitchConfig.Type;
@@ -18,7 +16,7 @@ import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.Constants.ElevatorConstants;
 
-// we may want to switch to using the maxmotion controller
+// TODO: tune PIDs
 
 /*
  * Subsystem for managing elevator movement
@@ -80,24 +78,12 @@ public class Elevator extends SubsystemBase{
 
         // apply the limit switch data to the motorConfig
         motorConfig.apply(switchConfig);
-
-        // configuring one motor to follow the other
-        SparkMaxConfig followerConfig = new SparkMaxConfig();
-        followerConfig.follow(primaryMotor, false);
         
         // apply the motor config to BOTH motors
         primaryMotor.configure(motorConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
         followerMotor.configure(motorConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
 
-        followerMotor.configure(followerConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
-
-
-        SmartDashboard.putBoolean("invert 1", primaryMotor.getInverted()); // Deprecated !!
-        SmartDashboard.putBoolean("invert 2", followerMotor.getInverted());
-        
-        // configuring one motor to follow the other
-
-        // SmartDashboard.putNumber("Elevator Power", primaryMotor.getAppliedOutput());
+        resetElevator();
     } 
 
     public void resetElevator() {
@@ -156,7 +142,7 @@ public class Elevator extends SubsystemBase{
      */
     double applyLimits(double input) {
         boolean isTopPressed = primaryMotor.getReverseLimitSwitch().isPressed();
-        boolean isBottomPressed = primaryMotor.getForwardLimitSwitch().isPressed();
+        //boolean isBottomPressed = primaryMotor.getForwardLimitSwitch().isPressed();
         
         // if (isBottomPressed) {
         //     return MathUtil.clamp(input, 0, ElevatorConstants.maxOutput);

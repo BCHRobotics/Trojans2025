@@ -38,15 +38,13 @@ public final class Constants {
     // possible positions for the elevator,
     // an enum is a bit nicer than separate variables
     public enum ElevatorPosition { // rotations
-      Bottom(0),
+      STOWED(0), // FINAL
       L1(0),
-      L2(9.5),
-      L3(13.8),
-      L4(20),
-      INTAKE(3.3); // 2.3
+      L2(9.5),  // FINAL
+      L3(13.8),  // FINAL
+      L4(20), // UNTESTED
+      INTAKE(3.3); // FINAL
       
-      
-      // ------
       private final double setpoint;
       ElevatorPosition(double setpoint) {
           this.setpoint = setpoint;
@@ -85,14 +83,13 @@ public final class Constants {
   public static final class HarpoonConstants {
 
     public enum HarpoonPosition {
-      L1(0.85), //degrees
-      L2(0.6),
-      L3(0.6),
-      L4(0.75),
-      INTAKE(0.85), // 0.9
-      HOME(0.85);
+      L1(0.85), // FINAL
+      L2(0.6), // FINAL
+      L3(0.6), // FINAL
+      L4(0.75), // UNTESTED
+      INTAKE(0.85), // FINAL
+      STOWED(0.98);
     
-      // ------
       private final double setpoint;
       HarpoonPosition(double setpoint) {
           this.setpoint = setpoint;
