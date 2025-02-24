@@ -14,14 +14,18 @@ import com.pathplanner.lib.util.FileVersionException;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import frc.robot.Constants.ElevatorConstants.ElevatorMode;
 import frc.robot.Constants.ElevatorConstants.ElevatorPosition;
+import frc.robot.Constants.HarpoonConstants.HarpoonPosition;
 import frc.robot.Constants.OIConstants;
-import frc.robot.commands.IntakeCommand;
-import frc.robot.commands.MoveElevatorCommand;
-import frc.robot.commands.PivotHarpoon;
-import frc.robot.commands.ShootCommand;
 import frc.robot.commands.SetLEDCommand;
 import frc.robot.commands.drive.TeleopDriveCommand;
+import frc.robot.commands.elevator.PrepareElevatorCommand;
+import frc.robot.commands.elevator.ToggleElevatorCommand;
+import frc.robot.commands.harpoon.IntakeCommand;
+import frc.robot.commands.harpoon.PrepareHarpoonCommand;
+import frc.robot.commands.harpoon.ShootCommand;
+import frc.robot.commands.harpoon.StopClawCommand;
 import frc.robot.subsystems.Cameras;
 import frc.robot.subsystems.Drivetrain;
 import frc.robot.subsystems.LED;
@@ -143,6 +147,9 @@ public class RobotContainer {
             // Fast mode command (Right Bumper)
             driverController_XBOX.rightBumper().onTrue(new InstantCommand(() -> m_robotDrive.setFastMode(true)));
             driverController_XBOX.rightBumper().onFalse(new InstantCommand(() -> m_robotDrive.setFastMode(false)));
+
+            // toggling the elevator up and down
+            driverController_PS5.square().onTrue(new ToggleElevatorCommand(elevator, harpoon));
         }
         else {
             // Reset Gyro
@@ -155,6 +162,18 @@ public class RobotContainer {
             // Fast mode command (Right Bumper)
             driverController_PS5.R1().onTrue(new InstantCommand(() -> m_robotDrive.setFastMode(true)));
             driverController_PS5.R1().onFalse(new InstantCommand(() -> m_robotDrive.setFastMode(false)));
+
+            // toggling the elevator up and down
+            driverController_XBOX.a().onTrue(new ToggleElevatorCommand(elevator, harpoon));
+
+            // intake gamepiece
+            this.operatorController_XBOX.x()
+            .onTrue(new IntakeCommand(harpoon,0.6));
+
+            // spit out gamepiece
+             this.driverController_XBOX.b()
+             .onTrue(new ShootCommand(harpoon,0.6))
+             .onFalse(new StopClawCommand(harpoon));
         }
     }
 
@@ -170,69 +189,20 @@ public class RobotContainer {
             // NOTE FOR SLOW/FAST MODE COMMANDS
             // These commands don't have requirements else they interrupt the drive command (TeleopDriveCommand)
 
-            this.operatorController_XBOX.povLeft() // rotates claw to 100 degrees 
-            .onTrue(new PivotHarpoon(this.harpoon,Constants
-            .HarpoonConstants
-            .HarpoonPosition.L2.getSetpoint())
-            .andThen(new MoveElevatorCommand(elevator, Constants.ElevatorConstants.ElevatorPosition.L2))
-            .andThen(new SetLEDCommand(ledLeft, -0.55))
-            .andThen(new SetLEDCommand(ledRight, -0.55)));
+            this.operatorController_XBOX.leftBumper().onTrue(
+                new PrepareElevatorCommand(elevator, ElevatorMode.REEF, elevator.getUpperPosition()).
+                andThen(new PrepareHarpoonCommand(harpoon, harpoon.getUpperSetpoint()))
+            );
 
-            // this.m_operatorController.povRight() // rotates claw to 100 degrees 
-            // .onTrue(new PivotHarpoon(this.harpoon,Constants
-            // .HarpoonConstants
-            // .HarpoonPosition.INTAKE.getSetpoint())
-            // .andThen(new MoveElevatorCommand(elevator, Constants.ElevatorConstants.ElevatorPosition.INTAKE))
-            // .andThen(new SetLEDCommand(ledLeft, -0.55))
-            // .andThen(new SetLEDCommand(ledRight, -0.55)));
+            this.operatorController_XBOX.rightBumper().onTrue(
+                new PrepareElevatorCommand(elevator, ElevatorMode.REEF, elevator.getLowerPosition()).
+                andThen(new PrepareHarpoonCommand(harpoon, harpoon.getLowerSetpoint()))
+            );
 
-            this.operatorController_XBOX.povRight() // rotates claw to 100 degrees 
-            .onTrue(new PivotHarpoon(this.harpoon,Constants
-            .HarpoonConstants
-            .HarpoonPosition.L1.getSetpoint())
-            .andThen(new MoveElevatorCommand(elevator, Constants.ElevatorConstants.ElevatorPosition.L1))
-            .andThen(new SetLEDCommand(ledLeft, -0.55))
-            .andThen(new SetLEDCommand(ledRight, -0.55)));
-
-            this.operatorController_XBOX.povUp() // rotates claw to 100 degrees 
-            .onTrue(new PivotHarpoon(this.harpoon,Constants
-            .HarpoonConstants
-            .HarpoonPosition.L3.getSetpoint())
-            .andThen(new MoveElevatorCommand(elevator, Constants.ElevatorConstants.ElevatorPosition.L3))
-            .andThen(new SetLEDCommand(ledLeft, -0.58))
-            .andThen(new SetLEDCommand(ledRight, -0.58)));
-
-            this.operatorController_XBOX.povDown() // rotates claw to 100 degrees 
-            .onTrue(new PivotHarpoon(this.harpoon,0.98)
-            .andThen(new MoveElevatorCommand(elevator, ElevatorPosition.STOWED))
-            .andThen(new SetLEDCommand(ledLeft, -0.58))
-            .andThen(new SetLEDCommand(ledRight, -0.58)));
-
-             this.operatorController_XBOX.b()
-             .onFalse(new ShootCommand(harpoon,0)) // rotates claw to 120 degrees
-             .onTrue(new ShootCommand(harpoon,0.6)
-             
-             .andThen(new SetLEDCommand(ledLeft, 0.3))
-             .andThen(new SetLEDCommand(ledRight, 0.3)));
-
-            this.operatorController_XBOX.x()
-            .onTrue(new IntakeCommand(harpoon,0.6)
-            .andThen(new SetLEDCommand(ledLeft, 0.3))
-            .andThen(new SetLEDCommand(ledRight, 0.3)));
-     
-             //this.m_operatorController.x() // rotates claw to 120 degrees
-             //.onTrue(new PivotHarpoon(this.harpoon,Constants.HarpoonConstants.HarpoonPosition.L3.getSetpoint()));
- 
-             // emergency brake for harpoon for testing
-             //this.m_operatorController.y()
-             //.onTrue(this.harpoon.emergencyStop()); 
-            
-             // intaking the claw
-             //this.m_operatorController.a() 
-             //.onTrue(new IntakeCommand(this.harpoon));
-             // shooting the claw
-             //this.m_operatorController.x()
-             //.onTrue(new ShootCommand(this.harpoon));
+            this.operatorController_XBOX.leftTrigger().onTrue(
+                new PrepareElevatorCommand(elevator, ElevatorMode.FEEDER, ElevatorPosition.INTAKE).
+                andThen(new PrepareHarpoonCommand(harpoon, HarpoonPosition.INTAKE.getSetpoint()))
+            );
         }
         else {
         }

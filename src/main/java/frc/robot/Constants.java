@@ -33,6 +33,18 @@ import frc.utils.VisionUtils;
  */
 
 public final class Constants {
+  public static final class OIConstants {
+    public static final int kMainControllerPort = 0;
+    public static final int kBackupControllerPort = 1;
+
+    public static final double kDriveDeadband = 0.05;
+    public static final double kTurnDeadband = 0.12;
+    public static final double kTwistDeadband = 0.5;
+
+    public static final boolean kFieldRelative = true;
+    public static final boolean kRateLimited = true;
+  }
+  
   public static class ElevatorConstants {
 
     // possible positions for the elevator,
@@ -53,6 +65,12 @@ public final class Constants {
       public double getSetpoint() {
           return setpoint;
       }
+    }
+
+    public enum ElevatorMode {
+      STOWED,
+      REEF,
+      FEEDER
     }
 
     // elevator CAN IDs
@@ -114,10 +132,6 @@ public final class Constants {
     public static final double scoreL3Angle = 130;
     public static final double scoreL4Angle = 130;
   }
-
-  public static final class CONTROLLER {
-    public static final int DRIVER_CONTROLLER_PORT = 0;
-}
 
 
   public static final class DriveConstants {
@@ -285,18 +299,6 @@ public final class Constants {
 
     public static final int kDrivingMotorCurrentLimit = 50; // amps
     public static final int kTurningMotorCurrentLimit = 20; // amps
-  }
-
-  public static final class OIConstants {
-    public static final int kMainControllerPort = 0;
-    public static final int kBackupControllerPort = 1;
-
-    public static final double kDriveDeadband = 0.05;
-    public static final double kTurnDeadband = 0.12;
-    public static final double kTwistDeadband = 0.5;
-
-    public static final boolean kFieldRelative = true;
-    public static final boolean kRateLimited = true;
   }
 
   public static final class NeoMotorConstants {

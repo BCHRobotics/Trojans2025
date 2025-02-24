@@ -18,6 +18,7 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.Constants;
+import frc.robot.Constants.HarpoonConstants.HarpoonPosition;
 public class Harpoon extends SubsystemBase{
 
     private final SparkMax kIntakeMotor; // intake motor is the same as the "shooter" motor
@@ -28,12 +29,14 @@ public class Harpoon extends SubsystemBase{
     private final double maxVelocity = 100; // This is in rpm
     private final double maxAcceleration = 100; // This is in rpm/second 
 
-    private double kRotationSetpoint;
     // private final RelativeEncoder kLeftEncoder;
     private final SparkClosedLoopController kRotationController;
     private final SparkLimitSwitch sensorLimitSwitch;
 
-    // private Elevator m_elevator = Elevator.getInstance(); This method is not defined in this code base
+    // pre-selected setpoint
+    private double nextSetpoint;
+    // currently targeted setpoint
+    private double currentSetpoint;
 
     public Harpoon(){
         // set up the motors
@@ -72,28 +75,68 @@ public class Harpoon extends SubsystemBase{
         // finally, configure the motors
         this.kRotationMotor.configure(this.kRotationConfig, null, PersistMode.kPersistParameters);
     }
-/* 
-    public double degreesToRotations(double degrees){
-        return degrees/360;
+
+    public void setNextSetpoint(double setpoint) {
+        nextSetpoint = setpoint;
     }
-*/
-    public void setRotationMotorPosition(double HarpoonPosition){ // HarpoonPosition is 0-1, (1 is stowed, 0.6 is reaching bumpers)
-        
-        //double positionInRotations = positionInDegrees*Constants.HarpoonConstants.gearConversionFactor;
+    
+    public double getUpperSetpoint() {
+        if (currentSetpoint == HarpoonPosition.L1.getSetpoint()) {
+            return HarpoonPosition.L2.getSetpoint();
+        }
+        else if (currentSetpoint == HarpoonPosition.L2.getSetpoint()) {
+            return HarpoonPosition.L3.getSetpoint();
+        } 
+        else if (currentSetpoint == HarpoonPosition.L3.getSetpoint()) {
+            return HarpoonPosition.L4.getSetpoint();
+        } 
+        else if (currentSetpoint == HarpoonPosition.L4.getSetpoint()) {
+            return HarpoonPosition.L1.getSetpoint();
+        }
+
+        return HarpoonPosition.STOWED.getSetpoint();
+    }
+
+    public double getLowerSetpoint() {
+        if (currentSetpoint == HarpoonPosition.L1.getSetpoint()) {
+            return HarpoonPosition.L4.getSetpoint();
+        }
+        else if (currentSetpoint == HarpoonPosition.L2.getSetpoint()) {
+            return HarpoonPosition.L1.getSetpoint();
+        } 
+        else if (currentSetpoint == HarpoonPosition.L3.getSetpoint()) {
+            return HarpoonPosition.L2.getSetpoint();
+        } 
+        else if (currentSetpoint == HarpoonPosition.L4.getSetpoint()) {
+            return HarpoonPosition.L3.getSetpoint();
+        }
+
+        return HarpoonPosition.STOWED.getSetpoint();
+    }
+
+    public void useNextSetpoint() {
+        currentSetpoint = nextSetpoint;
+        setRotationMotorPosition(currentSetpoint);
+    }
+
+    public void setRotationMotorPosition(double HarpoonPosition){ // HarpoonPosition is 0.6-1, (1 is stowed, 0.6 is reaching bumpers)
         kRotationController.setReference(
             HarpoonPosition,
             SparkBase.ControlType.kMAXMotionPositionControl);
-
-        this.kRotationSetpoint = HarpoonPosition; //between 0 and 1
-        SmartDashboard.putNumber("Rotation Setpoint",HarpoonPosition);
-        // Retrieve and display the applied output percentage
-    double appliedOutput = kRotationMotor.getAppliedOutput();
-    SmartDashboard.putNumber("Applied Output", appliedOutput);
-    
     }
 
     public void setIntakeMotorVelocity(double velocity){
         kIntakeMotor.set(velocity);
+    }
+
+    public boolean isCoralDetected() {
+        return this.sensorLimitSwitch.isPressed();  // Returns true if sensor is triggered
+    }
+    
+    @Override
+    public void periodic() {
+        SmartDashboard.putNumber("Wrist Position", kRotationMotor.getAbsoluteEncoder().getPosition());
+        SmartDashboard.putNumber("Desired Setpoint", currentSetpoint);
     }
 
     public Command emergencyStop() {
@@ -103,19 +146,4 @@ public class Harpoon extends SubsystemBase{
             kIntakeMotor.stopMotor();
         });
     }
-
-    public boolean isCoralDetected() {
-        return this.sensorLimitSwitch.isPressed();  // Returns true if sensor is triggered
-    }
-
-    
-    @Override
-    public void periodic() {
-        SmartDashboard.putNumber("Wrist Position", kRotationMotor.getAbsoluteEncoder().getPosition());
-        SmartDashboard.putNumber("Desired Setpoint",this.kRotationSetpoint);
-
-        
-        // we gotta get SmartDashboard sorted since there's already a lot of stuff being sent to it
-    }
-
 }

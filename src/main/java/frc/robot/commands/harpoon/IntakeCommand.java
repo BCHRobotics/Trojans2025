@@ -1,20 +1,19 @@
-package frc.robot.commands;
-
+package frc.robot.commands.harpoon;
 import frc.robot.subsystems.Harpoon;
 
 import edu.wpi.first.wpilibj2.command.Command;
 
-public class ShootCommand extends Command {
+public class IntakeCommand extends Command {
     private Harpoon harpoonSubsystem;
+    
     private double speed;
-    //private LED LEDSubsystem;
    
 
-    public ShootCommand(Harpoon harpoonSubsystem, double speed) {
+    public IntakeCommand(Harpoon harpoonSubsystem, double speed) {
         // creating subsystem, adding the subsystem as a requirement so it is not used elsewhere which could cause problems. 
         this.harpoonSubsystem = harpoonSubsystem;
         this.addRequirements(harpoonSubsystem);
-        //this.addRequirements(LEDSubsystem);
+        
         this.speed = speed;
         
     }
@@ -22,38 +21,30 @@ public class ShootCommand extends Command {
     @Override
     public void initialize() {
         // we only need to set the reference once. This is true for probably all closed loop control systems
-        harpoonSubsystem.setIntakeMotorVelocity(speed);
-        //LEDSubsystem.setLEDColor(-0.3); // I don't know what this colour is. Will read the documentation later. Maybe a good idea to create an LED constants class?
+        harpoonSubsystem.setIntakeMotorVelocity(-speed);
+        
         System.out.println("HARPOON TIME");
     }
 
     @Override
     public void execute() {
-        // if the state of the sensor needs to be checked, do it here
-        //LEDSubsystem.setLEDColor(-0.8);
     }
 
     @Override
     public void end(boolean interrupted) {
         //we want to stop the intake motor velocity after we've scored. We also want to stow the elevator
-        harpoonSubsystem.setIntakeMotorVelocity(speed);
-        //harpoonSubsystem.setRotationMotorPosition(0); // could change the angle. We don't know what the home angle is. We could also just reset it with the hardware client.
-        //LEDSubsystem.setLEDColor(0);
-
+        harpoonSubsystem.setIntakeMotorVelocity(0);
     }
 
     @Override
     public boolean isFinished() {
         // this is called after we have set the setpoint, so we can just end the command once the sensor sees the coral
-         /* 
-        if(!harpoonSubsystem.isCoralDetected()) {
+        if(harpoonSubsystem.isCoralDetected()) {
             return true;
         }
         else{
             return false;
         }
-           */
-          return true;
     }
     
 }

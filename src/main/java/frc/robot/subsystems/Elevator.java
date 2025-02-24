@@ -15,6 +15,8 @@ import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.Constants.ElevatorConstants;
+import frc.robot.Constants.ElevatorConstants.ElevatorMode;
+import frc.robot.Constants.ElevatorConstants.ElevatorPosition;
 
 // TODO: tune PIDs
 
@@ -23,9 +25,8 @@ import frc.robot.Constants.ElevatorConstants;
  */
 public class Elevator extends SubsystemBase{
 
-    // the motors are set up so that one is commanded,
-    // and the other just follows that command
-
+    // there is no follower config, the motors are both driven
+    
     // these are the SparkMaxs
     private final SparkMax primaryMotor;
     private final SparkMax followerMotor;
@@ -37,6 +38,14 @@ public class Elevator extends SubsystemBase{
 
     // the current setpoint of the elevator
     private double setpoint = 0; // rotations
+
+    // pre-selected position
+    private ElevatorPosition selectedPosition;
+    // pre-selected mode
+    private ElevatorMode nextMode;
+
+    // currently running mode
+    private ElevatorMode currentMode;
 
     public Elevator() {
         
@@ -86,6 +95,64 @@ public class Elevator extends SubsystemBase{
         resetElevator();
     } 
 
+    // returns the position 1 HIGHER than the current one
+    public ElevatorPosition getUpperPosition() {
+        if (selectedPosition == ElevatorPosition.L1) {
+            return ElevatorPosition.L2;
+        }
+        else if (selectedPosition == ElevatorPosition.L2) {
+            return ElevatorPosition.L3;
+        } else if (selectedPosition == ElevatorPosition.L3) {
+            return ElevatorPosition.L4;
+        } else if (selectedPosition == ElevatorPosition.L4) {
+            return ElevatorPosition.L1;
+        }   
+
+        // this should never happen, in theory
+        return ElevatorPosition.STOWED;
+    }
+
+    // returns the position 1 LOWER than the current one
+    public ElevatorPosition getLowerPosition() {
+        if (selectedPosition == ElevatorPosition.L1) {
+            return ElevatorPosition.L4;
+        }
+        else if (selectedPosition == ElevatorPosition.L2) {
+            return ElevatorPosition.L1;
+        } else if (selectedPosition == ElevatorPosition.L3) {
+            return ElevatorPosition.L2;
+        } else if (selectedPosition == ElevatorPosition.L4) {
+            return ElevatorPosition.L3;
+        }   
+
+        // this should never happen, in theory
+        return ElevatorPosition.STOWED;
+    }
+
+    public void setNextMode(ElevatorMode mode) {
+        nextMode = mode;
+    }
+
+    public ElevatorMode getNextMode() {
+        return nextMode;
+    }
+
+    public void setMode(ElevatorMode mode) {
+        currentMode = mode;
+    }
+
+    public ElevatorMode getMode() {
+        return currentMode;
+    }
+
+    public void setSelectedPosition(ElevatorPosition position) {
+        selectedPosition = position;
+    }
+
+    public ElevatorPosition getSelectedPosition() {
+        return selectedPosition;
+    }
+
     public void resetElevator() {
         // set the position of the encoder to 0, since the elevator should be resting at the bottom
         // THIS CAUSES ISSUES IF YOU DEPLOY WHILE THE ELEVATOR IS UP, SAME AS LAST YEAR
@@ -102,6 +169,21 @@ public class Elevator extends SubsystemBase{
 
     @Override 
     public void periodic() {
+        if (currentMode == ElevatorMode.REEF) {
+            // if we're scoring, use the selected position
+            // this allows the operator to switch scoring positions immediately
+            setpoint = selectedPosition.getSetpoint();
+        }
+        else if (currentMode == ElevatorMode.FEEDER) {
+            // for intaking, use the constant
+            // this allows the operator to pre-select a mode without the elevator moving
+            setpoint = ElevatorPosition.INTAKE.getSetpoint();
+        }
+        else if (currentMode == ElevatorMode.STOWED) {
+            // ditto with stowed, use the constant for the same reason
+            setpoint = ElevatorPosition.STOWED.getSetpoint();
+        }
+
         // moving the elevator to the desired setpoint
         drive();
 
@@ -124,15 +206,6 @@ public class Elevator extends SubsystemBase{
         
         primaryMotor.set(applyLimits(output));
         followerMotor.set(applyLimits(output));
-    }
-
-    /**
-     * Set the szetpoint of the elevator, 
-     * in other words the target position
-     * @param newSetpoint the desired position
-     */
-    public void setSetpoint(double newSetpoint) {
-        setpoint = newSetpoint;
     }
 
     /**
@@ -163,7 +236,7 @@ public class Elevator extends SubsystemBase{
      * it's a separate function so that the value can be transformed
      * @return The position, in rotations (I think)
      */
-    public double getPosition() {
+    public double getEncoderPosition() {
         return encoder.getPosition();
     }
 
@@ -172,7 +245,7 @@ public class Elevator extends SubsystemBase{
      * it's a separate function so that the value can be transformed
      * @return The velocity, in rad/s (I think)
      */
-    public double getVelocity() {
+    public double getEncoderVelocity() {
         return encoder.getVelocity();
     }
 
@@ -182,8 +255,8 @@ public class Elevator extends SubsystemBase{
      */
     public void printToDashboard() {
         SmartDashboard.putNumber("Encoder Position", encoder.getPosition());
-        SmartDashboard.putNumber("velocity", getVelocity());
-        SmartDashboard.putNumber("Elevator Error", (setpoint-getPosition()));
+        SmartDashboard.putNumber("velocity", getEncoderVelocity());
+        SmartDashboard.putNumber("Elevator Error", (setpoint-getEncoderPosition()));
 
         SmartDashboard.putBoolean("Top Limit", primaryMotor.getReverseLimitSwitch().isPressed());
         SmartDashboard.putBoolean("Bottom Limit", primaryMotor.getForwardLimitSwitch().isPressed());
