@@ -80,12 +80,24 @@ public class Elevator extends SubsystemBase{
 
         // apply the limit switch data to the motorConfig
         motorConfig.apply(switchConfig);
+
+        // configuring one motor to follow the other
+        SparkMaxConfig followerConfig = new SparkMaxConfig();
+        followerConfig.follow(primaryMotor, false);
         
         // apply the motor config to BOTH motors
         primaryMotor.configure(motorConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
         followerMotor.configure(motorConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
 
-        resetElevator();
+        followerMotor.configure(followerConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
+
+
+        SmartDashboard.putBoolean("invert 1", primaryMotor.getInverted()); // Deprecated !!
+        SmartDashboard.putBoolean("invert 2", followerMotor.getInverted());
+        
+        // configuring one motor to follow the other
+
+        // SmartDashboard.putNumber("Elevator Power", primaryMotor.getAppliedOutput());
     } 
 
     public void resetElevator() {
