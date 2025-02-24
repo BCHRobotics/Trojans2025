@@ -44,7 +44,7 @@ public class Harpoon extends SubsystemBase{
 
         this.sensorLimitSwitch = kRotationMotor.getForwardLimitSwitch();
         LimitSwitchConfig sensorConfig = new LimitSwitchConfig();
-        sensorConfig.forwardLimitSwitchType(Type.kNormallyClosed);
+        sensorConfig.forwardLimitSwitchType(Type.kNormallyOpen);
 
         // important configurations. Idlemode is just the mode the sensor is in when it is not being commanded. 
         this.kRotationConfig.inverted(false); // 
@@ -65,7 +65,7 @@ public class Harpoon extends SubsystemBase{
         this.kRotationConfig.closedLoop.maxMotion
             .maxVelocity(maxVelocity)
             .maxAcceleration(maxAcceleration)
-            .allowedClosedLoopError(0.5);
+            .allowedClosedLoopError(0.05);
         
         // get the controller for the rotation motor
         this.kRotationController = kRotationMotor.getClosedLoopController();

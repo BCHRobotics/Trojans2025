@@ -82,8 +82,8 @@ public class Elevator extends SubsystemBase{
         motorConfig.apply(switchConfig);
         
         // apply the motor config to BOTH motors
-        primaryMotor.configure(motorConfig, ResetMode.kResetSafeParameters, null);
-        followerMotor.configure(motorConfig, ResetMode.kResetSafeParameters, null);
+        primaryMotor.configure(motorConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
+        followerMotor.configure(motorConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
 
         SmartDashboard.putBoolean("invert 1", primaryMotor.getInverted()); // Deprecated !!
         SmartDashboard.putBoolean("invert 2", followerMotor.getInverted());
@@ -91,9 +91,8 @@ public class Elevator extends SubsystemBase{
         // configuring one motor to follow the other
         SparkMaxConfig followerConfig = new SparkMaxConfig();
         followerConfig.follow(primaryMotor, false);
-        followerMotor.configure(followerConfig, null, PersistMode.kPersistParameters); 
 
-        SmartDashboard.putNumber("Elevator Power", 0);
+        // SmartDashboard.putNumber("Elevator Power", primaryMotor.getAppliedOutput());
     } 
 
     public void resetElevator() {
@@ -110,7 +109,7 @@ public class Elevator extends SubsystemBase{
         });
     }
 
-    @Override
+    @Override 
     public void periodic() {
         // moving the elevator to the desired setpoint
         drive();

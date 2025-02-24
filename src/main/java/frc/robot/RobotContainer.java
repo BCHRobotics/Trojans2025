@@ -22,6 +22,7 @@ import frc.robot.commands.MoveElevatorCommand;
 import frc.robot.commands.PivotHarpoon;
 import frc.robot.commands.ScoreCommand;
 import frc.robot.commands.ShootCommand;
+import frc.robot.commands.SetLEDCommand;
 import frc.robot.commands.drive.TeleopDriveCommand;
 import frc.robot.commands.vision.AlignTeleopCommand;
 import frc.robot.subsystems.Cameras;
@@ -172,12 +173,18 @@ public class RobotContainer {
                 })
             );
             
-             this.m_operatorController.a() 
-             .onTrue(new MoveElevatorCommand(elevator, ElevatorPosition.L1));
-             this.m_operatorController.x()
-             .onTrue(new MoveElevatorCommand(elevator, ElevatorPosition.L2));
-             this.m_operatorController.b()
-             .onTrue(new MoveElevatorCommand(elevator, ElevatorPosition.L3));
+            this.m_operatorController.a() 
+            .onTrue(new MoveElevatorCommand(elevator, ElevatorPosition.L1)
+            .andThen(new SetLEDCommand(ledLeft,0.5)));
+             
+            this.m_operatorController.x()
+            .onTrue(new MoveElevatorCommand(elevator, ElevatorPosition.L2)
+            .andThen(new SetLEDCommand(ledLeft,0.6)));
+
+            this.m_operatorController.b()
+            .onTrue(new MoveElevatorCommand(elevator, ElevatorPosition.L3)
+            .andThen(new SetLEDCommand(ledLeft,0.7)));
+
             this.m_operatorController.y().onTrue(this.elevator.emergencyStop()); // E-stop elevator
             
              
