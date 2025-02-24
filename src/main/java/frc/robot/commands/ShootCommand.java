@@ -24,7 +24,7 @@ public class ShootCommand extends Command {
     @Override
     public void initialize() {
         // we only need to set the reference once. This is true for probably all closed loop control systems
-        harpoonSubsystem.setIntakeMotorVelocity(0.5);
+        harpoonSubsystem.setIntakeMotorVelocity(speed);
         //LEDSubsystem.setLEDColor(-0.3); // I don't know what this colour is. Will read the documentation later. Maybe a good idea to create an LED constants class?
         System.out.println("HARPOON TIME");
     }
@@ -49,14 +49,13 @@ public class ShootCommand extends Command {
         // this is called after we have set the setpoint, so we can just end the command once the sensor sees the coral
          /* 
         if(!harpoonSubsystem.isCoralDetected()) {
-            return false;
-        }
-        else{
             return true;
         }
-           
-        */
-        return true;
+        else{
+            return false;
+        }
+           */
+          return true;
     }
     
 }

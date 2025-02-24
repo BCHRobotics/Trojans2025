@@ -38,11 +38,12 @@ public final class Constants {
     // possible positions for the elevator,
     // an enum is a bit nicer than separate variables
     public enum ElevatorPosition { // rotations
+      Bottom(0),
       L1(0),
-      L2(6),
-      L3(12),
+      L2(9.5),
+      L3(13.8),
       L4(20),
-      INTAKE(15);
+      INTAKE(3.3); // 2.3
       
       
       // ------
@@ -84,11 +85,11 @@ public final class Constants {
   public static final class HarpoonConstants {
 
     public enum HarpoonPosition {
-      L1(0.6), //degrees
-      L2(1),
-      L3(90),
+      L1(0.85), //degrees
+      L2(0.6),
+      L3(0.6),
       L4(0.75),
-      INTAKE(0.88),
+      INTAKE(0.85), // 0.9
       HOME(0.85);
     
       // ------
@@ -105,7 +106,7 @@ public final class Constants {
     public static final int kIntakeMotorCANID = 30; // TO be changed to the actual intake motor ID
     public static final int kRotationMotorCANID = 31; // TO be changed to the actual rotation motor ID
 
-    public static final double harpoonP = 0.1;
+    public static final double harpoonP = 0.7;
     public static final double harpoonI = 0;
     public static final double harpoonD = 0;
 

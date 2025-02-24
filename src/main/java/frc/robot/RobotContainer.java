@@ -146,7 +146,7 @@ public class RobotContainer {
         }
         else {
             // Reset Gyro
-            m_operatorController.y().onTrue(new InstantCommand(() -> { m_robotDrive.zeroHeading(); m_robotDrive.resetOdometry(m_cameras.estimateRobotPoseManual()); }));
+            m_operatorController.y().onTrue(new InstantCommand(() -> { m_robotDrive.zeroHeading();}));
 
             // Slow mode command (Left Bumper)
             m_operatorController.leftBumper().onTrue(new InstantCommand(() -> m_robotDrive.setSlowMode(true)));
@@ -173,6 +173,7 @@ public class RobotContainer {
             //     })
             // );
             
+            /*
             this.m_operatorController.a() 
             .onTrue(new MoveElevatorCommand(elevator, ElevatorPosition.L1)
             .andThen(new SetLEDCommand(ledLeft,0.5)));
@@ -180,31 +181,93 @@ public class RobotContainer {
             this.m_operatorController.x()
             .onTrue(new MoveElevatorCommand(elevator, ElevatorPosition.L2)
             .andThen(new SetLEDCommand(ledLeft,0.6)));
+ */
+            // this.m_operatorController.b()
+            // .onTrue(new MoveElevatorCommand(elevator, ElevatorPosition.L3)
+            // .andThen(new SetLEDCommand(ledLeft,0.7)));
 
-            this.m_operatorController.b()
-            .onTrue(new MoveElevatorCommand(elevator, ElevatorPosition.L3)
-            .andThen(new SetLEDCommand(ledLeft,0.7)));
-
-            this.m_operatorController.y().onTrue(this.elevator.emergencyStop()); // E-stop elevator
+            //this.m_operatorController.y().onTrue(this.elevator.emergencyStop()); // E-stop elevator
             
              
              //this.m_operatorController.povUp()
              //.onTrue(new ScoreCommand(harpoon, 0));
 
-            /*
-            this.m_operatorController.a() // rotates claw to 100 degrees 
-            .onTrue(new PivotHarpoon(this.harpoon,0.7));
+            /* 
+            this.m_operatorController.povDown() // rotates claw to 100 degrees 
+            .onTrue(new PivotHarpoon(this.harpoon,Constants
+            .HarpoonConstants
+            .HarpoonPosition.L1.getSetpoint())
+            .andThen(new SetLEDCommand(ledLeft, -0.55))
+            .andThen(new SetLEDCommand(ledRight, -0.55)));
 
-             this.m_operatorController.b() // rotates claw to 120 degrees
-             .onTrue(new ShootCommand(harpoon,0.6))
-             .onFalse(new ShootCommand(harpoon,0));
+            this.m_operatorController.b() // rotates claw to 100 degrees 
+            .onTrue(new PivotHarpoon(this.harpoon,Constants
+            .HarpoonConstants
+            .HarpoonPosition.L2.getSetpoint())
+            .andThen(new SetLEDCommand(ledLeft, -0.79))
+            .andThen(new SetLEDCommand(ledRight, -0.79)));
+
+            this.m_operatorController.x() // rotates claw to 100 degrees 
+            .onTrue(new PivotHarpoon(this.harpoon,Constants
+            .HarpoonConstants
+            .HarpoonPosition.L3.getSetpoint())
+            .andThen(new SetLEDCommand(ledLeft, -0.11))
+            .andThen(new SetLEDCommand(ledRight, -0.11)));
+
+*/
+            this.m_operatorController.povLeft() // rotates claw to 100 degrees 
+            .onTrue(new PivotHarpoon(this.harpoon,Constants
+            .HarpoonConstants
+            .HarpoonPosition.L2.getSetpoint())
+            .andThen(new MoveElevatorCommand(elevator, Constants.ElevatorConstants.ElevatorPosition.L2))
+            .andThen(new SetLEDCommand(ledLeft, -0.55))
+            .andThen(new SetLEDCommand(ledRight, -0.55)));
+
+            // this.m_operatorController.povRight() // rotates claw to 100 degrees 
+            // .onTrue(new PivotHarpoon(this.harpoon,Constants
+            // .HarpoonConstants
+            // .HarpoonPosition.INTAKE.getSetpoint())
+            // .andThen(new MoveElevatorCommand(elevator, Constants.ElevatorConstants.ElevatorPosition.INTAKE))
+            // .andThen(new SetLEDCommand(ledLeft, -0.55))
+            // .andThen(new SetLEDCommand(ledRight, -0.55)));
+
+            this.m_operatorController.povRight() // rotates claw to 100 degrees 
+            .onTrue(new PivotHarpoon(this.harpoon,Constants
+            .HarpoonConstants
+            .HarpoonPosition.L1.getSetpoint())
+            .andThen(new MoveElevatorCommand(elevator, Constants.ElevatorConstants.ElevatorPosition.L1))
+            .andThen(new SetLEDCommand(ledLeft, -0.55))
+            .andThen(new SetLEDCommand(ledRight, -0.55)));
+
+            this.m_operatorController.povUp() // rotates claw to 100 degrees 
+            .onTrue(new PivotHarpoon(this.harpoon,Constants
+            .HarpoonConstants
+            .HarpoonPosition.L3.getSetpoint())
+            .andThen(new MoveElevatorCommand(elevator, Constants.ElevatorConstants.ElevatorPosition.L3))
+            .andThen(new SetLEDCommand(ledLeft, -0.58))
+            .andThen(new SetLEDCommand(ledRight, -0.58)));
+
+            this.m_operatorController.povDown() // rotates claw to 100 degrees 
+            .onTrue(new PivotHarpoon(this.harpoon,0.98)
+            .andThen(new MoveElevatorCommand(elevator, ElevatorPosition.Bottom))
+            .andThen(new SetLEDCommand(ledLeft, -0.58))
+            .andThen(new SetLEDCommand(ledRight, -0.58)));
+
+             this.m_operatorController.b()
+             .onFalse(new ShootCommand(harpoon,0)) // rotates claw to 120 degrees
+             .onTrue(new ShootCommand(harpoon,0.6)
+             
+             .andThen(new SetLEDCommand(ledLeft, 0.3))
+             .andThen(new SetLEDCommand(ledRight, 0.3)));
 
             this.m_operatorController.x()
-            .onTrue(new ShootCommand(harpoon,-0.6))
-            .onFalse(new ShootCommand(harpoon,0));
+            .onTrue(new IntakeCommand(harpoon,0.6)
+            .andThen(new SetLEDCommand(ledLeft, 0.3))
+            .andThen(new SetLEDCommand(ledRight, 0.3)));
+     
              //this.m_operatorController.x() // rotates claw to 120 degrees
              //.onTrue(new PivotHarpoon(this.harpoon,Constants.HarpoonConstants.HarpoonPosition.L3.getSetpoint()));
- */
+ 
              // emergency brake for harpoon for testing
              //this.m_operatorController.y()
              //.onTrue(this.harpoon.emergencyStop()); 

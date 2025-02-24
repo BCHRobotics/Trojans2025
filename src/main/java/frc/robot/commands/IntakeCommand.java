@@ -8,14 +8,16 @@ import edu.wpi.first.wpilibj2.command.Command;
 
 public class IntakeCommand extends Command {
     private Harpoon harpoonSubsystem;
-    private LED LEDSubsystem;
+    //private LED LEDSubsystem;
+    private double speed;
    
 
-    public IntakeCommand(Harpoon harpoonSubsystem) {
+    public IntakeCommand(Harpoon harpoonSubsystem, double speed) {
         // creating subsystem, adding the subsystem as a requirement so it is not used elsewhere which could cause problems. 
         this.harpoonSubsystem = harpoonSubsystem;
         this.addRequirements(harpoonSubsystem);
-        this.addRequirements(LEDSubsystem);
+        //this.addRequirements(LEDSubsystem);
+        this.speed = speed;
         
     }
 
@@ -23,15 +25,15 @@ public class IntakeCommand extends Command {
     public void initialize() {
         // we only need to set the reference once. This is true for probably all closed loop control systems
         //harpoonSubsystem.setRotationMotorPosition(HarpoonConstants.HarpoonPosition.INTAKE.getSetpoint());
-        harpoonSubsystem.setIntakeMotorVelocity(-1);
-        LEDSubsystem.setLEDColor(-0.3); // I don't know what this colour is. Will read the documentation later. Maybe a good idea to create an LED constants class?
+        harpoonSubsystem.setIntakeMotorVelocity(-speed);
+        //LEDSubsystem.setLEDColor(-0.3); // I don't know what this colour is. Will read the documentation later. Maybe a good idea to create an LED constants class?
         System.out.println("HARPOON TIME");
     }
 
     @Override
     public void execute() {
         // if the state of the sensor needs to be checked, do it here
-        LEDSubsystem.setLEDColor(-0.8);
+        //LEDSubsystem.setLEDColor(-0.8);
     }
 
     @Override
@@ -39,7 +41,7 @@ public class IntakeCommand extends Command {
         //we want to stop the intake motor velocity after we've scored. We also want to stow the elevator
         harpoonSubsystem.setIntakeMotorVelocity(0);
         // harpoonSubsystem.setRotationMotorPosition(0); // could change the angle. We don't know what the home angle is. We could also just reset it with the hardware client.
-        LEDSubsystem.setLEDColor(0);
+        //LEDSubsystem.setLEDColor(0);
     }
 
     @Override

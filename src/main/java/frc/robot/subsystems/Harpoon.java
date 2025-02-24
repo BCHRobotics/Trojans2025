@@ -59,13 +59,13 @@ public class Harpoon extends SubsystemBase{
             Constants.HarpoonConstants.harpoonP,
             Constants.HarpoonConstants.harpoonI,
             Constants.HarpoonConstants.harpoonD,
-            1);
+            0);
         
         // maxmotion! This is a really cool feature that REV has. It allows you to set the max velocity and acceleration of the motor. This is super helpful for tuning the motor.
         this.kRotationConfig.closedLoop.maxMotion
             .maxVelocity(maxVelocity)
             .maxAcceleration(maxAcceleration)
-            .allowedClosedLoopError(0.05);
+            .allowedClosedLoopError(0.002);
         
         // get the controller for the rotation motor
         this.kRotationController = kRotationMotor.getClosedLoopController();
