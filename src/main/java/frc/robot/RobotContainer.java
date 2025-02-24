@@ -158,20 +158,20 @@ public class RobotContainer {
 
             m_operatorController.leftTrigger().whileFalse(new RunCommand(() -> m_robotDrive.setX(), m_robotDrive));
 
-            m_operatorController.x().onTrue(
-                new InstantCommand(() -> {
-                    if(m_cameras.isVisionActive) {
-                        new AlignTeleopCommand(
-                            18,  // m_cameras.getClosestTagId()
-                            true, 
-                            true, 
-                            m_robotDrive, 
-                            m_cameras, 
-                            new Translation2d(1, 0)
-                            ).schedule();
-                    }
-                })
-            );
+            // m_operatorController.x().onTrue(
+            //     new InstantCommand(() -> {
+            //         if(m_cameras.isVisionActive) {
+            //             new AlignTeleopCommand(
+            //                 18,  // m_cameras.getClosestTagId()
+            //                 true, 
+            //                 true, 
+            //                 m_robotDrive, 
+            //                 m_cameras, 
+            //                 new Translation2d(1, 0)
+            //                 ).schedule();
+            //         }
+            //     })
+            // );
             
             this.m_operatorController.a() 
             .onTrue(new MoveElevatorCommand(elevator, ElevatorPosition.L1)
