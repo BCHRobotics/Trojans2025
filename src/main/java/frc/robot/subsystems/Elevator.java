@@ -84,7 +84,7 @@ public class Elevator extends SubsystemBase{
         primaryMotor.configure(motorConfig, ResetMode.kResetSafeParameters, null);
         followerMotor.configure(motorConfig, ResetMode.kResetSafeParameters, null);
 
-        SmartDashboard.putBoolean("invert 1", primaryMotor.getInverted());
+        SmartDashboard.putBoolean("invert 1", primaryMotor.getInverted()); // Deprecated !!
         SmartDashboard.putBoolean("invert 2", followerMotor.getInverted());
         
         // configuring one motor to follow the other
