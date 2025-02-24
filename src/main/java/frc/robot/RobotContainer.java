@@ -219,11 +219,4 @@ public class RobotContainer {
         //using the string provided by the user to build and run an auto
         return AutoBuilder.buildAuto("Test Auto");
     }
-
-    /**
-     * [UNUSED]
-     * Initializes the LEDs
-     */
-    public void initLEDs() {
-    }
 }
