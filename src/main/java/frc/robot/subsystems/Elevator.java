@@ -65,7 +65,7 @@ public class Elevator extends SubsystemBase{
         // motor config
         SparkMaxConfig motorConfig = new SparkMaxConfig();
         motorConfig.idleMode(IdleMode.kBrake);
-        motorConfig.smartCurrentLimit(120);
+        motorConfig.smartCurrentLimit(60);
         motorConfig.voltageCompensation(12.0);
 
         // limit switch config,
@@ -85,14 +85,7 @@ public class Elevator extends SubsystemBase{
         primaryMotor.configure(motorConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
         followerMotor.configure(motorConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
 
-        SmartDashboard.putBoolean("invert 1", primaryMotor.getInverted()); // Deprecated !!
-        SmartDashboard.putBoolean("invert 2", followerMotor.getInverted());
-        
-        // configuring one motor to follow the other
-        SparkMaxConfig followerConfig = new SparkMaxConfig();
-        followerConfig.follow(primaryMotor, false);
-
-        // SmartDashboard.putNumber("Elevator Power", primaryMotor.getAppliedOutput());
+        resetElevator();
     } 
 
     public void resetElevator() {
@@ -131,11 +124,8 @@ public class Elevator extends SubsystemBase{
         //set limits on the output of the motor
         output = MathUtil.clamp(output, -ElevatorConstants.maxOutput, ElevatorConstants.maxOutput);
         
-        SmartDashboard.putNumber("Running Power", applyLimits(output));
-
-        SmartDashboard.putNumber("Motor 1", primaryMotor.getAppliedOutput());
-        SmartDashboard.putNumber("Motor 2", followerMotor.getAppliedOutput());
         primaryMotor.set(applyLimits(output));
+        followerMotor.set(applyLimits(output));
     }
 
     /**
@@ -156,20 +146,18 @@ public class Elevator extends SubsystemBase{
         boolean isTopPressed = primaryMotor.getReverseLimitSwitch().isPressed();
         boolean isBottomPressed = primaryMotor.getForwardLimitSwitch().isPressed();
         
-        if (isBottomPressed) {
-            return MathUtil.clamp(input, 0, ElevatorConstants.maxOutput);
-        }
-        else if (isTopPressed) {
+        // if (isBottomPressed) {
+        //     return MathUtil.clamp(input, 0, ElevatorConstants.maxOutput);
+        // }
+        if (isTopPressed) {
             return MathUtil.clamp(input, -ElevatorConstants.maxOutput, 0);
         }
 
         if (input < 0) {
-            input *= 0.5 * MathUtil.clamp(1 / (Math.abs(encoder.getVelocity()) / 400), 0, 1);
+            input *= 0.1 * MathUtil.clamp(1 / (Math.abs(encoder.getVelocity()) / 100), 0, 1);
         }
 
-        //return MathUtil.clamp(input, -ElevatorConstants.maxOutput, ElevatorConstants.maxOutput);
-
-        return 1;
+        return MathUtil.clamp(input, -ElevatorConstants.maxOutput, ElevatorConstants.maxOutput);
     }
 
     /**
@@ -199,7 +187,7 @@ public class Elevator extends SubsystemBase{
         SmartDashboard.putNumber("velocity", getVelocity());
         SmartDashboard.putNumber("Elevator Error", (setpoint-getPosition()));
 
-        SmartDashboard.putBoolean("Top Limit", primaryMotor.getForwardLimitSwitch().isPressed());
-        SmartDashboard.putBoolean("Bottom Limit", primaryMotor.getReverseLimitSwitch().isPressed());
+        SmartDashboard.putBoolean("Top Limit", primaryMotor.getReverseLimitSwitch().isPressed());
+        SmartDashboard.putBoolean("Bottom Limit", primaryMotor.getForwardLimitSwitch().isPressed());
     }
 }

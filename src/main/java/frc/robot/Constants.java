@@ -39,8 +39,8 @@ public final class Constants {
     // an enum is a bit nicer than separate variables
     public enum ElevatorPosition { // rotations
       L1(0),
-      L2(7),
-      L3(15),
+      L2(6),
+      L3(12),
       L4(20),
       INTAKE(15);
       
@@ -61,7 +61,7 @@ public final class Constants {
     public static final int rightElevatorID = 20;
 
     // PID terms for elevator up/down motion
-    public static final double ElevatorkP = 1.5;
+    public static final double ElevatorkP = 0.1;
     public static final double ElevatorkI = 0.001;
     public static final double ElevatorkD = 0.000;
 
