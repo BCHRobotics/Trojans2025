@@ -51,11 +51,11 @@ public final class Constants {
     // an enum is a bit nicer than separate variables
     public enum ElevatorPosition { // rotations
       STOWED(0), // FINAL
-      L1(0),
-      L2(9.5),  // FINAL
-      L3(13.8),  // FINAL
-      L4(20.55), // UNTESTED
-      INTAKE(3.3); // FINAL
+      L1(4),
+      L2(8.55),  // FINAL // 9.15
+      L3(13.5),  // FINAL
+      L4(20.61), // UNTESTED
+      INTAKE(3.7); // FINAL
       
       private final double setpoint;
       ElevatorPosition(double setpoint) {
@@ -78,8 +78,8 @@ public final class Constants {
     public static final int rightElevatorID = 20;
 
     // PID terms for elevator up/down motion
-    public static final double ElevatorkP = 0.1;
-    public static final double ElevatorkI = 0.001;
+    public static final double ElevatorkP = 0.06;
+    public static final double ElevatorkI = 0.008;
     public static final double ElevatorkD = 0.000;
 
     // supplied current limit
@@ -101,12 +101,12 @@ public final class Constants {
   public static final class HarpoonConstants {
 
     public enum HarpoonPosition {
-      L1(0.85), // FINAL
-      L2(0.6003), // FINAL
+      L1(0.725), // FINAL
+      L2(0.61), // FINAL // 0.6003
       L3(0.6002), // FINAL
       L4(0.6001), // UNTESTED
       INTAKE(0.85), // FINAL
-      STOWED(0.98);
+      STOWED(0.62);
     
       private final double setpoint;
       HarpoonPosition(double setpoint) {

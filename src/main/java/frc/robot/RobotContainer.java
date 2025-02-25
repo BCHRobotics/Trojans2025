@@ -160,7 +160,7 @@ public class RobotContainer {
 
             // intake gamepiece
             this.driverController_XBOX.x()
-            .onTrue(new IntakeCommand(harpoon,0.6));
+            .onTrue(new IntakeCommand(harpoon,0.6, driverController_XBOX.x()));
 
             // spit out gamepiece
              this.driverController_XBOX.b()

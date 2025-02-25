@@ -167,6 +167,10 @@ public class Elevator extends SubsystemBase{
         this.setpoint = setpoint; 
     }
 
+    public boolean isBottomPressed(){
+        return primaryMotor.getForwardLimitSwitch().isPressed();
+    }
+
     @Override 
     public void periodic() {
         if (currentMode == ElevatorMode.REEF) {
@@ -228,9 +232,7 @@ public class Elevator extends SubsystemBase{
             return MathUtil.clamp(input, -ElevatorConstants.maxOutput, 0);
         }
 
-        if (input < 0) {
-            input *= 0.1 * MathUtil.clamp(1 / (Math.abs(encoder.getVelocity()) / 100), 0, 1);
-        }
+        //input *= MathUtil.clamp(1 / (Math.abs(encoder.getVelocity()) / 65), 0, 1);
 
         return MathUtil.clamp(input, -ElevatorConstants.maxOutput, ElevatorConstants.maxOutput);
     }

@@ -17,6 +17,8 @@ import com.revrobotics.spark.SparkLimitSwitch;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.Constants;
+import frc.robot.Constants.ElevatorConstants.ElevatorMode;
+import frc.robot.Constants.ElevatorConstants.ElevatorPosition;
 import frc.robot.Constants.HarpoonConstants.HarpoonMode;
 import frc.robot.Constants.HarpoonConstants.HarpoonPosition;
 public class Harpoon extends SubsystemBase{
@@ -157,6 +159,21 @@ public class Harpoon extends SubsystemBase{
 
         SmartDashboard.putString("CURRENT MODE", currentMode.toString());
         SmartDashboard.putString("NEXT MODE", nextMode.toString());
-        SmartDashboard.putNumber("NEXT POSITION", selectedSetpoint);
+        SmartDashboard.putNumber("NEXT SETPOINT", selectedSetpoint);
+
+        if (currentMode == HarpoonMode.REEF) {
+            // if we're scoring, use the selected position
+            // this allows the operator to switch scoring positions immediately
+            setRotationMotorPosition(selectedSetpoint);
+        }
+        else if (currentMode == HarpoonMode.FEEDER) {
+            // for intaking, use the constant
+            // this allows the operator to pre-select a mode without the elevator moving
+            setRotationMotorPosition(HarpoonPosition.INTAKE.getSetpoint());
+        }
+        else if (currentMode == HarpoonMode.STOWED) {
+            // ditto with stowed, use the constant for the same reason
+            setRotationMotorPosition(HarpoonPosition.STOWED.getSetpoint());
+        }
     }
 }
