@@ -79,18 +79,23 @@ public class Harpoon extends SubsystemBase{
     public void setNextSetpoint(double setpoint) {
         nextSetpoint = setpoint;
     }
+
+    public void setSetpoint(double newSetpoint) {
+        currentSetpoint = newSetpoint;
+        setRotationMotorPosition(currentSetpoint);
+    }
     
     public double getUpperSetpoint() {
-        if (currentSetpoint == HarpoonPosition.L1.getSetpoint()) {
+        if (nextSetpoint == HarpoonPosition.L1.getSetpoint()) {
             return HarpoonPosition.L2.getSetpoint();
         }
-        else if (currentSetpoint == HarpoonPosition.L2.getSetpoint()) {
+        else if (nextSetpoint == HarpoonPosition.L2.getSetpoint()) {
             return HarpoonPosition.L3.getSetpoint();
         } 
-        else if (currentSetpoint == HarpoonPosition.L3.getSetpoint()) {
+        else if (nextSetpoint == HarpoonPosition.L3.getSetpoint()) {
             return HarpoonPosition.L4.getSetpoint();
         } 
-        else if (currentSetpoint == HarpoonPosition.L4.getSetpoint()) {
+        else if (nextSetpoint == HarpoonPosition.L4.getSetpoint()) {
             return HarpoonPosition.L1.getSetpoint();
         }
 
@@ -136,7 +141,9 @@ public class Harpoon extends SubsystemBase{
     @Override
     public void periodic() {
         SmartDashboard.putNumber("Wrist Position", kRotationMotor.getAbsoluteEncoder().getPosition());
-        SmartDashboard.putNumber("Desired Setpoint", currentSetpoint);
+
+        SmartDashboard.putNumber("CURRENT HARPOON", currentSetpoint);
+        SmartDashboard.putNumber("NEXT HARPOON", nextSetpoint);
     }
 
     public Command emergencyStop() {

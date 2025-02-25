@@ -54,7 +54,7 @@ public final class Constants {
       L1(0),
       L2(9.5),  // FINAL
       L3(13.8),  // FINAL
-      L4(20), // UNTESTED
+      L4(20.55), // UNTESTED
       INTAKE(3.3); // FINAL
       
       private final double setpoint;
@@ -102,9 +102,9 @@ public final class Constants {
 
     public enum HarpoonPosition {
       L1(0.85), // FINAL
-      L2(0.6), // FINAL
-      L3(0.6), // FINAL
-      L4(0.75), // UNTESTED
+      L2(0.6003), // FINAL
+      L3(0.6002), // FINAL
+      L4(0.6001), // UNTESTED
       INTAKE(0.85), // FINAL
       STOWED(0.98);
     

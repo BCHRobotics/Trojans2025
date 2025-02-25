@@ -77,14 +77,17 @@ public class RobotContainer {
         controllerOptions_driver = new SendableChooser<String>();
         controllerOptions_driver.addOption("Xbox", "XBOX");
         controllerOptions_driver.addOption("Playstation", "PS");
-        SmartDashboard.putData("Controller Select", controllerOptions_driver);
+        SmartDashboard.putData("Driver Select", controllerOptions_driver);
 
         // setting up a dropdown for switching between xbox and playstation
         // FOR OPERATOR
         controllerOptions_operator = new SendableChooser<String>();
         controllerOptions_operator.addOption("Xbox", "XBOX");
         controllerOptions_operator.addOption("Playstation", "PS");
-        SmartDashboard.putData("Controller Select", controllerOptions_driver);
+        SmartDashboard.putData("Operator Select", controllerOptions_operator);
+
+        harpoon.setNextSetpoint(HarpoonPosition.L1.getSetpoint());
+        harpoon.setSetpoint(HarpoonPosition.STOWED.getSetpoint());
     }
 
     /**
@@ -149,7 +152,16 @@ public class RobotContainer {
             driverController_XBOX.rightBumper().onFalse(new InstantCommand(() -> m_robotDrive.setFastMode(false)));
 
             // toggling the elevator up and down
-            driverController_PS5.square().onTrue(new ToggleElevatorCommand(elevator, harpoon));
+            driverController_XBOX.a().onTrue(new ToggleElevatorCommand(elevator, harpoon));
+
+            // intake gamepiece
+            this.driverController_XBOX.x()
+            .onTrue(new IntakeCommand(harpoon,0.6));
+
+            // spit out gamepiece
+             this.driverController_XBOX.b()
+             .onTrue(new ShootCommand(harpoon,0.6))
+             .onFalse(new StopClawCommand(harpoon));
         }
         else {
             // Reset Gyro
@@ -164,16 +176,7 @@ public class RobotContainer {
             driverController_PS5.R1().onFalse(new InstantCommand(() -> m_robotDrive.setFastMode(false)));
 
             // toggling the elevator up and down
-            driverController_XBOX.a().onTrue(new ToggleElevatorCommand(elevator, harpoon));
-
-            // intake gamepiece
-            this.operatorController_XBOX.x()
-            .onTrue(new IntakeCommand(harpoon,0.6));
-
-            // spit out gamepiece
-             this.driverController_XBOX.b()
-             .onTrue(new ShootCommand(harpoon,0.6))
-             .onFalse(new StopClawCommand(harpoon));
+            driverController_PS5.square().onTrue(new ToggleElevatorCommand(elevator, harpoon));
         }
     }
 
@@ -190,18 +193,18 @@ public class RobotContainer {
             // These commands don't have requirements else they interrupt the drive command (TeleopDriveCommand)
 
             this.operatorController_XBOX.leftBumper().onTrue(
-                new PrepareElevatorCommand(elevator, ElevatorMode.REEF, elevator.getUpperPosition()).
-                andThen(new PrepareHarpoonCommand(harpoon, harpoon.getUpperSetpoint()))
+                new PrepareElevatorCommand(elevator, ElevatorMode.REEF, () -> elevator.getLowerPosition()).
+                andThen(new PrepareHarpoonCommand(harpoon, () -> harpoon.getLowerSetpoint()))
             );
 
             this.operatorController_XBOX.rightBumper().onTrue(
-                new PrepareElevatorCommand(elevator, ElevatorMode.REEF, elevator.getLowerPosition()).
-                andThen(new PrepareHarpoonCommand(harpoon, harpoon.getLowerSetpoint()))
+                new PrepareElevatorCommand(elevator, ElevatorMode.REEF, () -> elevator.getUpperPosition()).
+                andThen(new PrepareHarpoonCommand(harpoon, () -> harpoon.getUpperSetpoint()))
             );
 
             this.operatorController_XBOX.leftTrigger().onTrue(
-                new PrepareElevatorCommand(elevator, ElevatorMode.FEEDER, ElevatorPosition.INTAKE).
-                andThen(new PrepareHarpoonCommand(harpoon, HarpoonPosition.INTAKE.getSetpoint()))
+                new PrepareElevatorCommand(elevator, ElevatorMode.FEEDER, () -> ElevatorPosition.INTAKE.getSetpoint()).
+                andThen(new PrepareHarpoonCommand(harpoon, () -> HarpoonPosition.INTAKE.getSetpoint()))
             );
         }
         else {

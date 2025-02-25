@@ -2,6 +2,8 @@ package frc.robot.subsystems;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
+import java.lang.annotation.ElementType;
+
 import com.revrobotics.RelativeEncoder;
 import com.revrobotics.spark.SparkBase.PersistMode;
 import com.revrobotics.spark.SparkBase.ResetMode;
@@ -40,7 +42,7 @@ public class Elevator extends SubsystemBase{
     private double setpoint = 0; // rotations
 
     // pre-selected position
-    private ElevatorPosition selectedPosition;
+    private double selectedPosition;
     // pre-selected mode
     private ElevatorMode nextMode;
 
@@ -96,37 +98,37 @@ public class Elevator extends SubsystemBase{
     } 
 
     // returns the position 1 HIGHER than the current one
-    public ElevatorPosition getUpperPosition() {
-        if (selectedPosition == ElevatorPosition.L1) {
-            return ElevatorPosition.L2;
+    public double getUpperPosition() {
+        if (selectedPosition == ElevatorPosition.L1.getSetpoint()) {
+            return ElevatorPosition.L2.getSetpoint();
         }
-        else if (selectedPosition == ElevatorPosition.L2) {
-            return ElevatorPosition.L3;
-        } else if (selectedPosition == ElevatorPosition.L3) {
-            return ElevatorPosition.L4;
-        } else if (selectedPosition == ElevatorPosition.L4) {
-            return ElevatorPosition.L1;
+        else if (selectedPosition == ElevatorPosition.L2.getSetpoint()) {
+            return ElevatorPosition.L3.getSetpoint();
+        } else if (selectedPosition == ElevatorPosition.L3.getSetpoint()) {
+            return ElevatorPosition.L4.getSetpoint();
+        } else if (selectedPosition == ElevatorPosition.L4.getSetpoint()) {
+            return ElevatorPosition.L1.getSetpoint();
         }   
 
         // this should never happen, in theory
-        return ElevatorPosition.STOWED;
+        return ElevatorPosition.STOWED.getSetpoint();
     }
 
     // returns the position 1 LOWER than the current one
-    public ElevatorPosition getLowerPosition() {
-        if (selectedPosition == ElevatorPosition.L1) {
-            return ElevatorPosition.L4;
+    public double getLowerPosition() {
+        if (selectedPosition == ElevatorPosition.L1.getSetpoint()) {
+            return ElevatorPosition.L4.getSetpoint();
         }
-        else if (selectedPosition == ElevatorPosition.L2) {
-            return ElevatorPosition.L1;
-        } else if (selectedPosition == ElevatorPosition.L3) {
-            return ElevatorPosition.L2;
-        } else if (selectedPosition == ElevatorPosition.L4) {
-            return ElevatorPosition.L3;
+        else if (selectedPosition == ElevatorPosition.L2.getSetpoint()) {
+            return ElevatorPosition.L1.getSetpoint();
+        } else if (selectedPosition == ElevatorPosition.L3.getSetpoint()) {
+            return ElevatorPosition.L2.getSetpoint();
+        } else if (selectedPosition == ElevatorPosition.L4.getSetpoint()) {
+            return ElevatorPosition.L3.getSetpoint();
         }   
 
         // this should never happen, in theory
-        return ElevatorPosition.STOWED;
+        return ElevatorPosition.STOWED.getSetpoint();
     }
 
     public void setNextMode(ElevatorMode mode) {
@@ -145,11 +147,11 @@ public class Elevator extends SubsystemBase{
         return currentMode;
     }
 
-    public void setSelectedPosition(ElevatorPosition position) {
+    public void setSelectedPosition(double position) {
         selectedPosition = position;
     }
 
-    public ElevatorPosition getSelectedPosition() {
+    public double getSelectedPosition() {
         return selectedPosition;
     }
 
@@ -158,6 +160,10 @@ public class Elevator extends SubsystemBase{
         // THIS CAUSES ISSUES IF YOU DEPLOY WHILE THE ELEVATOR IS UP, SAME AS LAST YEAR
         encoder.setPosition(0);
         setpoint = 0;
+
+        currentMode = ElevatorMode.STOWED;
+        nextMode = ElevatorMode.REEF;
+        selectedPosition = ElevatorPosition.L1.getSetpoint();
     }
     // EMERGENCY STOP THE ELEVATOR
     public Command emergencyStop() {
@@ -172,7 +178,7 @@ public class Elevator extends SubsystemBase{
         if (currentMode == ElevatorMode.REEF) {
             // if we're scoring, use the selected position
             // this allows the operator to switch scoring positions immediately
-            setpoint = selectedPosition.getSetpoint();
+            setpoint = selectedPosition;
         }
         else if (currentMode == ElevatorMode.FEEDER) {
             // for intaking, use the constant
@@ -183,6 +189,10 @@ public class Elevator extends SubsystemBase{
             // ditto with stowed, use the constant for the same reason
             setpoint = ElevatorPosition.STOWED.getSetpoint();
         }
+
+        SmartDashboard.putString("CURRENT MODE", currentMode.toString());
+        SmartDashboard.putString("NEXT MODE", nextMode.toString());
+        SmartDashboard.putNumber("NEXT POSITION", selectedPosition);
 
         // moving the elevator to the desired setpoint
         drive();
