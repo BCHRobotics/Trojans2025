@@ -118,6 +118,7 @@ public final class Constants {
       }
     }
 
+    // different scenarios in which the harpoon
     public enum HarpoonMode {
       STOWED,
       REEF,

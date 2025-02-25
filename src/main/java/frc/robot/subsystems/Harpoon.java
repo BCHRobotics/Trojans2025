@@ -14,7 +14,6 @@ import com.revrobotics.spark.config.SparkMaxConfig;
 import com.revrobotics.spark.SparkClosedLoopController;
 import com.revrobotics.spark.SparkLimitSwitch;
 
-import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.Constants;
@@ -155,13 +154,9 @@ public class Harpoon extends SubsystemBase{
     @Override
     public void periodic() {
         SmartDashboard.putNumber("Wrist Position", kRotationMotor.getAbsoluteEncoder().getPosition());
-    }
 
-    public Command emergencyStop() {
-        return this.runOnce(() -> {
-            kRotationController.setReference(0, SparkBase.ControlType.kMAXMotionPositionControl);
-            kRotationMotor.stopMotor();
-            kIntakeMotor.stopMotor();
-        });
+        SmartDashboard.putString("CURRENT MODE", currentMode.toString());
+        SmartDashboard.putString("NEXT MODE", nextMode.toString());
+        SmartDashboard.putNumber("NEXT POSITION", selectedSetpoint);
     }
 }

@@ -1,5 +1,4 @@
 package frc.robot.subsystems;
-import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 import com.revrobotics.RelativeEncoder;
@@ -162,13 +161,6 @@ public class Elevator extends SubsystemBase{
         currentMode = ElevatorMode.STOWED;
         nextMode = ElevatorMode.REEF;
         selectedPosition = ElevatorPosition.L1.getSetpoint();
-    }
-    // EMERGENCY STOP THE ELEVATOR
-    public Command emergencyStop() {
-             return this.runOnce(() -> {
-                this.primaryMotor.stopMotor();
-                this.followerMotor.stopMotor();
-        });
     }
 
     @Override 
