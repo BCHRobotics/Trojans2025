@@ -163,6 +163,10 @@ public class Elevator extends SubsystemBase{
         selectedPosition = ElevatorPosition.L1.getSetpoint();
     }
 
+    public void setSetpoint(double setpoint){
+        this.setpoint = setpoint; 
+    }
+
     @Override 
     public void periodic() {
         if (currentMode == ElevatorMode.REEF) {
