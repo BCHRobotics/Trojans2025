@@ -118,6 +118,12 @@ public final class Constants {
       }
     }
 
+    public enum HarpoonMode {
+      STOWED,
+      REEF,
+      FEEDER
+    }
+
     public static final int kIntakeMotorCANID = 30; // TO be changed to the actual intake motor ID
     public static final int kRotationMotorCANID = 31; // TO be changed to the actual rotation motor ID
 

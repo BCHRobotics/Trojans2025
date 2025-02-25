@@ -16,6 +16,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.Constants.ElevatorConstants.ElevatorMode;
 import frc.robot.Constants.ElevatorConstants.ElevatorPosition;
+import frc.robot.Constants.HarpoonConstants.HarpoonMode;
 import frc.robot.Constants.HarpoonConstants.HarpoonPosition;
 import frc.robot.Constants.OIConstants;
 import frc.robot.commands.SetLEDCommand;
@@ -86,8 +87,10 @@ public class RobotContainer {
         controllerOptions_operator.addOption("Playstation", "PS");
         SmartDashboard.putData("Operator Select", controllerOptions_operator);
 
-        harpoon.setNextSetpoint(HarpoonPosition.L1.getSetpoint());
-        harpoon.setSetpoint(HarpoonPosition.STOWED.getSetpoint());
+        harpoon.setSelectedPosition(HarpoonPosition.L1.getSetpoint());
+        harpoon.setNextMode(HarpoonMode.REEF);
+
+        harpoon.setMode(HarpoonMode.STOWED);
     }
 
     /**
@@ -152,7 +155,8 @@ public class RobotContainer {
             driverController_XBOX.rightBumper().onFalse(new InstantCommand(() -> m_robotDrive.setFastMode(false)));
 
             // toggling the elevator up and down
-            driverController_XBOX.a().onTrue(new ToggleElevatorCommand(elevator, harpoon));
+            driverController_XBOX.a().onTrue(
+                new ToggleElevatorCommand(elevator, harpoon));
 
             // intake gamepiece
             this.driverController_XBOX.x()
@@ -194,17 +198,17 @@ public class RobotContainer {
 
             this.operatorController_XBOX.leftBumper().onTrue(
                 new PrepareElevatorCommand(elevator, ElevatorMode.REEF, () -> elevator.getLowerPosition()).
-                andThen(new PrepareHarpoonCommand(harpoon, () -> harpoon.getLowerSetpoint()))
+                andThen(new PrepareHarpoonCommand(harpoon, HarpoonMode.REEF, () -> harpoon.getLowerSetpoint()))
             );
 
             this.operatorController_XBOX.rightBumper().onTrue(
                 new PrepareElevatorCommand(elevator, ElevatorMode.REEF, () -> elevator.getUpperPosition()).
-                andThen(new PrepareHarpoonCommand(harpoon, () -> harpoon.getUpperSetpoint()))
+                andThen(new PrepareHarpoonCommand(harpoon, HarpoonMode.REEF, () -> harpoon.getUpperSetpoint()))
             );
 
             this.operatorController_XBOX.leftTrigger().onTrue(
                 new PrepareElevatorCommand(elevator, ElevatorMode.FEEDER, () -> ElevatorPosition.INTAKE.getSetpoint()).
-                andThen(new PrepareHarpoonCommand(harpoon, () -> HarpoonPosition.INTAKE.getSetpoint()))
+                andThen(new PrepareHarpoonCommand(harpoon, HarpoonMode.FEEDER, () -> HarpoonPosition.INTAKE.getSetpoint()))
             );
         }
         else {

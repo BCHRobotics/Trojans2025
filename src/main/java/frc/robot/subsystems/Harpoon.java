@@ -18,6 +18,7 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.Constants;
+import frc.robot.Constants.HarpoonConstants.HarpoonMode;
 import frc.robot.Constants.HarpoonConstants.HarpoonPosition;
 public class Harpoon extends SubsystemBase{
 
@@ -34,9 +35,12 @@ public class Harpoon extends SubsystemBase{
     private final SparkLimitSwitch sensorLimitSwitch;
 
     // pre-selected setpoint
-    private double nextSetpoint;
-    // currently targeted setpoint
-    private double currentSetpoint;
+    private double selectedSetpoint;
+
+    // currently active mode
+    private HarpoonMode currentMode;
+    // mode to activate next
+    private HarpoonMode nextMode;
 
     public Harpoon(){
         // set up the motors
@@ -75,27 +79,18 @@ public class Harpoon extends SubsystemBase{
         // finally, configure the motors
         this.kRotationMotor.configure(this.kRotationConfig, null, PersistMode.kPersistParameters);
     }
-
-    public void setNextSetpoint(double setpoint) {
-        nextSetpoint = setpoint;
-    }
-
-    public void setSetpoint(double newSetpoint) {
-        currentSetpoint = newSetpoint;
-        setRotationMotorPosition(currentSetpoint);
-    }
     
     public double getUpperSetpoint() {
-        if (nextSetpoint == HarpoonPosition.L1.getSetpoint()) {
+        if (selectedSetpoint == HarpoonPosition.L1.getSetpoint()) {
             return HarpoonPosition.L2.getSetpoint();
         }
-        else if (nextSetpoint == HarpoonPosition.L2.getSetpoint()) {
+        else if (selectedSetpoint == HarpoonPosition.L2.getSetpoint()) {
             return HarpoonPosition.L3.getSetpoint();
         } 
-        else if (nextSetpoint == HarpoonPosition.L3.getSetpoint()) {
+        else if (selectedSetpoint == HarpoonPosition.L3.getSetpoint()) {
             return HarpoonPosition.L4.getSetpoint();
         } 
-        else if (nextSetpoint == HarpoonPosition.L4.getSetpoint()) {
+        else if (selectedSetpoint == HarpoonPosition.L4.getSetpoint()) {
             return HarpoonPosition.L1.getSetpoint();
         }
 
@@ -103,25 +98,44 @@ public class Harpoon extends SubsystemBase{
     }
 
     public double getLowerSetpoint() {
-        if (currentSetpoint == HarpoonPosition.L1.getSetpoint()) {
+        if (selectedSetpoint == HarpoonPosition.L1.getSetpoint()) {
             return HarpoonPosition.L4.getSetpoint();
         }
-        else if (currentSetpoint == HarpoonPosition.L2.getSetpoint()) {
+        else if (selectedSetpoint == HarpoonPosition.L2.getSetpoint()) {
             return HarpoonPosition.L1.getSetpoint();
         } 
-        else if (currentSetpoint == HarpoonPosition.L3.getSetpoint()) {
+        else if (selectedSetpoint == HarpoonPosition.L3.getSetpoint()) {
             return HarpoonPosition.L2.getSetpoint();
         } 
-        else if (currentSetpoint == HarpoonPosition.L4.getSetpoint()) {
+        else if (selectedSetpoint == HarpoonPosition.L4.getSetpoint()) {
             return HarpoonPosition.L3.getSetpoint();
         }
 
         return HarpoonPosition.STOWED.getSetpoint();
     }
 
-    public void useNextSetpoint() {
-        currentSetpoint = nextSetpoint;
-        setRotationMotorPosition(currentSetpoint);
+    public void setNextMode(HarpoonMode mode) {
+        nextMode = mode;
+    }
+
+    public HarpoonMode getNextMode() {
+        return nextMode;
+    }
+
+    public void setMode(HarpoonMode mode) {
+        currentMode = mode;
+    }
+
+    public HarpoonMode getMode() {
+        return currentMode;
+    }
+
+    public void setSelectedPosition(double position) {
+        selectedSetpoint = position;
+    }
+
+    public double getSelectedPosition() {
+        return selectedSetpoint;
     }
 
     public void setRotationMotorPosition(double HarpoonPosition){ // HarpoonPosition is 0.6-1, (1 is stowed, 0.6 is reaching bumpers)
@@ -141,9 +155,6 @@ public class Harpoon extends SubsystemBase{
     @Override
     public void periodic() {
         SmartDashboard.putNumber("Wrist Position", kRotationMotor.getAbsoluteEncoder().getPosition());
-
-        SmartDashboard.putNumber("CURRENT HARPOON", currentSetpoint);
-        SmartDashboard.putNumber("NEXT HARPOON", nextSetpoint);
     }
 
     public Command emergencyStop() {

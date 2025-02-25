@@ -2,6 +2,7 @@ package frc.robot.commands.elevator;
 
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.Constants.ElevatorConstants.ElevatorMode;
+import frc.robot.Constants.HarpoonConstants.HarpoonMode;
 import frc.robot.subsystems.Elevator;
 import frc.robot.subsystems.Harpoon;
 
@@ -20,10 +21,11 @@ public class ToggleElevatorCommand extends Command {
         // if we are currently stowed, run the pre-selected mode and the position
         if (elevatorSubsystem.getMode() == ElevatorMode.STOWED) {
             elevatorSubsystem.setMode(elevatorSubsystem.getNextMode());
-            harpoonSubsystem.useNextSetpoint();
+            harpoonSubsystem.setMode(harpoonSubsystem.getNextMode());
         }
         else {
             elevatorSubsystem.setMode(ElevatorMode.STOWED);
+            harpoonSubsystem.setMode(HarpoonMode.STOWED);
         }
     }
 
