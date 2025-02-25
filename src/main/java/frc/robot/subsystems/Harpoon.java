@@ -118,7 +118,7 @@ public class Harpoon extends SubsystemBase{
         currentSetpoint = nextSetpoint;
         setRotationMotorPosition(currentSetpoint);
     }
-
+ 
     public void setRotationMotorPosition(double HarpoonPosition){ // HarpoonPosition is 0.6-1, (1 is stowed, 0.6 is reaching bumpers)
         kRotationController.setReference(
             HarpoonPosition,

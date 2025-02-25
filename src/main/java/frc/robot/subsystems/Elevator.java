@@ -167,6 +167,10 @@ public class Elevator extends SubsystemBase{
         });
     }
 
+    public void setSetpoint(double setpoint){
+        this.setpoint = setpoint; 
+    }
+
     @Override 
     public void periodic() {
         if (currentMode == ElevatorMode.REEF) {
