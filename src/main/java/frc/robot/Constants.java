@@ -52,10 +52,11 @@ public final class Constants {
     public enum ElevatorPosition { // rotations
       STOWED(0), // FINAL
       L1(4),
-      L2(8.55),  // FINAL // 9.15
+      L2(9.15),  // FINAL
       L3(13.5),  // FINAL
       L4(20.61), // UNTESTED
-      INTAKE(3.7); // FINAL
+      INTAKE(3.7), // FINAL
+      ALGAE(8.55);
       
       private final double setpoint;
       ElevatorPosition(double setpoint) {
@@ -102,11 +103,12 @@ public final class Constants {
 
     public enum HarpoonPosition {
       L1(0.725), // FINAL
-      L2(0.61), // FINAL // 0.6003
+      L2(0.6003), // FINAL
       L3(0.6002), // FINAL
       L4(0.6001), // UNTESTED
       INTAKE(0.85), // FINAL
-      STOWED(0.62);
+      STOWED(0.61),
+      ALGAE(0.61);
     
       private final double setpoint;
       HarpoonPosition(double setpoint) {

@@ -46,6 +46,8 @@ public class Elevator extends SubsystemBase{
     // currently running mode
     private ElevatorMode currentMode;
 
+    private boolean runCalibration;
+
     public Elevator() {
         
         //Creating new motors, encoders, and PID controllers
@@ -94,6 +96,16 @@ public class Elevator extends SubsystemBase{
         resetElevator();
     } 
 
+    public void driveMotorSlow(){
+        primaryMotor.set(-0.1);
+        followerMotor.set(-0.1);
+    }
+
+    public void stopMotor(){
+        primaryMotor.set(0);
+        followerMotor.set(0);
+    }
+
     // returns the position 1 HIGHER than the current one
     public double getUpperPosition() {
         if (selectedPosition == ElevatorPosition.L1.getSetpoint()) {
@@ -108,7 +120,7 @@ public class Elevator extends SubsystemBase{
         }   
 
         // this should never happen, in theory
-        return ElevatorPosition.STOWED.getSetpoint();
+        return ElevatorPosition.L1.getSetpoint();
     }
 
     // returns the position 1 LOWER than the current one
@@ -125,7 +137,16 @@ public class Elevator extends SubsystemBase{
         }   
 
         // this should never happen, in theory
-        return ElevatorPosition.STOWED.getSetpoint();
+        return ElevatorPosition.L1.getSetpoint();
+    }
+
+    public void activateCalibration() {
+        runCalibration = true;
+    }
+
+    public void stopCalibration() {
+        runCalibration = false;
+        resetElevator();
     }
 
     public void setNextMode(ElevatorMode mode) {
@@ -193,7 +214,12 @@ public class Elevator extends SubsystemBase{
         SmartDashboard.putNumber("NEXT POSITION", selectedPosition);
 
         // moving the elevator to the desired setpoint
-        drive();
+        
+        if (!runCalibration){
+            drive();
+        }
+        
+
 
         // debug values
         printToDashboard();;

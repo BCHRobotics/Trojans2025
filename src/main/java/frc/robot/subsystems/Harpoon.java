@@ -17,8 +17,6 @@ import com.revrobotics.spark.SparkLimitSwitch;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.Constants;
-import frc.robot.Constants.ElevatorConstants.ElevatorMode;
-import frc.robot.Constants.ElevatorConstants.ElevatorPosition;
 import frc.robot.Constants.HarpoonConstants.HarpoonMode;
 import frc.robot.Constants.HarpoonConstants.HarpoonPosition;
 public class Harpoon extends SubsystemBase{
@@ -54,11 +52,11 @@ public class Harpoon extends SubsystemBase{
 
         // important configurations. Idlemode is just the mode the sensor is in when it is not being commanded. 
         this.kRotationConfig.inverted(false); // 
-        this.kRotationConfig.idleMode(IdleMode.kCoast); // IdleMode.kBrake
+        this.kRotationConfig.idleMode(IdleMode.kCoast);
 
         // more important configs
         this.kIntakeConfig.inverted(false); // inverting intake motor
-        this.kIntakeConfig.idleMode(IdleMode.kBrake);
+        this.kIntakeConfig.idleMode(IdleMode.kCoast);
 
         // closed loop controller for the rotation motor - we're using a pid feedforward controller
         this.kRotationConfig.closedLoop.feedbackSensor(FeedbackSensor.kAbsoluteEncoder).pidf(
@@ -79,6 +77,7 @@ public class Harpoon extends SubsystemBase{
 
         // finally, configure the motors
         this.kRotationMotor.configure(this.kRotationConfig, null, PersistMode.kPersistParameters);
+        this.kIntakeMotor.configure(this.kIntakeConfig, null, PersistMode.kPersistParameters);
     }
     
     public double getUpperSetpoint() {
@@ -95,7 +94,7 @@ public class Harpoon extends SubsystemBase{
             return HarpoonPosition.L1.getSetpoint();
         }
 
-        return HarpoonPosition.STOWED.getSetpoint();
+        return HarpoonPosition.L1.getSetpoint();
     }
 
     public double getLowerSetpoint() {
@@ -112,7 +111,7 @@ public class Harpoon extends SubsystemBase{
             return HarpoonPosition.L3.getSetpoint();
         }
 
-        return HarpoonPosition.STOWED.getSetpoint();
+        return HarpoonPosition.L1.getSetpoint();
     }
 
     public void setNextMode(HarpoonMode mode) {

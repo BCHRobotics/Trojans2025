@@ -21,6 +21,7 @@ import frc.robot.Constants.HarpoonConstants.HarpoonPosition;
 import frc.robot.Constants.OIConstants;
 import frc.robot.commands.SetLEDCommand;
 import frc.robot.commands.drive.TeleopDriveCommand;
+import frc.robot.commands.elevator.CalibrateElevator;
 import frc.robot.commands.elevator.PrepareElevatorCommand;
 import frc.robot.commands.elevator.ToggleElevatorCommand;
 import frc.robot.commands.harpoon.IntakeCommand;
@@ -47,7 +48,7 @@ public class RobotContainer {
     // The robot's subsystems
     private final Drivetrain m_robotDrive = new Drivetrain();
     private final Cameras m_cameras = new Cameras();
-    private final Elevator elevator = new Elevator();
+    public final Elevator elevator = new Elevator();
     private final Harpoon harpoon = new Harpoon();
     private final LED ledRight = new LED(0);
     private final LED ledLeft = new LED(1);
@@ -166,6 +167,9 @@ public class RobotContainer {
              this.driverController_XBOX.b()
              .onTrue(new ShootCommand(harpoon,0.6))
              .onFalse(new StopClawCommand(harpoon));
+
+             this.driverController_XBOX.povDown()
+             .onTrue(new CalibrateElevator(elevator, this.driverController_XBOX.povDown()));
         }
         else {
             // Reset Gyro
