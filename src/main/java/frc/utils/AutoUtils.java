@@ -137,7 +137,7 @@ public class AutoUtils {
 
             // create a new POI called VisionStart and place it where the robot thinks it is
             oldPOI.name = "VisionStart";
-            oldPOI.position = cameraSubsystem.estimateRobotPoseManual();
+            oldPOI.position = cameraSubsystem.estimateRobotPoseManual(false);
             oldPOI.tagId = -1; // none of the fallbacks are based off tags so it should be already -1
         }
         else {
@@ -220,6 +220,23 @@ public class AutoUtils {
      * using pathplannerlib's constructor
      */
     public static Command constructPathCommand(PathPlannerPath path, Drivetrain driveSubsystem, RobotConfig config) {
+        // creating an empty list for event markers, filled if the POI has a tag id
+        List<EventMarker> eventMarkers = new LinkedList<EventMarker>();
+
+        // eventMarkers.add(new EventMarker("Stop Intake", 0));
+        // eventMarkers.add(new EventMarker("Elevator Up", 0.05));
+
+        path = new PathPlannerPath(
+            path.getWaypoints(), 
+            path.getRotationTargets(),
+            path.getPointTowardsZones(),
+            path.getConstraintZones(), 
+            eventMarkers,
+            AutoConstants.defaultGlobalContstraints,
+            path.getIdealStartingState(), 
+            path.getGoalEndState(),
+            false);
+
         return new FollowPathCommand(
             path,
             driveSubsystem::getOffsetedPose, // Robot pose supplier
@@ -255,7 +272,9 @@ public class AutoUtils {
         List<EventMarker> eventMarkers = new LinkedList<EventMarker>();
 
         eventMarkers.add(new EventMarker("Elevator Up", 1));
-        eventMarkers.add(new EventMarker("Elevator Up", 1));
+        eventMarkers.add(new EventMarker("Pose Estimation", 1));
+
+        eventMarkers.add(new EventMarker("Score", 1.9));
 
         Translation2d alignmentOffset = VisionUtils.applyRotationMatrix(
             new Translation2d(0.75, 0), 

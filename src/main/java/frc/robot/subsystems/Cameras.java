@@ -11,11 +11,9 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.math.geometry.Transform3d;
-import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.VisionConstants;
-import frc.robot.Constants.DriveConstants.DriveModes;
 import frc.utils.VisionUtils;
 
 
@@ -39,11 +37,7 @@ public class Cameras extends SubsystemBase {
     // USEFUL IF THE COPROCESSOR ISN'T PLUGGED IN!!!
     // -----
     public boolean isVisionActive = true;
-    public boolean periodicPoseEstimation = false;
     // -----
-
-    private double lastPoseEstimate = 0;
-    private double estimateFreqency = 0.5;
     
     public Cameras() {
         // initialize and fill any necessary arrays
@@ -70,32 +64,10 @@ public class Cameras extends SubsystemBase {
             // print any relevant debug data to the dashboard
             printToDashboard();
 
-            if (periodicPoseEstimation && Timer.getFPGATimestamp() > lastPoseEstimate + estimateFreqency) {
-                updateOdometry();
-                lastPoseEstimate = Timer.getFPGATimestamp();
-            }
-
             SmartDashboard.putNumber("robot heading DEG", driveSubsystem.getPose().getRotation().getDegrees());
             SmartDashboard.putNumber("tag heading DEG", VisionConstants.tagTransforms[22].headingAngle);
         }
     }
-
-    /*
-     * apply the estimated pose to the robot odometry
-     */
-    public void updateOdometry() {
-        if (canSeeAnyTags() && driveSubsystem.getDriveMode() == DriveModes.AUTO) {
-            Pose2d visionPose = estimateRobotPoseManual();
-            Pose2d currentPose = driveSubsystem.getPose();
-
-            Transform2d offset = visionPose.minus(currentPose);
-
-            if (Math.abs(visionPose.getX() - currentPose.getX()) > 0.05 || 
-            Math.abs(visionPose.getY() - currentPose.getY()) > 0.05) {
-                driveSubsystem.setOdometryOffset(offset);
-            }
-        }
-    }   
 
     /*
      * whether the camera can see any tags at all
@@ -119,7 +91,7 @@ public class Cameras extends SubsystemBase {
      * 
      * @return a best guess of the robot's field relative pose, obtained from vision measurements
      */
-    public Pose2d estimateRobotPoseManual() {
+    public Pose2d estimateRobotPoseManual(boolean distanceThreshold) {
         Transform2d[] fieldRelativeOffsets = getAllFieldRelativeOffsets();
         
         // variables for keeping track of the final x, y, rot
@@ -135,14 +107,6 @@ public class Cameras extends SubsystemBase {
         // an estimated pose is found by averaging results from multiple tags,
         // but two measurements of -179 and 179 would average to 0 instead of 180 which it should be
 
-        // this variable specifically keeps track of how many negative and positive angles there are,
-        // every time we add a result we add 1 if its a positive angle and subtract 1 if its a negative angle
-        int balance = 0;
-
-        // this one keeps track of large angles, greater than 90 degrees
-        // this is because two readings of -2 and 2 SHOULD average to zero, but -100 and 100 should average to 180
-        int largeAngles = 0;
-
         // the total number of tags that can be seen by the cameras
         int visibleTagCount = 0;
 
@@ -150,16 +114,19 @@ public class Cameras extends SubsystemBase {
         // necessary because each result is divided by the total number of results
         for (int i = 1; i < fieldRelativeOffsets.length; i++) {
             if (fieldRelativeOffsets[i] != null) {
-                if (fieldRelativeOffsets[i].getX() > 3.0) {continue;}
+                if ((getDistanceToTag(i) > 3.0 || fieldRelativeOffsets[i].getX() > 3.0) && distanceThreshold) {continue;}
+
                 // adding to the total tag count
                 visibleTagCount++;
+                System.out.println(i);
             }
         }
 
         // looping through all the results again to actually add up the measurements
         for (int i = 1; i < fieldRelativeOffsets.length; i++) {
             if (fieldRelativeOffsets[i] != null) {
-                if (fieldRelativeOffsets[i].getX() > 3.0) {continue;}
+                if ((getDistanceToTag(i) > 3.0 || fieldRelativeOffsets[i].getX() > 3.0) && distanceThreshold) {continue;}
+
                 // the idea here is to figure out where the tag is (which is static),
                 // then figure out where the robot thinks it is relative to the tag,
                 // then add the two vectors to guess at where the robot is on the field
@@ -171,9 +138,6 @@ public class Cameras extends SubsystemBase {
                 Pose2d offset = new Pose2d(fieldRelativeOffsets[i].getX(), 
                 fieldRelativeOffsets[i].getY(), 
                 fieldRelativeOffsets[i].getRotation());
-
-                SmartDashboard.putNumber("field offset X for " + i, fieldRelativeOffsets[i].getX());
-                SmartDashboard.putNumber("field offset Y for " + i, fieldRelativeOffsets[i].getY());
                 
                 // then define where the tag is in field space
                 Pose2d tagPosition = VisionConstants.tagTransforms[i].getPosition();
@@ -195,17 +159,6 @@ public class Cameras extends SubsystemBase {
                 
                 // dealing with the rotational estimate
                 // ----------------------
-
-                if (estimatedPosition.getRotation().getRadians() >= 0) {
-                    // if the angle is greater than 0 degrees, adjust the balance value by 1
-                    // (see above as to why)
-                    balance++;
-                }
-                else {
-                    // if the angle is less than 0 degrees, adjust the balance value by -1
-                    // (see above as to why)
-                    balance--;
-                }
                 
                 // no matter if the angle is greater or less than 0, 
                 // we add it to the total AND DO NOT DIVIDE IT,
@@ -213,31 +166,13 @@ public class Cameras extends SubsystemBase {
                 if (i == 21) {
                     finalRot += estimatedPosition.getRotation().getRadians();
                 }
-                
-                // incrementing the large angles variable if the angle is large (> 90 degrees)
-                // as said above we need to keep track of this to make sure the rotation averages properly
-                if (Math.abs(estimatedPosition.getRotation().getRadians()) > Math.PI / 2) {
-                    largeAngles++;
-                }
             }
         }
 
+        SmartDashboard.putNumber("visible tags", visibleTagCount);
+
         // setting up the final pose
         // ----------------------------------------
-
-        // if the balance is NOT either equal to the tag count or the tag count multiplied by -1,
-        // then we have a mix of positive and negative angles
-        if (Math.abs(balance) < visibleTagCount) {
-            // if we have a mix of angles AND the majority (more than half) are large (> 90 degrees),
-            // then we should add 180 degrees (pi radians) so that the averaged value actually reflects the measurements
-            
-            // I cannot think of a scenario where this would give the wrong result, but it is possible
-            // so I guess TODO: stress-test this
-
-            // if (largeAngles > visibleTagCount / 2) {
-            //     finalRot += Math.PI;
-            // }
-        } 
 
         if (visibleTagCount == 0) {return new Pose2d(0, 0, new Rotation2d());}
 
@@ -250,11 +185,28 @@ public class Cameras extends SubsystemBase {
         Rotation2d.fromRadians(finalRot)
         );
 
-        SmartDashboard.putNumber("final estimated X", finalPose.getX());
-        SmartDashboard.putNumber("final estimated Y", finalPose.getY());
+        SmartDashboard.putNumber("estimated X", finalPose.getX());
+        SmartDashboard.putNumber("estimated Y", finalPose.getY());
 
         // this is now our final pose which can be returned
         return finalPose;
+    }
+
+    public Transform2d getPoseEstimatedOffset() {
+        Pose2d estimatedPose = estimateRobotPoseManual(true);
+        Pose2d odometryPose = driveSubsystem.getPose();
+
+        return new Transform2d(
+            estimatedPose.getX() - odometryPose.getX(), 
+            estimatedPose.getY() - odometryPose.getY(),
+            Rotation2d.fromDegrees(0));
+    }
+
+    public double getDistanceToTag(int tagId) {
+        Pose2d staticTagPose = VisionConstants.tagTransforms[tagId].getPosition();
+        Pose2d robotPose = driveSubsystem.getPose();
+
+        return Math.abs(staticTagPose.getX() - robotPose.getX());
     }
 
     /*

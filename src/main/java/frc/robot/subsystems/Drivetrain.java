@@ -141,7 +141,8 @@ public class Drivetrain extends SubsystemBase {
    * @param offset
    */
   public void setOdometryOffset(Transform2d offset) {
-    if (Math.abs(offset.getX()) > 0.3 || Math.abs(offset.getY()) > 0.3) {return;}
+    if (Math.abs(offset.getX()) > 0.15 || Math.abs(offset.getY()) > 0.15) {return;}
+
     odometryOffset = offset;
   }
 
@@ -157,9 +158,9 @@ public class Drivetrain extends SubsystemBase {
     Pose2d rawPose = getPose();
 
     return new Pose2d(
-      rawPose.getX() - odometryOffset.getX(),
-      rawPose.getY() - odometryOffset.getY(),
-      rawPose.getRotation().minus(odometryOffset.getRotation())
+      rawPose.getX(),
+      rawPose.getY(),
+      rawPose.getRotation()
     );
   }
 

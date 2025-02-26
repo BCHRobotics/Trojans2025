@@ -27,7 +27,9 @@ import frc.robot.commands.SetLEDCommand;
 import frc.robot.commands.drive.TeleopDriveCommand;
 import frc.robot.commands.elevator.CalibrateElevator;
 import frc.robot.commands.elevator.PrepareElevatorCommand;
+import frc.robot.commands.elevator.StowElevatorCommand;
 import frc.robot.commands.elevator.ToggleElevatorCommand;
+import frc.robot.commands.harpoon.AutoScoreCommand;
 import frc.robot.commands.harpoon.IntakeCommand;
 import frc.robot.commands.harpoon.PrepareHarpoonCommand;
 import frc.robot.commands.harpoon.ShootCommand;
@@ -39,7 +41,11 @@ import frc.utils.AutoUtils;
 import frc.robot.subsystems.Elevator;
 import frc.robot.subsystems.Harpoon;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
+import edu.wpi.first.wpilibj2.command.RunCommand;
+import edu.wpi.first.wpilibj2.command.Subsystem;
+import edu.wpi.first.wpilibj2.command.WaitCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandPS5Controller;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 
@@ -77,8 +83,6 @@ public class RobotContainer {
     public RobotContainer() {
         m_cameras.setDriveSubsystem(m_robotDrive);
         
-        configureNamedCommands();
-        
         // setting up a dropdown for switching between xbox and playstation
         // FOR DRIVER
         controllerOptions_driver = new SendableChooser<String>();
@@ -94,6 +98,14 @@ public class RobotContainer {
         SmartDashboard.putData("Operator Select", controllerOptions_operator);
 
         new EventTrigger("Elevator Up").onTrue(new ToggleElevatorCommand(elevator, harpoon));
+        new EventTrigger("Pose Estimation").onTrue(
+            new InstantCommand(() -> {
+                m_robotDrive.setOdometryOffset(m_cameras.getPoseEstimatedOffset());
+            }, new Subsystem[0])
+        );
+
+        new EventTrigger("Score").onTrue(new WaitCommand(2).andThen(new AutoScoreCommand(harpoon, 0.6)));
+        new EventTrigger("Stop Intake").onTrue(new StopClawCommand(harpoon));
 
         harpoon.resetHarpoon();
         elevator.resetElevator();
@@ -137,20 +149,10 @@ public class RobotContainer {
         m_robotDrive.setAlliance(isRedAlliance);
     }
 
-    /**
-     * [UNUSED]
-     * Method for configuring named commands 
-     * (used during autos)
-     */
-    public void configureNamedCommands() {
-        //NamedCommands.registerCommand("Elevator L1", new MoveElevatorCommand(elevator, ElevatorPosition.MID));
-        //NamedCommands.registerCommand("Harpoon L1", new ScoreCommand(harpoon, HarpoonPosition.TOP.getSetpoint()));
-    }
-
     private void configureButtonBindingsDriver(boolean isRedAlliance, boolean isXbox) {
         if (isXbox) {
             // Reset Gyro
-            driverController_XBOX.y().onTrue(new InstantCommand(() -> { m_robotDrive.zeroHeading(); m_robotDrive.resetOdometry(m_cameras.estimateRobotPoseManual());}));
+            driverController_XBOX.y().onTrue(new InstantCommand(() -> { m_robotDrive.zeroHeading();})); //  m_robotDrive.resetOdometry(m_cameras.estimateRobotPoseManual(false));
 
             // Slow mode command (Left Bumper)
             driverController_XBOX.leftBumper().onTrue(new InstantCommand(() -> m_robotDrive.setSlowMode(true)));
@@ -166,7 +168,9 @@ public class RobotContainer {
 
             // intake gamepiece
             this.driverController_XBOX.x()
-            .onTrue(new IntakeCommand(harpoon,0.6, driverController_XBOX.x()));
+            .onTrue(new IntakeCommand(harpoon,0.6, driverController_XBOX.x())
+            //.andThen(new StowElevatorCommand(elevator))
+            );
 
             // spit out gamepiece
              this.driverController_XBOX.b()
@@ -241,6 +245,8 @@ public class RobotContainer {
      */ 
     public Command getAutonomousCommand() throws FileVersionException, IOException, ParseException {
         //using the string provided by the user to build and run an auto
-        return AutoUtils.actuallyBuildAutoFromCommands("move(BlueReef4Left)", m_robotDrive, m_cameras, 0);
+        //return AutoUtils.actuallyBuildAutoFromCommands("move(BlueReef4Left)/wait(5)", m_robotDrive, m_cameras, 0);
+
+        return Commands.none();
     }
 }

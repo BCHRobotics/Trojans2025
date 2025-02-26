@@ -15,8 +15,11 @@ import com.revrobotics.spark.SparkClosedLoopController;
 import com.revrobotics.spark.SparkLimitSwitch;
 
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.Constants;
+import frc.robot.Constants.ElevatorConstants;
+import frc.robot.Constants.HarpoonConstants;
 import frc.robot.Constants.ElevatorConstants.ElevatorMode;
 import frc.robot.Constants.ElevatorConstants.ElevatorPosition;
 import frc.robot.Constants.HarpoonConstants.HarpoonMode;
@@ -28,12 +31,14 @@ public class Harpoon extends SubsystemBase{
 
     private final SparkMaxConfig kIntakeConfig = new SparkMaxConfig();
     private final SparkMaxConfig kRotationConfig = new SparkMaxConfig();
-    private final double maxVelocity = 100; // This is in rpm
-    private final double maxAcceleration = 100; // This is in rpm/second 
+    private final double maxVelocity = 600; // This is in rpm
+    private final double maxAcceleration = 600; // This is in rpm/second 
 
-    // private final RelativeEncoder kLeftEncoder;
-    private final SparkClosedLoopController kRotationController;
     private final SparkLimitSwitch sensorLimitSwitch;
+
+    private final PIDController pidController;
+
+    private double setpoint;
 
     // pre-selected setpoint
     private double selectedSetpoint;
@@ -44,6 +49,14 @@ public class Harpoon extends SubsystemBase{
     private HarpoonMode nextMode;
 
     public Harpoon(){
+
+        //PID controller
+        pidController = new PIDController(
+            HarpoonConstants.harpoonP,
+            HarpoonConstants.harpoonI,
+            HarpoonConstants.harpoonD
+        );
+
         // set up the motors
         this.kIntakeMotor = new SparkMax(Constants.HarpoonConstants.kIntakeMotorCANID, MotorType.kBrushless);
         this.kRotationMotor = new SparkMax(Constants.HarpoonConstants.kRotationMotorCANID, MotorType.kBrushless);
@@ -59,22 +72,7 @@ public class Harpoon extends SubsystemBase{
         // more important configs
         this.kIntakeConfig.inverted(false); // inverting intake motor
         this.kIntakeConfig.idleMode(IdleMode.kCoast);
-
-        // closed loop controller for the rotation motor - we're using a pid feedforward controller
-        this.kRotationConfig.closedLoop.feedbackSensor(FeedbackSensor.kAbsoluteEncoder).pidf(
-            Constants.HarpoonConstants.harpoonP,
-            Constants.HarpoonConstants.harpoonI,
-            Constants.HarpoonConstants.harpoonD,
-            0);
         
-        // maxmotion! This is a really cool feature that REV has. It allows you to set the max velocity and acceleration of the motor. This is super helpful for tuning the motor.
-        this.kRotationConfig.closedLoop.maxMotion
-            .maxVelocity(maxVelocity)
-            .maxAcceleration(maxAcceleration)
-            .allowedClosedLoopError(0.002);
-        
-        // get the controller for the rotation motor
-        this.kRotationController = kRotationMotor.getClosedLoopController();
         this.kRotationConfig.apply(sensorConfig);
 
         // finally, configure the motors
@@ -148,9 +146,7 @@ public class Harpoon extends SubsystemBase{
     }
  
     public void setRotationMotorPosition(double HarpoonPosition){ // HarpoonPosition is 0.6-1, (1 is stowed, 0.6 is reaching bumpers)
-        kRotationController.setReference(
-            HarpoonPosition,
-            SparkBase.ControlType.kMAXMotionPositionControl);
+        setpoint = HarpoonPosition;
     }
 
     public void setIntakeMotorVelocity(double velocity){
@@ -183,5 +179,11 @@ public class Harpoon extends SubsystemBase{
             // ditto with stowed, use the constant for the same reason
             setRotationMotorPosition(HarpoonPosition.STOWED.getSetpoint());
         }
+
+        // if (kRotationMotor.getAbsoluteEncoder().getPosition() < 0.5) {
+        //     setRotationMotorPosition(-0.001);
+        // }
+
+        kRotationMotor.set(pidController.calculate(kRotationMotor.getAbsoluteEncoder().getPosition(), setpoint));
     }
 }

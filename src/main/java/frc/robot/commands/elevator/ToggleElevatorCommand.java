@@ -3,6 +3,7 @@ package frc.robot.commands.elevator;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.Constants.ElevatorConstants.ElevatorMode;
 import frc.robot.Constants.HarpoonConstants.HarpoonMode;
+import frc.robot.commands.harpoon.IntakeCommand;
 import frc.robot.subsystems.Elevator;
 import frc.robot.subsystems.Harpoon;
 
@@ -22,6 +23,10 @@ public class ToggleElevatorCommand extends Command {
         if (elevatorSubsystem.getMode() == ElevatorMode.STOWED) {
             elevatorSubsystem.setMode(elevatorSubsystem.getNextMode());
             harpoonSubsystem.setMode(harpoonSubsystem.getNextMode());
+
+            // if (harpoonSubsystem.getNextMode() == HarpoonMode.FEEDER) {
+            //     new IntakeCommand(harpoonSubsystem, 0.6, () -> true).schedule();
+            // }
         }
         else {
             elevatorSubsystem.setMode(ElevatorMode.STOWED);

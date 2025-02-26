@@ -1,4 +1,5 @@
 package frc.robot.commands.harpoon;
+import frc.robot.commands.elevator.ToggleElevatorCommand;
 import frc.robot.subsystems.Harpoon;
 
 import java.util.function.BooleanSupplier;
@@ -26,10 +27,6 @@ public class IntakeCommand extends Command {
         harpoonSubsystem.setIntakeMotorVelocity(-speed);
         
         System.out.println("HARPOON TIME");
-    }
-
-    @Override
-    public void execute() {
     }
 
     @Override
