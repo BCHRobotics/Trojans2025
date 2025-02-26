@@ -17,6 +17,8 @@ import com.revrobotics.spark.SparkLimitSwitch;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.Constants;
+import frc.robot.Constants.ElevatorConstants.ElevatorMode;
+import frc.robot.Constants.ElevatorConstants.ElevatorPosition;
 import frc.robot.Constants.HarpoonConstants.HarpoonMode;
 import frc.robot.Constants.HarpoonConstants.HarpoonPosition;
 public class Harpoon extends SubsystemBase{
@@ -78,6 +80,13 @@ public class Harpoon extends SubsystemBase{
         // finally, configure the motors
         this.kRotationMotor.configure(this.kRotationConfig, null, PersistMode.kPersistParameters);
         this.kIntakeMotor.configure(this.kIntakeConfig, null, PersistMode.kPersistParameters);
+    }
+
+    public void resetHarpoon() {
+        setSelectedPosition(HarpoonPosition.L4.getSetpoint());
+        setNextMode(HarpoonMode.REEF);
+
+        setMode(HarpoonMode.STOWED);
     }
     
     public double getUpperSetpoint() {

@@ -10,12 +10,9 @@ import java.util.List;
 
 import org.json.simple.parser.ParseException;
 
-import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.commands.FollowPathCommand;
 import com.pathplanner.lib.config.RobotConfig;
 import com.pathplanner.lib.controllers.PPHolonomicDriveController;
-import com.pathplanner.lib.events.EventTrigger;
-import com.pathplanner.lib.events.TriggerEvent;
 import com.pathplanner.lib.path.EventMarker;
 import com.pathplanner.lib.path.GoalEndState;
 import com.pathplanner.lib.path.IdealStartingState;
@@ -34,8 +31,6 @@ import edu.wpi.first.wpilibj2.command.Commands;
 import frc.robot.Constants;
 import frc.robot.Constants.AutoConstants;
 import frc.robot.Constants.DriveConstants.DriveModes;
-import frc.robot.Constants.ElevatorConstants.ElevatorPosition;
-import frc.robot.commands.elevator.MoveElevatorCommand;
 import frc.robot.subsystems.Cameras;
 import frc.robot.subsystems.Drivetrain;
 
@@ -258,6 +253,8 @@ public class AutoUtils {
         
         // creating an empty list for event markers, filled if the POI has a tag id
         List<EventMarker> eventMarkers = new LinkedList<EventMarker>();
+
+        eventMarkers.add(new EventMarker("Elevator Up", 1));
         eventMarkers.add(new EventMarker("Elevator Up", 1));
 
         Translation2d alignmentOffset = VisionUtils.applyRotationMatrix(

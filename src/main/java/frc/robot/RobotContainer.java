@@ -26,7 +26,6 @@ import frc.robot.Constants.DriveConstants.DriveModes;
 import frc.robot.commands.SetLEDCommand;
 import frc.robot.commands.drive.TeleopDriveCommand;
 import frc.robot.commands.elevator.CalibrateElevator;
-import frc.robot.commands.elevator.MoveElevatorCommand;
 import frc.robot.commands.elevator.PrepareElevatorCommand;
 import frc.robot.commands.elevator.ToggleElevatorCommand;
 import frc.robot.commands.harpoon.IntakeCommand;
@@ -94,12 +93,10 @@ public class RobotContainer {
         controllerOptions_operator.addOption("Playstation", "PS");
         SmartDashboard.putData("Operator Select", controllerOptions_operator);
 
-        harpoon.setSelectedPosition(HarpoonPosition.L4.getSetpoint());
-        harpoon.setNextMode(HarpoonMode.REEF);
-
-        harpoon.setMode(HarpoonMode.STOWED);
-
         new EventTrigger("Elevator Up").onTrue(new ToggleElevatorCommand(elevator, harpoon));
+
+        harpoon.resetHarpoon();
+        elevator.resetElevator();
     }
 
     /**
@@ -230,6 +227,9 @@ public class RobotContainer {
     public void resetAuto() {
         m_robotDrive.setDriveMode(DriveModes.MANUAL);
         m_robotDrive.resetOdometry(new Pose2d(0, 0, Rotation2d.fromDegrees(0)));
+
+        harpoon.resetHarpoon();
+        elevator.resetElevator();
     }
 
     /**

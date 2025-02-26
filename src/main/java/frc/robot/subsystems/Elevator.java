@@ -92,8 +92,6 @@ public class Elevator extends SubsystemBase{
         // apply the motor config to BOTH motors
         primaryMotor.configure(motorConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
         followerMotor.configure(motorConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
-
-        resetElevator();
     } 
 
     public void driveMotorSlow(){
