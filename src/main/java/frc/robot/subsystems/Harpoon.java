@@ -52,7 +52,7 @@ public class Harpoon extends SubsystemBase{
 
         // important configurations. Idlemode is just the mode the sensor is in when it is not being commanded. 
         this.kRotationConfig.inverted(false); // 
-        this.kRotationConfig.idleMode(IdleMode.kCoast);
+        this.kRotationConfig.idleMode(IdleMode.kBrake);
 
         // more important configs
         this.kIntakeConfig.inverted(false); // inverting intake motor

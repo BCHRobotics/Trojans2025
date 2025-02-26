@@ -69,6 +69,8 @@ public class Robot extends TimedRobot {
   @Override
   public void autonomousInit() {
 
+    m_robotContainer.resetAuto();
+
     try {
       m_autonomousCommand = m_robotContainer.getAutonomousCommand();
     } catch (FileVersionException | IOException | ParseException e) {

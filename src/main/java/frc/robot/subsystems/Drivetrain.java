@@ -141,7 +141,12 @@ public class Drivetrain extends SubsystemBase {
    * @param offset
    */
   public void setOdometryOffset(Transform2d offset) {
+    if (Math.abs(offset.getX()) > 0.3 || Math.abs(offset.getY()) > 0.3) {return;}
     odometryOffset = offset;
+  }
+
+  public void clearOdometryOffset() {
+    odometryOffset = new Transform2d(0, 0, Rotation2d.fromDegrees(0));
   }
 
   /**
@@ -424,6 +429,7 @@ public class Drivetrain extends SubsystemBase {
   public void printToDashboard() {
     SmartDashboard.putNumber("x", getPose().getX());
     SmartDashboard.putNumber("y", getPose().getY());
+    SmartDashboard.putNumber("rot", getPose().getRotation().getDegrees());
     SmartDashboard.putNumber("time", Timer.getFPGATimestamp());
   }
 }

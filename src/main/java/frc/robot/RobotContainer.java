@@ -9,9 +9,12 @@ import java.io.IOException;
 import org.json.simple.parser.ParseException;
 
 import com.pathplanner.lib.auto.AutoBuilder;
+import com.pathplanner.lib.events.EventTrigger;
 import com.pathplanner.lib.util.FileVersionException;
 
 import edu.wpi.first.math.MathUtil;
+import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.Constants.ElevatorConstants.ElevatorMode;
@@ -19,9 +22,11 @@ import frc.robot.Constants.ElevatorConstants.ElevatorPosition;
 import frc.robot.Constants.HarpoonConstants.HarpoonMode;
 import frc.robot.Constants.HarpoonConstants.HarpoonPosition;
 import frc.robot.Constants.OIConstants;
+import frc.robot.Constants.DriveConstants.DriveModes;
 import frc.robot.commands.SetLEDCommand;
 import frc.robot.commands.drive.TeleopDriveCommand;
 import frc.robot.commands.elevator.CalibrateElevator;
+import frc.robot.commands.elevator.MoveElevatorCommand;
 import frc.robot.commands.elevator.PrepareElevatorCommand;
 import frc.robot.commands.elevator.ToggleElevatorCommand;
 import frc.robot.commands.harpoon.IntakeCommand;
@@ -31,6 +36,7 @@ import frc.robot.commands.harpoon.StopClawCommand;
 import frc.robot.subsystems.Cameras;
 import frc.robot.subsystems.Drivetrain;
 import frc.robot.subsystems.LED;
+import frc.utils.AutoUtils;
 import frc.robot.subsystems.Elevator;
 import frc.robot.subsystems.Harpoon;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -88,10 +94,12 @@ public class RobotContainer {
         controllerOptions_operator.addOption("Playstation", "PS");
         SmartDashboard.putData("Operator Select", controllerOptions_operator);
 
-        harpoon.setSelectedPosition(HarpoonPosition.L1.getSetpoint());
+        harpoon.setSelectedPosition(HarpoonPosition.L4.getSetpoint());
         harpoon.setNextMode(HarpoonMode.REEF);
 
         harpoon.setMode(HarpoonMode.STOWED);
+
+        new EventTrigger("Elevator Up").onTrue(new ToggleElevatorCommand(elevator, harpoon));
     }
 
     /**
@@ -145,7 +153,7 @@ public class RobotContainer {
     private void configureButtonBindingsDriver(boolean isRedAlliance, boolean isXbox) {
         if (isXbox) {
             // Reset Gyro
-            driverController_XBOX.y().onTrue(new InstantCommand(() -> { m_robotDrive.zeroHeading();}));
+            driverController_XBOX.y().onTrue(new InstantCommand(() -> { m_robotDrive.zeroHeading(); m_robotDrive.resetOdometry(m_cameras.estimateRobotPoseManual());}));
 
             // Slow mode command (Left Bumper)
             driverController_XBOX.leftBumper().onTrue(new InstantCommand(() -> m_robotDrive.setSlowMode(true)));
@@ -219,6 +227,11 @@ public class RobotContainer {
         }
     }
 
+    public void resetAuto() {
+        m_robotDrive.setDriveMode(DriveModes.MANUAL);
+        m_robotDrive.resetOdometry(new Pose2d(0, 0, Rotation2d.fromDegrees(0)));
+    }
+
     /**
      * Use this to pass the autonomous command to the main {@link Robot} class.
      * @return the command to run in autonomous
@@ -228,6 +241,6 @@ public class RobotContainer {
      */ 
     public Command getAutonomousCommand() throws FileVersionException, IOException, ParseException {
         //using the string provided by the user to build and run an auto
-        return AutoBuilder.buildAuto("Test Auto");
+        return AutoUtils.actuallyBuildAutoFromCommands("move(BlueReef4Left)", m_robotDrive, m_cameras, 0);
     }
 }

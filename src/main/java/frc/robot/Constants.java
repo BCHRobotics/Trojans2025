@@ -107,7 +107,7 @@ public final class Constants {
       L3(0.6002), // FINAL
       L4(0.6001), // UNTESTED
       INTAKE(0.85), // FINAL
-      STOWED(0.61),
+      STOWED(0.9),
       ALGAE(0.61);
     
       private final double setpoint;
@@ -149,7 +149,7 @@ public final class Constants {
       MANUAL,
       ALIGNTELE,
       HEADINGLOCK,
-      ALIGNAUTO,
+      AUTO
     }
 
     // Driving Parameters - Note that these are not the maximum and minimum capable speeds of
@@ -203,16 +203,20 @@ public final class Constants {
     // how far the robot can be from the setpoint during vision alignment
     // these CANNOT be zero, because then commands won't cancel because the robot cannot be perfect
     public static final double allowedXError = 0.1;
-    public static final double allowedYError = 0.025; 
+    public static final double allowedYError = 0.05; 
 
     // camera names, transforms, etc.
-    public static final String[] cameraNames = new String[] {"Front Left", 
-    "Front Right"
-  };
+    public static final String[] cameraNames = new String[] {
+      //"Front Left", 
+    "Center", 
+    //"Front Right"
+    };
+
     public static final CameraTransform[] cameraOffsets = 
     new CameraTransform[] {
-      new CameraTransform(Units.inchesToMeters(14), Units.inchesToMeters(5), 0),
-      new CameraTransform(Units.inchesToMeters(14), Units.inchesToMeters(-4.5), 0),
+      //new CameraTransform(Units.inchesToMeters(7.5), Units.inchesToMeters(12.5), 30 / (180 * Math.PI)),
+      new CameraTransform(Units.inchesToMeters(12.5), 0, 0),
+      //new CameraTransform(Units.inchesToMeters(7.5), Units.inchesToMeters(12.5), -30 / (180 * Math.PI)),
     };
 
     // these are the actual ones for 2025
@@ -273,7 +277,7 @@ public final class Constants {
 
     // Calculations required for driving motor conversion factors and feed forward
     public static final double kDrivingMotorFreeSpeedRps = NeoMotorConstants.kFreeSpeedRpm / 60;
-    public static final double kWheelDiameterMeters = 0.073025;
+    public static final double kWheelDiameterMeters = 0.0762;
     public static final double kWheelCircumferenceMeters = kWheelDiameterMeters * Math.PI;
     // 45 teeth on the wheel's bevel gear, 22 teeth on the first-stage spur gear, 15
     // teeth on the bevel pinion
@@ -315,7 +319,7 @@ public final class Constants {
   }
 
   public static final class AutoConstants {
-    public static final PathConstraints defaultGlobalContstraints = new PathConstraints(1,0.5, 540, 720);
+    public static final PathConstraints defaultGlobalContstraints = new PathConstraints(0.8,0.8, 540, 720);
 
     public static final PIDConstants translationConstants = new PIDConstants(2, 1, 0);
     public static final PIDConstants rotationConstants = new PIDConstants(1, 0, 0);
@@ -361,13 +365,13 @@ public final class Constants {
       AutoPOI.createPOIFromTag("BlueReef3Left", 20, new Translation2d(0.432, -0.165)),
       AutoPOI.createPOIFromTag("BlueReef3Right", 20, new Translation2d(0.432, 0.165)),
 
-      AutoPOI.createPOIFromTag("BlueReef4Left", 21, new Translation2d(0.432, -0.165)),
-      AutoPOI.createPOIFromTag("BlueReef4Right", 21, new Translation2d(0.432, 0.165)),
+      AutoPOI.createPOIFromTag("BlueReef4Left", 21, new Translation2d(0.65, -0.165)),
+      AutoPOI.createPOIFromTag("BlueReef4Right", 21, new Translation2d(0.65, 0.165)),
 
-      AutoPOI.createPOIFromTag("BlueReef5Left", 22, new Translation2d(0.432, -0.165)),
-      AutoPOI.createPOIFromTag("BlueReef5Right", 22, new Translation2d(0.432, 0.165)),
+      AutoPOI.createPOIFromTag("BlueReef5Left", 22, new Translation2d(0.6, -0.1)),
+      AutoPOI.createPOIFromTag("BlueReef5Right", 22, new Translation2d(1, 0.165)),
 
-      AutoPOI.createPOIFromTag("BlueReef6Left", 17, new Translation2d(0.432, -0.165)),
+      AutoPOI.createPOIFromTag("BlueReef6Left", 17, new Translation2d(0.5, -0.1)),
       AutoPOI.createPOIFromTag("BlueReef6Right", 17, new Translation2d(0.432, 0.165)),
       
       // -----------------------

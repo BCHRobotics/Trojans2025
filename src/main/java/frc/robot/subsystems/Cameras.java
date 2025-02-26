@@ -1,5 +1,6 @@
 package frc.robot.subsystems;
 
+import java.util.LinkedList;
 import java.util.List;
 
 import org.photonvision.PhotonCamera;
@@ -7,13 +8,14 @@ import org.photonvision.targeting.PhotonPipelineResult;
 import org.photonvision.targeting.PhotonTrackedTarget;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.math.geometry.Transform3d;
-import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.VisionConstants;
+import frc.robot.Constants.DriveConstants.DriveModes;
 import frc.utils.VisionUtils;
 
 
@@ -36,7 +38,7 @@ public class Cameras extends SubsystemBase {
     // IF YOU WANT TO DISABLE THE VISION CODE USE THIS!!!
     // USEFUL IF THE COPROCESSOR ISN'T PLUGGED IN!!!
     // -----
-    public boolean isVisionActive = false;
+    public boolean isVisionActive = true;
     public boolean periodicPoseEstimation = false;
     // -----
 
@@ -72,6 +74,9 @@ public class Cameras extends SubsystemBase {
                 updateOdometry();
                 lastPoseEstimate = Timer.getFPGATimestamp();
             }
+
+            SmartDashboard.putNumber("robot heading DEG", driveSubsystem.getPose().getRotation().getDegrees());
+            SmartDashboard.putNumber("tag heading DEG", VisionConstants.tagTransforms[22].headingAngle);
         }
     }
 
@@ -79,11 +84,9 @@ public class Cameras extends SubsystemBase {
      * apply the estimated pose to the robot odometry
      */
     public void updateOdometry() {
-        if (canSeeAnyTags()) {
+        if (canSeeAnyTags() && driveSubsystem.getDriveMode() == DriveModes.AUTO) {
             Pose2d visionPose = estimateRobotPoseManual();
             Pose2d currentPose = driveSubsystem.getPose();
-            
-            if (currentPose.getX() < 0.1) {return;}
 
             Transform2d offset = visionPose.minus(currentPose);
 
@@ -141,20 +144,22 @@ public class Cameras extends SubsystemBase {
         int largeAngles = 0;
 
         // the total number of tags that can be seen by the cameras
-        int tagCount = 0;
+        int visibleTagCount = 0;
 
         // first we do a loop through all the tags to figure out which ones we can see, and count them up
         // necessary because each result is divided by the total number of results
         for (int i = 1; i < fieldRelativeOffsets.length; i++) {
             if (fieldRelativeOffsets[i] != null) {
+                if (fieldRelativeOffsets[i].getX() > 3.0) {continue;}
                 // adding to the total tag count
-                tagCount++;
+                visibleTagCount++;
             }
         }
 
         // looping through all the results again to actually add up the measurements
         for (int i = 1; i < fieldRelativeOffsets.length; i++) {
             if (fieldRelativeOffsets[i] != null) {
+                if (fieldRelativeOffsets[i].getX() > 3.0) {continue;}
                 // the idea here is to figure out where the tag is (which is static),
                 // then figure out where the robot thinks it is relative to the tag,
                 // then add the two vectors to guess at where the robot is on the field
@@ -166,6 +171,9 @@ public class Cameras extends SubsystemBase {
                 Pose2d offset = new Pose2d(fieldRelativeOffsets[i].getX(), 
                 fieldRelativeOffsets[i].getY(), 
                 fieldRelativeOffsets[i].getRotation());
+
+                SmartDashboard.putNumber("field offset X for " + i, fieldRelativeOffsets[i].getX());
+                SmartDashboard.putNumber("field offset Y for " + i, fieldRelativeOffsets[i].getY());
                 
                 // then define where the tag is in field space
                 Pose2d tagPosition = VisionConstants.tagTransforms[i].getPosition();
@@ -182,8 +190,8 @@ public class Cameras extends SubsystemBase {
 
                 // add the current x and y estimate to the total, 
                 // dividing by the total number of measurements to eventually get an average
-                finalX += estimatedPosition.getX() / tagCount;
-                finalY += estimatedPosition.getY() / tagCount;
+                finalX += estimatedPosition.getX() / visibleTagCount;
+                finalY += estimatedPosition.getY() / visibleTagCount;
                 
                 // dealing with the rotational estimate
                 // ----------------------
@@ -202,7 +210,9 @@ public class Cameras extends SubsystemBase {
                 // no matter if the angle is greater or less than 0, 
                 // we add it to the total AND DO NOT DIVIDE IT,
                 // the dividing is done at the end for rotation
-                finalRot += estimatedPosition.getRotation().getRadians();
+                if (i == 21) {
+                    finalRot += estimatedPosition.getRotation().getRadians();
+                }
                 
                 // incrementing the large angles variable if the angle is large (> 90 degrees)
                 // as said above we need to keep track of this to make sure the rotation averages properly
@@ -217,17 +227,19 @@ public class Cameras extends SubsystemBase {
 
         // if the balance is NOT either equal to the tag count or the tag count multiplied by -1,
         // then we have a mix of positive and negative angles
-        if (Math.abs(balance) < tagCount) {
+        if (Math.abs(balance) < visibleTagCount) {
             // if we have a mix of angles AND the majority (more than half) are large (> 90 degrees),
             // then we should add 180 degrees (pi radians) so that the averaged value actually reflects the measurements
             
             // I cannot think of a scenario where this would give the wrong result, but it is possible
             // so I guess TODO: stress-test this
 
-            if (largeAngles > tagCount / 2) {
-                finalRot += Math.PI;
-            }
+            // if (largeAngles > visibleTagCount / 2) {
+            //     finalRot += Math.PI;
+            // }
         } 
+
+        if (visibleTagCount == 0) {return new Pose2d(0, 0, new Rotation2d());}
 
         // defining the FINAL ESTIMATED POSE
         // since we already divided each of the x and y results inside of the loop, we can use the sum as-is
@@ -235,8 +247,11 @@ public class Cameras extends SubsystemBase {
         Pose2d finalPose = new Pose2d(
         finalX,
         finalY,
-        Rotation2d.fromRadians(finalRot/tagCount)
+        Rotation2d.fromRadians(finalRot)
         );
+
+        SmartDashboard.putNumber("final estimated X", finalPose.getX());
+        SmartDashboard.putNumber("final estimated Y", finalPose.getY());
 
         // this is now our final pose which can be returned
         return finalPose;
@@ -261,10 +276,11 @@ public class Cameras extends SubsystemBase {
      * printing debug stuff to the dashboard
      */
     public void printToDashboard() {
-        SmartDashboard.putBoolean("Left Cam", cameras[0].isConnected());
-        SmartDashboard.putBoolean("Right Cam", cameras[1].isConnected());
+        //SmartDashboard.putBoolean("Left Cam", cameras[0].isConnected());
+        SmartDashboard.putBoolean("Center Cam", cameras[0].isConnected());
+        //SmartDashboard.putBoolean("Right Cam", cameras[2].isConnected());
 
-        SmartDashboard.putNumber("x dist", VisionConstants.tagTransforms[18].xPosition - driveSubsystem.getPose().getX());
+        //SmartDashboard.putNumber("x dist", VisionConstants.tagTransforms[18].xPosition - driveSubsystem.getPose().getX());
     }
 
     /*
@@ -288,46 +304,51 @@ public class Cameras extends SubsystemBase {
      * get the field oriented offset for a tag with a specific id
      */
     public Transform2d getFieldOrientedTagOffset(int tagId) {
-        Transform3d rawOffset = null;
-        int cameraIndex = -1;
-
-        // TODO: if multiple cameras see the tag, average the results
+        List<Integer> cameraIndices = new LinkedList<Integer>();
+        List<Transform3d> rawOffsets = new LinkedList<Transform3d>();
 
         for (int i = 0; i < results.length; i++) {
             if (results[i]==null){continue;}
             for (int j = 0; j < results[i].getTargets().size(); j++) {
                 if (results[i].getTargets().get(j).fiducialId == tagId) {
-                    rawOffset = results[i].getTargets().get(j).getBestCameraToTarget();
-                    
-                    cameraIndex = i;
+                    cameraIndices.add(i);
+                    rawOffsets.add(results[i].getTargets().get(j).getBestCameraToTarget());
                 }
             }
         }
 
-        if (cameraIndex == -1){ return null;}
+        if (cameraIndices.size() == 0){ return null;}
+
+        for (int i = 0; i < cameraIndices.size(); i++) {
+            Transform3d rawOffsetWithoutCameraOffset = rawOffsets.get(i);
+            // accounting for an offseted camera
+            // -----------------------------
+            
+            //figuring out the field-relative position of the camera relative to the bot
+            Transform2d robotToCamera = VisionConstants.cameraOffsets[cameraIndices.get(i)].getTransform();
+            
+            //subtracting that from the estimated pose to get the position of bot center
+            // this is done MANUALLY because WPILib's built-in functions are terrible :(
+            rawOffsets.set(i, new Transform3d(
+                rawOffsetWithoutCameraOffset.getX() + robotToCamera.getX(),
+                rawOffsetWithoutCameraOffset.getY() + robotToCamera.getY(),
+                rawOffsetWithoutCameraOffset.getZ(),
+                rawOffsetWithoutCameraOffset.getRotation()
+            ));
+        }
+
+        Transform3d rawOffset = new Transform3d(0, 0, 0, new Rotation3d());
+
+        for (int i = 0; i < cameraIndices.size(); i++) {
+            rawOffset = new Transform3d(
+                rawOffset.getX() + rawOffsets.get(i).getX() / cameraIndices.size(),
+                rawOffset.getY() + rawOffsets.get(i).getY() / cameraIndices.size(),
+                rawOffset.getZ() + rawOffsets.get(i).getZ() / cameraIndices.size(),
+                rawOffsets.get(0).getRotation()
+            );
+        }
 
         Transform2d fieldRelativeOffset = VisionUtils.rawToFieldOriented(tagId, rawOffset);
-
-        SmartDashboard.putNumber("offseted x", fieldRelativeOffset.getX());
-
-        // accounting for an offseted camera
-        // -----------------------------
-
-        SmartDashboard.putNumber("robot heading", driveSubsystem.getHeading() / 180 * Math.PI);
-        
-        //figuring out the field-relative position of the camera relative to the bot
-        Transform2d robotToCamera = VisionConstants.cameraOffsets[0].getTransform();
-        Translation2d fieldRelativeRobotToCamera = VisionUtils.applyRotationMatrix(robotToCamera.getTranslation(), driveSubsystem.getHeading() / 180 * Math.PI);
-
-        SmartDashboard.putNumber("offseted cam", fieldRelativeRobotToCamera.getX());
-        
-        //subtracting that from the estimated pose to get the position of bot center
-        // this is done MANUALLY because WPILib's built-in functions are terrible :(
-        fieldRelativeOffset = new Transform2d(
-            fieldRelativeOffset.getX() + fieldRelativeRobotToCamera.getX(),
-            fieldRelativeOffset.getY() + fieldRelativeRobotToCamera.getY(),
-            fieldRelativeOffset.getRotation()
-        );
 
         return fieldRelativeOffset;
     }

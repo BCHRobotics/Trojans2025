@@ -49,7 +49,7 @@ public class AutoPOI {
         // since the provided offset is local, 
         // we pass it through a rotation matrix to make it field relative
         Translation2d fieldRelativeOffset = VisionUtils.applyRotationMatrix(
-            tagOffset, VisionConstants.tagTransforms[tagId].headingAngle);
+            tagOffset, VisionConstants.tagTransforms[tagId].headingAngle / 180 * Math.PI);
 
         // grab the field relative position of the tag
         Pose2d tagFieldPose = VisionConstants.tagTransforms[tagId].getPosition();

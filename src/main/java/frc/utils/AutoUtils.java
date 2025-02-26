@@ -10,9 +10,12 @@ import java.util.List;
 
 import org.json.simple.parser.ParseException;
 
+import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.commands.FollowPathCommand;
 import com.pathplanner.lib.config.RobotConfig;
 import com.pathplanner.lib.controllers.PPHolonomicDriveController;
+import com.pathplanner.lib.events.EventTrigger;
+import com.pathplanner.lib.events.TriggerEvent;
 import com.pathplanner.lib.path.EventMarker;
 import com.pathplanner.lib.path.GoalEndState;
 import com.pathplanner.lib.path.IdealStartingState;
@@ -21,6 +24,7 @@ import com.pathplanner.lib.path.RotationTarget;
 import com.pathplanner.lib.util.FileVersionException;
 
 import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.units.measure.LinearVelocity;
 import edu.wpi.first.wpilibj.DriverStation;
@@ -29,6 +33,10 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import frc.robot.Constants;
 import frc.robot.Constants.AutoConstants;
+import frc.robot.Constants.DriveConstants.DriveModes;
+import frc.robot.Constants.ElevatorConstants.ElevatorPosition;
+import frc.robot.commands.elevator.MoveElevatorCommand;
+import frc.robot.subsystems.Cameras;
 import frc.robot.subsystems.Drivetrain;
 
 /*
@@ -41,7 +49,6 @@ public class AutoUtils {
         Move, // move in a straight line from one POI to another
         Path, // same thing but not a line, following a prebuilt path
         Wait, // wait a certain amount of seconds
-        // TODO: maybe add a rawpath command that allows you to specify a specific path name
     }
 
     // PROCESSING AUTO COMMANDS
@@ -115,33 +122,28 @@ public class AutoUtils {
         return commands;
     }
 
-    // TODO: this
-    public static PathPlannerPath adjustPath(PathPlannerPath path, Translation2d newPoint) {
-        return null;
-    }
-
     // also, using pose estimation to figure out starting position
     // unless tags cannot be seen, in which case use a fallback position
     // TODO: make pose estimation/fallback a boolean passed into the function, instead of checking vision
     // do this ^^ to allow humans to make the call
 
-    // TODO: make it so that you can specify closest POI by typing Reef_ instead of Reef1 for example
-
-    public static Command actuallyBuildAutoFromCommands(String _commandString, Drivetrain driveSubsystem, int fallbackStartingPose) {
+    public static Command actuallyBuildAutoFromCommands(String _commandString, Drivetrain driveSubsystem, Cameras cameraSubsystem, int fallbackStartingPose) {
         // split the string up, commands are separated by commas obv
         String[] commands = separateCommandString(_commandString);
 
         // previous POI that the robot was at
         AutoPOI oldPOI = new AutoPOI();
 
+        SmartDashboard.putNumber("commands length", commands.length);
+
         // defining where the auto starts
-        if (!SmartDashboard.getBoolean("Auto Fallback", true)) {
+        if (!SmartDashboard.getBoolean("Auto Fallback", false)) {
             // we can see at least one tag, so pose estimation is possible
 
-            // // create a new POI called VisionStart and place it where the robot thinks it is
-            // oldPOI.name = "VisionStart";
-            // oldPOI.position = cameraSubsystem.estimateRobotPoseManual();
-            // oldPOI.tagId = -1; // none of the fallbacks are based off tags so it should be already -1
+            // create a new POI called VisionStart and place it where the robot thinks it is
+            oldPOI.name = "VisionStart";
+            oldPOI.position = cameraSubsystem.estimateRobotPoseManual();
+            oldPOI.tagId = -1; // none of the fallbacks are based off tags so it should be already -1
         }
         else {
             // we cannot see any tags, so all we can do is use the fallback pose
@@ -153,9 +155,17 @@ public class AutoUtils {
         // reset odometry to the defined starting pose
         final Pose2d commandedStartingPose = oldPOI.position;
 
-        Command autoCommand = Commands.runOnce(() -> driveSubsystem.resetOdometry(commandedStartingPose));
+        Command autoCommand = Commands.
+        runOnce(
+            () -> driveSubsystem.setDriveMode(DriveModes.AUTO)).
+        andThen(
+            () -> driveSubsystem.resetOdometry(commandedStartingPose)
+        ).
+        andThen(
+            () -> driveSubsystem.clearOdometryOffset()
+        );
         RobotConfig robotConfig = geRobotConfig();
-        if (commands == null) {return autoCommand;}
+      
         // looping through the commands and adding them one by one to the path
         // NOTE - we are ending up with one path, essentially "baking" everything together to make it smoother
         for (int i = 0; i < commands.length; i++) {
@@ -185,8 +195,9 @@ public class AutoUtils {
                 }
 
                 if (pathFromFile == null) {System.out.println("no path!");continue;}
-                
+
                 autoCommand = autoCommand.andThen(
+                    // TODO: adjust the path DURING THE AUTO to correct for positional errors
                     constructPathCommand(pathFromFile, driveSubsystem, robotConfig)
                 );
 
@@ -201,6 +212,13 @@ public class AutoUtils {
 
         return autoCommand;
     } 
+
+    /*
+     * write this function pls thanks
+     */
+    // public static PathPlannerPath adjusPath(PathPlannerPath original, Pose2d newFirstWaypoint) {
+
+    // }
 
     /*
      * turn a pathplanner path into a trajectory following command,
@@ -240,9 +258,10 @@ public class AutoUtils {
         
         // creating an empty list for event markers, filled if the POI has a tag id
         List<EventMarker> eventMarkers = new LinkedList<EventMarker>();
+        eventMarkers.add(new EventMarker("Elevator Up", 1));
 
         Translation2d alignmentOffset = VisionUtils.applyRotationMatrix(
-            new Translation2d(1, 0), 
+            new Translation2d(0.75, 0), 
             finish.position.getRotation().getRadians() + Math.PI);
 
         Pose2d alignmentPose = new Pose2d(
@@ -250,10 +269,14 @@ public class AutoUtils {
             finish.position.getY() + alignmentOffset.getY(),
             finish.position.getRotation());
 
+        LinkedList<RotationTarget> rotationTargets = new LinkedList<RotationTarget>();
+
+        rotationTargets.add(new RotationTarget(1, finish.position.getRotation()));
+
         // construct the path using the POIs and the built-in constructor
         PathPlannerPath toReturn = new PathPlannerPath(
-            PathPlannerPath.waypointsFromPoses(new Pose2d[]{start.position, alignmentPose, finish.position}),
-            new LinkedList<RotationTarget>(),
+            PathPlannerPath.waypointsFromPoses(new Pose2d[]{pointAt(start.position, finish.position), alignmentPose, finish.position}),
+            rotationTargets,
             Collections.emptyList(),
             Collections.emptyList(),
             eventMarkers,
@@ -266,6 +289,29 @@ public class AutoUtils {
     }
 
     // HELPERS ---------
+
+    /*
+     * changes the rotation component of one of the poses to point at the second pose.
+     * this is used in the move() command to make sure the bezier control points make sense
+     */
+    public static Pose2d pointAt(Pose2d initialPose, Pose2d finalPose) {
+        return new Pose2d(initialPose.getX(), initialPose.getY(), 
+        Rotation2d.fromRadians(angleFromPointToPoint(initialPose, finalPose)));
+    }
+    
+    /*
+     * standing at one point, what is the heading angle of the other point?
+     */
+    public static double angleFromPointToPoint(Pose2d initialPoint, Pose2d finalPoint) {
+        Translation2d mapping = new Translation2d(
+            finalPoint.getX() - initialPoint.getX(), 
+        finalPoint.getY() - initialPoint.getY());
+
+        double heading = Math.atan2(mapping.getY(), mapping.getX());
+
+        return heading;
+    }
+
     /*
      * get the robot config from the Pathplanner GUI
      */
