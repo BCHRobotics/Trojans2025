@@ -3,25 +3,18 @@ package frc.robot.subsystems;
 
 import com.revrobotics.spark.SparkLowLevel.MotorType;
 
-import com.revrobotics.spark.SparkBase;
 import com.revrobotics.spark.SparkBase.PersistMode;
 import com.revrobotics.spark.SparkMax;
-import com.revrobotics.spark.config.ClosedLoopConfig.FeedbackSensor;
 import com.revrobotics.spark.config.LimitSwitchConfig;
 import com.revrobotics.spark.config.LimitSwitchConfig.Type;
 import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
 import com.revrobotics.spark.config.SparkMaxConfig;
-import com.revrobotics.spark.SparkClosedLoopController;
-import com.revrobotics.spark.SparkLimitSwitch;
 
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.PIDController;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.Constants;
-import frc.robot.Constants.ElevatorConstants;
 import frc.robot.Constants.HarpoonConstants;
-import frc.robot.Constants.ElevatorConstants.ElevatorMode;
-import frc.robot.Constants.ElevatorConstants.ElevatorPosition;
 import frc.robot.Constants.HarpoonConstants.HarpoonMode;
 import frc.robot.Constants.HarpoonConstants.HarpoonPosition;
 public class Harpoon extends SubsystemBase{
@@ -31,10 +24,6 @@ public class Harpoon extends SubsystemBase{
 
     private final SparkMaxConfig kIntakeConfig = new SparkMaxConfig();
     private final SparkMaxConfig kRotationConfig = new SparkMaxConfig();
-    private final double maxVelocity = 600; // This is in rpm
-    private final double maxAcceleration = 600; // This is in rpm/second 
-
-    private final SparkLimitSwitch sensorLimitSwitch;
 
     private final PIDController pidController;
 
@@ -61,8 +50,9 @@ public class Harpoon extends SubsystemBase{
         this.kIntakeMotor = new SparkMax(Constants.HarpoonConstants.kIntakeMotorCANID, MotorType.kBrushless);
         this.kRotationMotor = new SparkMax(Constants.HarpoonConstants.kRotationMotorCANID, MotorType.kBrushless);
 
-        this.sensorLimitSwitch = kRotationMotor.getForwardLimitSwitch();
         LimitSwitchConfig sensorConfig = new LimitSwitchConfig();
+        sensorConfig.reverseLimitSwitchEnabled(false);
+        sensorConfig.forwardLimitSwitchEnabled(false);
         sensorConfig.forwardLimitSwitchType(Type.kNormallyOpen);
 
         // important configurations. Idlemode is just the mode the sensor is in when it is not being commanded. 
@@ -73,6 +63,7 @@ public class Harpoon extends SubsystemBase{
         this.kIntakeConfig.inverted(false); // inverting intake motor
         this.kIntakeConfig.idleMode(IdleMode.kCoast);
         
+        this.kIntakeConfig.apply(sensorConfig);
         this.kRotationConfig.apply(sensorConfig);
 
         // finally, configure the motors
@@ -154,16 +145,16 @@ public class Harpoon extends SubsystemBase{
     }
 
     public boolean isCoralDetected() {
-        return this.sensorLimitSwitch.isPressed();  // Returns true if sensor is triggered
+        return !this.kIntakeMotor.getReverseLimitSwitch().isPressed();  // Returns true if sensor is triggered
     }
     
     @Override
     public void periodic() {
-        SmartDashboard.putNumber("Wrist Position", kRotationMotor.getAbsoluteEncoder().getPosition());
+        // SmartDashboard.putNumber("Wrist Position", kRotationMotor.getAbsoluteEncoder().getPosition());
 
-        SmartDashboard.putString("CURRENT MODE", currentMode.toString());
-        SmartDashboard.putString("NEXT MODE", nextMode.toString());
-        SmartDashboard.putNumber("NEXT SETPOINT", selectedSetpoint);
+        // SmartDashboard.putString("CURRENT HARPOON", currentMode.toString());
+        // SmartDashboard.putString("NEXT HARPOON", nextMode.toString());
+        // SmartDashboard.putNumber("NEXT SETPOINT", selectedSetpoint);
 
         if (currentMode == HarpoonMode.REEF) {
             // if we're scoring, use the selected position
@@ -180,10 +171,17 @@ public class Harpoon extends SubsystemBase{
             setRotationMotorPosition(HarpoonPosition.STOWED.getSetpoint());
         }
 
-        // if (kRotationMotor.getAbsoluteEncoder().getPosition() < 0.5) {
-        //     setRotationMotorPosition(-0.001);
-        // }
+        kRotationMotor.set(applyLimits(pidController.calculate(kRotationMotor.getAbsoluteEncoder().getPosition(), setpoint)));
+    }
 
-        kRotationMotor.set(pidController.calculate(kRotationMotor.getAbsoluteEncoder().getPosition(), setpoint));
+    public double applyLimits(double input) {
+        if (kRotationMotor.getAbsoluteEncoder().getPosition() < 0.5 && setpoint > 0.9) {
+            return 0;
+        }
+        else if (kRotationMotor.getAbsoluteEncoder().getPosition() < 0.5) {
+            return -0.1;
+        }
+
+        return MathUtil.clamp(input, -0.8, 0.8);
     }
 }

@@ -1,5 +1,7 @@
 package frc.robot.commands.harpoon;
-import frc.robot.commands.elevator.ToggleElevatorCommand;
+import frc.robot.Constants.ElevatorConstants.ElevatorMode;
+import frc.robot.Constants.HarpoonConstants.HarpoonMode;
+import frc.robot.subsystems.Elevator;
 import frc.robot.subsystems.Harpoon;
 
 import java.util.function.BooleanSupplier;
@@ -8,17 +10,19 @@ import edu.wpi.first.wpilibj2.command.Command;
 
 public class IntakeCommand extends Command {
     private Harpoon harpoonSubsystem;
+    private Elevator elevatorSubsystem;
     private BooleanSupplier buttonPressed;
     private double speed;
    
 
-    public IntakeCommand(Harpoon harpoonSubsystem, double speed, BooleanSupplier buttonPressed) {
+    public IntakeCommand(Elevator elevatorSubsystem, Harpoon harpoonSubsystem, double speed, BooleanSupplier buttonPressed) {
         // creating subsystem, adding the subsystem as a requirement so it is not used elsewhere which could cause problems. 
         this.harpoonSubsystem = harpoonSubsystem;
         this.addRequirements(harpoonSubsystem);
         
         this.speed = speed;
         this.buttonPressed = buttonPressed;
+        this.elevatorSubsystem = elevatorSubsystem;
     }
 
     @Override
@@ -39,6 +43,12 @@ public class IntakeCommand extends Command {
     public boolean isFinished() {
         // this is called after we have set the setpoint, so we can just end the command once the sensor sees the coral
         if(harpoonSubsystem.isCoralDetected() || !buttonPressed.getAsBoolean()) {
+            System.out.println("INTAKE DONE!");
+            if (harpoonSubsystem.isCoralDetected() && elevatorSubsystem.getMode() == ElevatorMode.FEEDER) {
+                System.out.println("STOWING...");
+                elevatorSubsystem.setMode(ElevatorMode.STOWED);
+                harpoonSubsystem.setMode(HarpoonMode.STOWED);
+            }
             return true;
         }
         else{

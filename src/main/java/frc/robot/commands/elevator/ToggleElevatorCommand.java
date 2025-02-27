@@ -24,9 +24,9 @@ public class ToggleElevatorCommand extends Command {
             elevatorSubsystem.setMode(elevatorSubsystem.getNextMode());
             harpoonSubsystem.setMode(harpoonSubsystem.getNextMode());
 
-            // if (harpoonSubsystem.getNextMode() == HarpoonMode.FEEDER) {
-            //     new IntakeCommand(harpoonSubsystem, 0.6, () -> true).schedule();
-            // }
+            if (harpoonSubsystem.getNextMode() == HarpoonMode.FEEDER) {
+                new IntakeCommand(elevatorSubsystem, harpoonSubsystem, 0.6, () -> true).schedule();
+            }
         }
         else {
             elevatorSubsystem.setMode(ElevatorMode.STOWED);

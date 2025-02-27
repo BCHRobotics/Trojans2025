@@ -168,8 +168,7 @@ public class RobotContainer {
 
             // intake gamepiece
             this.driverController_XBOX.x()
-            .onTrue(new IntakeCommand(harpoon,0.6, driverController_XBOX.x())
-            //.andThen(new StowElevatorCommand(elevator))
+            .onTrue(new IntakeCommand(elevator, harpoon,0.6, driverController_XBOX.x())
             );
 
             // spit out gamepiece
@@ -193,7 +192,20 @@ public class RobotContainer {
             driverController_PS5.R1().onFalse(new InstantCommand(() -> m_robotDrive.setFastMode(false)));
 
             // toggling the elevator up and down
-            driverController_PS5.square().onTrue(new ToggleElevatorCommand(elevator, harpoon));
+            driverController_PS5.cross().onTrue(new ToggleElevatorCommand(elevator, harpoon));
+
+            // intake gamepiece
+            this.driverController_PS5.square()
+            .onTrue(new IntakeCommand(elevator, harpoon,0.6, driverController_XBOX.x())
+            );
+
+            // spit out gamepiece
+             this.driverController_PS5.circle()
+             .onTrue(new ShootCommand(harpoon,0.6))
+             .onFalse(new StopClawCommand(harpoon));
+
+            //  this.driverController_XBOX.povDown()
+            //  .onTrue(new CalibrateElevator(elevator, this.driverController_XBOX.povDown()));
         }
     }
 

@@ -2,8 +2,6 @@ package frc.robot.commands.harpoon;
 
 import frc.robot.subsystems.Harpoon;
 
-import java.util.concurrent.BlockingDeque;
-
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.Command;
 

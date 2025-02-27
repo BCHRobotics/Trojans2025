@@ -107,7 +107,7 @@ public final class Constants {
       L3(0.6002), // FINAL
       L4(0.6001), // UNTESTED
       INTAKE(0.85), // FINAL
-      STOWED(0.88),
+      STOWED(0.99),
       ALGAE(0.61);
     
       private final double setpoint;
@@ -130,8 +130,8 @@ public final class Constants {
     public static final int kIntakeMotorCANID = 30; // TO be changed to the actual intake motor ID
     public static final int kRotationMotorCANID = 31; // TO be changed to the actual rotation motor ID
 
-    public static final double harpoonP = 4;
-    public static final double harpoonI = 0.02;
+    public static final double harpoonP = 3;
+    public static final double harpoonI = 0.1;
     public static final double harpoonD = 0;
 
     public static final double gearConversionFactor = 9; // This is the conversion factor from degrees to rotations

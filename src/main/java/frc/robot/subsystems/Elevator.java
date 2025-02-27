@@ -207,17 +207,15 @@ public class Elevator extends SubsystemBase{
             setpoint = ElevatorPosition.STOWED.getSetpoint();
         }
 
-        SmartDashboard.putString("CURRENT MODE", currentMode.toString());
-        SmartDashboard.putString("NEXT MODE", nextMode.toString());
-        SmartDashboard.putNumber("NEXT POSITION", selectedPosition);
+        // SmartDashboard.putString("CURRENT ELEVATOR", currentMode.toString());
+        // SmartDashboard.putString("NEXT ELEVATOR", nextMode.toString());
+        // SmartDashboard.putNumber("NEXT POSITION", selectedPosition);
 
         // moving the elevator to the desired setpoint
         
         if (!runCalibration){
             drive();
         }
-        
-
 
         // debug values
         printToDashboard();;
@@ -232,10 +230,7 @@ public class Elevator extends SubsystemBase{
         double pidOutput = pidController.calculate(currentPosition, setpoint);
 
         double output = pidOutput;
-        
-        //set limits on the output of the motor
-        output = MathUtil.clamp(output, -ElevatorConstants.maxOutput, ElevatorConstants.maxOutput);
-        
+    
         primaryMotor.set(applyLimits(output));
         followerMotor.set(applyLimits(output));
     }
@@ -247,16 +242,19 @@ public class Elevator extends SubsystemBase{
      */
     double applyLimits(double input) {
         boolean isTopPressed = primaryMotor.getReverseLimitSwitch().isPressed();
+
+        // no bottom switch rn
         //boolean isBottomPressed = primaryMotor.getForwardLimitSwitch().isPressed();
-        
         // if (isBottomPressed) {
         //     return MathUtil.clamp(input, 0, ElevatorConstants.maxOutput);
         // }
+
+        
         if (isTopPressed) {
             return MathUtil.clamp(input, -ElevatorConstants.maxOutput, 0);
         }
 
-        //input *= MathUtil.clamp(1 / (Math.abs(encoder.getVelocity()) / 65), 0, 1);
+        input *= MathUtil.clamp(1 / (Math.abs(encoder.getVelocity()) / 50), 0, 1);
 
         return MathUtil.clamp(input, -ElevatorConstants.maxOutput, ElevatorConstants.maxOutput);
     }
