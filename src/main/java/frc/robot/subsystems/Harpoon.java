@@ -180,7 +180,7 @@ public class Harpoon extends SubsystemBase{
             return 0;
         }
         else if (kRotationMotor.getAbsoluteEncoder().getPosition() < 0.5) {
-            return -0.1;
+            return -0.01;
         }
 
         return MathUtil.clamp(input, -0.8, 0.8);

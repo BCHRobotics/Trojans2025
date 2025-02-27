@@ -169,7 +169,7 @@ public class Cameras extends SubsystemBase {
             }
         }
 
-        SmartDashboard.putNumber("visible tags", visibleTagCount);
+        System.out.println("VISIBLE TAGS  " + visibleTagCount);
 
         // setting up the final pose
         // ----------------------------------------
@@ -184,9 +184,6 @@ public class Cameras extends SubsystemBase {
         finalY,
         Rotation2d.fromRadians(finalRot)
         );
-
-        SmartDashboard.putNumber("estimated X", finalPose.getX());
-        SmartDashboard.putNumber("estimated Y", finalPose.getY());
 
         // this is now our final pose which can be returned
         return finalPose;

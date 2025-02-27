@@ -3,16 +3,18 @@ package frc.robot.commands.vision;
 import frc.robot.subsystems.Cameras;
 import frc.robot.subsystems.Drivetrain;
 import frc.utils.VisionUtils;
+
+import java.util.function.DoubleSupplier;
+
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.PIDController;
+import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.math.geometry.Translation2d;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 
 import frc.robot.Constants.DriveConstants.DriveModes;
-
 import frc.robot.Constants.VisionConstants;
 
 
@@ -29,9 +31,14 @@ public class AlignTeleopCommand extends Command{
    int tagId;
    Translation2d desiredOffset;
 
-   boolean lockedIn;
+   Pose2d tagPosition;
 
-   public AlignTeleopCommand(int targetTagId, Boolean fieldRelative, Boolean rateLimit, Drivetrain driveSubsystem, Cameras cameraSubsystem, Translation2d offset){
+   boolean lockedIn;
+   boolean isDone;
+
+   DoubleSupplier joystickInput;
+
+   public AlignTeleopCommand(int targetTagId, Boolean fieldRelative, Boolean rateLimit, Drivetrain driveSubsystem, Cameras cameraSubsystem, Translation2d offset, DoubleSupplier joystickInput){
         //tagId  = cameraSubsystem.getBestTargetID(cameraSubsystem.getBestTarget(1)); // to be changed. We need to reference the 3 front cameras 
         tagId = targetTagId;
         desiredOffset = offset;
@@ -45,6 +52,9 @@ public class AlignTeleopCommand extends Command{
         addRequirements(driveSubsystem);
 
         lockedIn = false;
+        isDone = false;
+
+        this.joystickInput = joystickInput;
    } 
 
    @Override
@@ -67,17 +77,26 @@ public class AlignTeleopCommand extends Command{
 
         // making sure the var isn't null (something may have gone wrong in the previous step)
         if (fieldRelativeRobotToTag != null) {
-            Transform2d actualOffset = new Transform2d(
+            Transform2d actualOffset = new Transform2d(0, 0, new Rotation2d());
+
+            if (!lockedIn) {
+                actualOffset = new Transform2d(
+                fieldRelativeRobotToTag.getX() + fieldRelativeTagOffset.getX() + 0.5,
+                fieldRelativeRobotToTag.getY() + fieldRelativeTagOffset.getY(),
+                fieldRelativeRobotToTag.getRotation()
+                );
+            }
+            else {
+                actualOffset = new Transform2d(
                 fieldRelativeRobotToTag.getX() + fieldRelativeTagOffset.getX(),
                 fieldRelativeRobotToTag.getY() + fieldRelativeTagOffset.getY(),
                 fieldRelativeRobotToTag.getRotation()
-            );
-
-            lockedIn = true;
+                );
+            }
 
             // figure out what speeds to command to the drivetrain on 2 axis
             double commandedX = pid.calculate(-actualOffset.getX(), 0);
-            double commandedY = actualOffset.getY() < 0 ? -0.1 : 0.1;
+            double commandedY = actualOffset.getY();
 
             if (Math.abs(actualOffset.getY()) < 0.1) {
                 commandedY = actualOffset.getY() * 0.5;
@@ -85,14 +104,15 @@ public class AlignTeleopCommand extends Command{
             
             // the rotational speed
             double commandedRot = pidRot.calculate(
-                driveSubsystem.getPose().getRotation().getDegrees(), 
-                VisionConstants.tagTransforms[tagId].headingAngle - 180);
+                Rotation2d.fromDegrees(driveSubsystem.getPose().getRotation().getDegrees()).
+                minus(Rotation2d.fromDegrees(180)).getDegrees(), 
+                VisionConstants.tagTransforms[tagId].headingAngle);
 
             // clamp x and y speeds for testing, don't want the robot hitting anything
-            commandedX = MathUtil.clamp(commandedX, -0.15, 0.15);
-            commandedY = MathUtil.clamp(commandedY, -0.15, 0.15);
+            commandedX = MathUtil.clamp(commandedX, -0.4, 0.4);
+            commandedY = MathUtil.clamp(commandedY, -0.4, 0.4);
 
-            commandedRot = MathUtil.clamp(commandedRot, -0.2, 0.2);
+            commandedRot = MathUtil.clamp(commandedRot, -0.3, 0.3);
 
             if (Math.abs(actualOffset.getY()) < VisionConstants.allowedYError) {
                 commandedY = 0;
@@ -100,6 +120,56 @@ public class AlignTeleopCommand extends Command{
 
             // pass all values to the drivetrain
             driveSubsystem.drive(commandedX, commandedY, commandedRot, isFieldRelative, isRateLimited);
+            
+            if (lockedIn && VisionUtils.hasReachedPosition(tagId, actualOffset.getTranslation(), driveSubsystem, cameraSubsystem)) {
+                isDone = true;
+            }
+            if (!lockedIn && VisionUtils.hasReachedPosition(tagId, actualOffset.getTranslation(), driveSubsystem, cameraSubsystem)) {
+                lockedIn = true;
+            }
+
+            tagPosition = new Pose2d(
+                driveSubsystem.getPose().getX() + actualOffset.getX(),
+                driveSubsystem.getPose().getY() + actualOffset.getY(),
+                driveSubsystem.getPose().getRotation().plus(actualOffset.getRotation())
+            );
+        }
+        else if (lockedIn) {
+            Transform2d actualOffset = new Transform2d(
+                tagPosition.getX() - driveSubsystem.getPose().getX(),
+                tagPosition.getY() - driveSubsystem.getPose().getY(),
+                tagPosition.getRotation().minus(driveSubsystem.getPose().getRotation())
+            );
+
+            // figure out what speeds to command to the drivetrain on 2 axis
+            double commandedX = pid.calculate(-actualOffset.getX(), 0);
+            double commandedY = actualOffset.getY(); 
+            
+            // the rotational speed
+            double commandedRot = pidRot.calculate(
+                Rotation2d.fromDegrees(driveSubsystem.getPose().getRotation().getDegrees()).
+                minus(Rotation2d.fromDegrees(180)).getDegrees(), 
+                VisionConstants.tagTransforms[tagId].headingAngle);
+
+            // clamp x and y speeds for testing, don't want the robot hitting anything
+            commandedX = MathUtil.clamp(commandedX, -0.7, 0.7);
+            commandedY = MathUtil.clamp(commandedY, -0.7, 0.7);
+
+            commandedRot = MathUtil.clamp(commandedRot, -0.3, 0.3);
+
+            if (Math.abs(actualOffset.getY()) < VisionConstants.allowedYError) {
+                commandedY = 0;
+            }
+
+            // pass all values to the drivetrain
+            driveSubsystem.drive(commandedX, commandedY, commandedRot, isFieldRelative, isRateLimited);
+            
+            if (VisionUtils.hasReachedPosition(tagId, actualOffset.getTranslation(), driveSubsystem, cameraSubsystem)) {
+                isDone = true;
+            }
+        }
+        else {
+            driveSubsystem.drive(0, 0, 0, isFieldRelative, isRateLimited);
         }
    }
 
@@ -115,6 +185,6 @@ public class AlignTeleopCommand extends Command{
 
    @Override
    public boolean isFinished() {
-       return (driveSubsystem.getDriveMode() != DriveModes.ALIGNTELE);
+       return driveSubsystem.getDriveMode() != DriveModes.ALIGNTELE || isDone || Math.abs(joystickInput.getAsDouble()) > 0.1;
    }
 }

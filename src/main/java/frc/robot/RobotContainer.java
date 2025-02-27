@@ -14,6 +14,7 @@ import com.pathplanner.lib.util.FileVersionException;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.Constants.ElevatorConstants.ElevatorMode;
@@ -32,6 +33,7 @@ import frc.robot.commands.harpoon.IntakeCommand;
 import frc.robot.commands.harpoon.PrepareHarpoonCommand;
 import frc.robot.commands.harpoon.ShootCommand;
 import frc.robot.commands.harpoon.StopClawCommand;
+import frc.robot.commands.vision.AlignTeleopCommand;
 import frc.robot.subsystems.Cameras;
 import frc.robot.subsystems.Drivetrain;
 import frc.robot.subsystems.LED;
@@ -151,7 +153,7 @@ public class RobotContainer {
     private void configureButtonBindingsDriver(boolean isRedAlliance, boolean isXbox) {
         if (isXbox) {
             // Reset Gyro
-            driverController_XBOX.y().onTrue(new InstantCommand(() -> { m_robotDrive.zeroHeading();})); //  m_robotDrive.resetOdometry(m_cameras.estimateRobotPoseManual(false));
+            driverController_XBOX.y().onTrue(new InstantCommand(() -> { m_robotDrive.zeroHeading(); m_robotDrive.resetOdometry(m_cameras.estimateRobotPoseManual(false));})); //  m_robotDrive.resetOdometry(m_cameras.estimateRobotPoseManual(false));
 
             // Slow mode command (Left Bumper)
             driverController_XBOX.leftBumper().onTrue(new InstantCommand(() -> m_robotDrive.setSlowMode(true)));
@@ -177,10 +179,26 @@ public class RobotContainer {
 
              this.driverController_XBOX.povDown()
              .onTrue(new CalibrateElevator(elevator, this.driverController_XBOX.povDown()));
+
+             this.driverController_XBOX.rightTrigger().onTrue(
+                new InstantCommand(() -> {
+                    if(m_cameras.isVisionActive) {
+                        new AlignTeleopCommand(
+                            21,  // m_cameras.getClosestTagId()
+                            true, 
+                            true, 
+                            m_robotDrive, 
+                            m_cameras, 
+                            new Translation2d(0.575, -0.165),
+                            () -> driverController_XBOX.getLeftY()
+                            ).schedule();
+                    }
+                })
+            );
         }
         else {
             // Reset Gyro
-            driverController_PS5.triangle().onTrue(new InstantCommand(() -> { m_robotDrive.zeroHeading();}));
+            driverController_PS5.triangle().onTrue(new InstantCommand(() -> { m_robotDrive.zeroHeading();m_robotDrive.resetOdometry(m_cameras.estimateRobotPoseManual(false));}));
 
             // Slow mode command (Left Bumper)
             driverController_PS5.L1().onTrue(new InstantCommand(() -> m_robotDrive.setSlowMode(true)));
@@ -195,16 +213,32 @@ public class RobotContainer {
 
             // intake gamepiece
             this.driverController_PS5.square()
-            .onTrue(new IntakeCommand(elevator, harpoon,0.6, driverController_XBOX.x())
+            .onTrue(new IntakeCommand(elevator, harpoon,0.6, driverController_PS5.square())
             );
 
             // spit out gamepiece
              this.driverController_PS5.circle()
-             .onTrue(new ShootCommand(harpoon,0.6))
+             .onTrue(new ShootCommand(harpoon,0.7))
              .onFalse(new StopClawCommand(harpoon));
 
              this.driverController_PS5.povDown()
-             .onTrue(new CalibrateElevator(elevator, this.driverController_XBOX.povDown()));
+             .onTrue(new CalibrateElevator(elevator, this.driverController_PS5.povDown()));
+
+             this.driverController_PS5.R2().onTrue(
+                new InstantCommand(() -> {
+                    if(m_cameras.isVisionActive) {
+                        new AlignTeleopCommand(
+                            21,  // m_cameras.getClosestTagId()
+                            true, 
+                            true, 
+                            m_robotDrive, 
+                            m_cameras, 
+                            new Translation2d(0.575, -0.165),
+                            () -> driverController_PS5.getLeftY()
+                            ).alongWith( new ToggleElevatorCommand(elevator, harpoon)).schedule();
+                    }
+                })
+            );
         }
     }
 

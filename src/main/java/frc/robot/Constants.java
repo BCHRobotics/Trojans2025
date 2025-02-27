@@ -202,7 +202,7 @@ public final class Constants {
   public static final class VisionConstants{
     // how far the robot can be from the setpoint during vision alignment
     // these CANNOT be zero, because then commands won't cancel because the robot cannot be perfect
-    public static final double allowedXError = 0.1;
+    public static final double allowedXError = 0.13;
     public static final double allowedYError = 0.05; 
 
     // camera names, transforms, etc.
