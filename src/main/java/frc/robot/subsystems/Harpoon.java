@@ -13,6 +13,7 @@ import com.revrobotics.spark.config.SparkMaxConfig;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.PIDController;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.Constants;
 import frc.robot.Constants.HarpoonConstants;
 import frc.robot.Constants.HarpoonConstants.HarpoonMode;
@@ -150,11 +151,11 @@ public class Harpoon extends SubsystemBase{
     
     @Override
     public void periodic() {
-        // SmartDashboard.putNumber("Wrist Position", kRotationMotor.getAbsoluteEncoder().getPosition());
+        SmartDashboard.putNumber("Wrist Position", kRotationMotor.getAbsoluteEncoder().getPosition());
 
         // SmartDashboard.putString("CURRENT HARPOON", currentMode.toString());
         // SmartDashboard.putString("NEXT HARPOON", nextMode.toString());
-        // SmartDashboard.putNumber("NEXT SETPOINT", selectedSetpoint);
+        SmartDashboard.putNumber("HARPOON SETPOINT", setpoint);
 
         if (currentMode == HarpoonMode.REEF) {
             // if we're scoring, use the selected position

@@ -193,7 +193,7 @@ public class AutoUtils {
 
                 autoCommand = autoCommand.andThen(
                     // TODO: adjust the path DURING THE AUTO to correct for positional errors
-                    constructPathCommand(pathFromFile, driveSubsystem, robotConfig)
+                    constructPathCommand(addCommandsToPath(pathFromFile), driveSubsystem, robotConfig)
                 );
 
                 oldPOI = searchForPOI(getArguments(commands[i])[0]);
@@ -215,28 +215,32 @@ public class AutoUtils {
 
     // }
 
+    public static PathPlannerPath addCommandsToPath(PathPlannerPath inputPath) {
+         // creating an empty list for event markers, filled if the POI has a tag id
+         List<EventMarker> eventMarkers = new LinkedList<EventMarker>();
+
+         eventMarkers.add(new EventMarker("Stop Intake", 0));
+         eventMarkers.add(new EventMarker("Elevator Up", 0.05));
+ 
+         PathPlannerPath path = new PathPlannerPath(
+            inputPath.getWaypoints(), 
+            inputPath.getRotationTargets(),
+            inputPath.getPointTowardsZones(),
+            inputPath.getConstraintZones(), 
+             eventMarkers,
+             AutoConstants.defaultGlobalContstraints,
+             inputPath.getIdealStartingState(), 
+             inputPath.getGoalEndState(),
+             false);
+
+        return path;
+    }
+
     /*
      * turn a pathplanner path into a trajectory following command,
      * using pathplannerlib's constructor
      */
     public static Command constructPathCommand(PathPlannerPath path, Drivetrain driveSubsystem, RobotConfig config) {
-        // creating an empty list for event markers, filled if the POI has a tag id
-        List<EventMarker> eventMarkers = new LinkedList<EventMarker>();
-
-        // eventMarkers.add(new EventMarker("Stop Intake", 0));
-        // eventMarkers.add(new EventMarker("Elevator Up", 0.05));
-
-        path = new PathPlannerPath(
-            path.getWaypoints(), 
-            path.getRotationTargets(),
-            path.getPointTowardsZones(),
-            path.getConstraintZones(), 
-            eventMarkers,
-            AutoConstants.defaultGlobalContstraints,
-            path.getIdealStartingState(), 
-            path.getGoalEndState(),
-            false);
-
         return new FollowPathCommand(
             path,
             driveSubsystem::getOffsetedPose, // Robot pose supplier
@@ -271,10 +275,12 @@ public class AutoUtils {
         // creating an empty list for event markers, filled if the POI has a tag id
         List<EventMarker> eventMarkers = new LinkedList<EventMarker>();
 
-        eventMarkers.add(new EventMarker("Elevator Up", 1));
-        eventMarkers.add(new EventMarker("Pose Estimation", 1));
+        if (finish.name == "BlueReef4Left") {
+            eventMarkers.add(new EventMarker("Elevator Up", 1));
+            eventMarkers.add(new EventMarker("Pose Estimation", 1));
 
-        eventMarkers.add(new EventMarker("Score", 1.9));
+            eventMarkers.add(new EventMarker("Score", 1.9));
+        }
 
         Translation2d alignmentOffset = VisionUtils.applyRotationMatrix(
             new Translation2d(0.75, 0), 

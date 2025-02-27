@@ -8,7 +8,6 @@ import java.io.IOException;
 
 import org.json.simple.parser.ParseException;
 
-import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.events.EventTrigger;
 import com.pathplanner.lib.util.FileVersionException;
 
@@ -27,7 +26,6 @@ import frc.robot.commands.SetLEDCommand;
 import frc.robot.commands.drive.TeleopDriveCommand;
 import frc.robot.commands.elevator.CalibrateElevator;
 import frc.robot.commands.elevator.PrepareElevatorCommand;
-import frc.robot.commands.elevator.StowElevatorCommand;
 import frc.robot.commands.elevator.ToggleElevatorCommand;
 import frc.robot.commands.harpoon.AutoScoreCommand;
 import frc.robot.commands.harpoon.IntakeCommand;
@@ -37,13 +35,11 @@ import frc.robot.commands.harpoon.StopClawCommand;
 import frc.robot.subsystems.Cameras;
 import frc.robot.subsystems.Drivetrain;
 import frc.robot.subsystems.LED;
-import frc.utils.AutoUtils;
 import frc.robot.subsystems.Elevator;
 import frc.robot.subsystems.Harpoon;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
-import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.Subsystem;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandPS5Controller;
@@ -109,6 +105,9 @@ public class RobotContainer {
 
         harpoon.resetHarpoon();
         elevator.resetElevator();
+
+        new SetLEDCommand(ledLeft, 1).schedule();;
+        new SetLEDCommand(ledRight, 1).schedule();;
     }
 
     /**
@@ -204,8 +203,8 @@ public class RobotContainer {
              .onTrue(new ShootCommand(harpoon,0.6))
              .onFalse(new StopClawCommand(harpoon));
 
-            //  this.driverController_XBOX.povDown()
-            //  .onTrue(new CalibrateElevator(elevator, this.driverController_XBOX.povDown()));
+             this.driverController_PS5.povDown()
+             .onTrue(new CalibrateElevator(elevator, this.driverController_XBOX.povDown()));
         }
     }
 
@@ -237,6 +236,20 @@ public class RobotContainer {
             );
         }
         else {
+            this.operatorController_PS5.L1().onTrue(
+                new PrepareElevatorCommand(elevator, ElevatorMode.REEF, () -> elevator.getLowerPosition()).
+                andThen(new PrepareHarpoonCommand(harpoon, HarpoonMode.REEF, () -> harpoon.getLowerSetpoint()))
+            );
+
+            this.operatorController_PS5.R1().onTrue(
+                new PrepareElevatorCommand(elevator, ElevatorMode.REEF, () -> elevator.getUpperPosition()).
+                andThen(new PrepareHarpoonCommand(harpoon, HarpoonMode.REEF, () -> harpoon.getUpperSetpoint()))
+            );
+
+            this.operatorController_PS5.L2().onTrue(
+                new PrepareElevatorCommand(elevator, ElevatorMode.FEEDER, () -> ElevatorPosition.INTAKE.getSetpoint()).
+                andThen(new PrepareHarpoonCommand(harpoon, HarpoonMode.FEEDER, () -> HarpoonPosition.INTAKE.getSetpoint()))
+            );
         }
     }
 
@@ -257,7 +270,7 @@ public class RobotContainer {
      */ 
     public Command getAutonomousCommand() throws FileVersionException, IOException, ParseException {
         //using the string provided by the user to build and run an auto
-        //return AutoUtils.actuallyBuildAutoFromCommands("move(BlueReef4Left)/wait(5)", m_robotDrive, m_cameras, 0);
+        //return AutoUtils.actuallyBuildAutoFromCommands("move(BlueReef4Left)/wait(5)/path(BlueCoral2Left)", m_robotDrive, m_cameras, 0);
 
         return Commands.none();
     }

@@ -209,7 +209,7 @@ public class Elevator extends SubsystemBase{
 
         // SmartDashboard.putString("CURRENT ELEVATOR", currentMode.toString());
         // SmartDashboard.putString("NEXT ELEVATOR", nextMode.toString());
-        // SmartDashboard.putNumber("NEXT POSITION", selectedPosition);
+        SmartDashboard.putNumber("NEXT POSITION", selectedPosition);
 
         // moving the elevator to the desired setpoint
         
@@ -249,12 +249,14 @@ public class Elevator extends SubsystemBase{
         //     return MathUtil.clamp(input, 0, ElevatorConstants.maxOutput);
         // }
 
-        
+
         if (isTopPressed) {
             return MathUtil.clamp(input, -ElevatorConstants.maxOutput, 0);
         }
 
-        input *= MathUtil.clamp(1 / (Math.abs(encoder.getVelocity()) / 50), 0, 1);
+        // double maxVelocity = 300;
+
+        // input *= 1 / (1 + MathUtil.clamp((Math.abs(encoder.getVelocity()) - 300) / 100, 0, 1));
 
         return MathUtil.clamp(input, -ElevatorConstants.maxOutput, ElevatorConstants.maxOutput);
     }

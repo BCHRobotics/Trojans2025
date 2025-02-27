@@ -54,8 +54,8 @@ public final class Constants {
       L1(4),
       L2(9.15),  // FINAL
       L3(13.5),  // FINAL
-      L4(20.61), // UNTESTED
-      INTAKE(3.75), // FINAL
+      L4(20.55), // UNTESTED
+      INTAKE(2.8), // FINAL
       ALGAE(8.55);
       
       private final double setpoint;
@@ -79,12 +79,12 @@ public final class Constants {
     public static final int rightElevatorID = 20;
 
     // PID terms for elevator up/down motion
-    public static final double ElevatorkP = 0.05;
-    public static final double ElevatorkI = 0.008;
+    public static final double ElevatorkP = 0.07;
+    public static final double ElevatorkI = 0.01;
     public static final double ElevatorkD = 0.000;
 
     // supplied current limit
-    public static final double maxOutput = 0.5;
+    public static final double maxOutput = 0.4;
     // speed limit
     public static final double maxVelocity = 300;
     
@@ -107,7 +107,7 @@ public final class Constants {
       L3(0.6002), // FINAL
       L4(0.6001), // UNTESTED
       INTAKE(0.85), // FINAL
-      STOWED(0.99),
+      STOWED(0.9),
       ALGAE(0.61);
     
       private final double setpoint;
@@ -130,7 +130,7 @@ public final class Constants {
     public static final int kIntakeMotorCANID = 30; // TO be changed to the actual intake motor ID
     public static final int kRotationMotorCANID = 31; // TO be changed to the actual rotation motor ID
 
-    public static final double harpoonP = 3;
+    public static final double harpoonP = 2;
     public static final double harpoonI = 0.1;
     public static final double harpoonD = 0;
 
