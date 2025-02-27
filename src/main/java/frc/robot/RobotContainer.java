@@ -37,6 +37,7 @@ import frc.robot.commands.vision.AlignTeleopCommand;
 import frc.robot.subsystems.Cameras;
 import frc.robot.subsystems.Drivetrain;
 import frc.robot.subsystems.LED;
+import frc.utils.AutoUtils;
 import frc.robot.subsystems.Elevator;
 import frc.robot.subsystems.Harpoon;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -304,8 +305,8 @@ public class RobotContainer {
      */ 
     public Command getAutonomousCommand() throws FileVersionException, IOException, ParseException {
         //using the string provided by the user to build and run an auto
-        //return AutoUtils.actuallyBuildAutoFromCommands("move(BlueReef4Left)/wait(5)/path(BlueCoral2Left)", m_robotDrive, m_cameras, 0);
+        return AutoUtils.actuallyBuildAutoFromCommands("move(BlueReef4Left)/wait(5)/path(BlueCoral2Left)", m_robotDrive, m_cameras, 0);
 
-        return Commands.none();
+        //return Commands.none();
     }
 }

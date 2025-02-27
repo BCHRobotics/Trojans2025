@@ -399,5 +399,12 @@ public final class Constants {
       AutoPOI.createPOIFromTag("RedReef6Left", 8, new Translation2d(0.432, -0.165)),
       AutoPOI.createPOIFromTag("RedReef6Right", 8, new Translation2d(0.432, 0.165)),
     };
+
+    
+  }
+
+  public static final class AutoStrings {
+    public String auto1 = "Path(Reef5Left-Coral1Right)/Path(Coral1Right-Reef5Right)/Path(Reef5Left-Coral1Right)";
+    
   }
 }
