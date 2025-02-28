@@ -172,17 +172,16 @@ public class Harpoon extends SubsystemBase{
             setRotationMotorPosition(HarpoonPosition.STOWED.getSetpoint());
         }
 
-        kRotationMotor.set(applyLimits(pidController.calculate(kRotationMotor.getAbsoluteEncoder().getPosition(), setpoint)));
+        kRotationMotor.set(applyLimits(pidController.calculate(getCorrectedEncoderPosition(), setpoint)));
+    }
+
+    public double getCorrectedEncoderPosition() {
+        double rawPosition = kRotationMotor.getAbsoluteEncoder().getPosition();
+
+        return rawPosition < 0.5 ? 1 + rawPosition : rawPosition;
     }
 
     public double applyLimits(double input) {
-        if (kRotationMotor.getAbsoluteEncoder().getPosition() < 0.5 && setpoint > 0.95) {
-            return 0;
-        }
-        else if (kRotationMotor.getAbsoluteEncoder().getPosition() < 0.5) {
-            return -0.01;
-        }
-
         return MathUtil.clamp(input, -0.8, 0.8);
     }
 }

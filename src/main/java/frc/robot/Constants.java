@@ -33,6 +33,7 @@ import frc.utils.VisionUtils;
  */
 
 public final class Constants {
+  
   public static final class OIConstants {
     public static final int kMainControllerPort = 0;
     public static final int kBackupControllerPort = 1;
@@ -99,15 +100,16 @@ public final class Constants {
     public static final int kPhotoElectricSensorPort = 0;
   }
 
+  // the constants for the claw, both wrist and intake
   public static final class HarpoonConstants {
 
     public enum HarpoonPosition {
-      L1(0.725), // FINAL
-      L2(0.6003), // FINAL
-      L3(0.6002), // FINAL
-      L4(0.6001), // UNTESTED
-      INTAKE(0.85), // FINAL
-      STOWED(0.9),
+      L1(0.725),
+      L2(0.6003), // these three have to be different (hence the decimal)
+      L3(0.6002),
+      L4(0.6001),
+      INTAKE(0.85),
+      STOWED(1),
       ALGAE(0.61);
     
       private final double setpoint;
@@ -127,22 +129,17 @@ public final class Constants {
       FEEDER
     }
 
+    // CAN ids for claw motors
     public static final int kIntakeMotorCANID = 30; // TO be changed to the actual intake motor ID
     public static final int kRotationMotorCANID = 31; // TO be changed to the actual rotation motor ID
 
+    // the PID controller values for the wrist
     public static final double harpoonP = 2;
     public static final double harpoonI = 0;
     public static final double harpoonD = 0;
-
-    public static final double gearConversionFactor = 9; // This is the conversion factor from degrees to rotations
-
-    public static final double scoreL1Angle = 100; // to be changed to actual value
-    public static final double scoreL2Angle = 130;
-    public static final double scoreL3Angle = 130;
-    public static final double scoreL4Angle = 130;
   }
 
-
+  // swerve drive constants (dimensions, max speed, etc.)
   public static final class DriveConstants {
     // Ways to drive the robot
     public enum DriveModes {
@@ -337,19 +334,27 @@ public final class Constants {
     public static final TrapezoidProfile.Constraints kThetaControllerConstraints = new TrapezoidProfile.Constraints(
         kMaxAngularSpeedRadiansPerSecond, kMaxAngularSpeedRadiansPerSecondSquared);
 
-    // POI numbers:
-    // Start_ (1, 2, 3, 4, 5, 6) -> fallback starting positions
-    // Reef_ (1, 2, 3, 4, 5, 6) -> sides of the reef
-    // Station_ (1, 2) -> coral stations
+    // fallback positions for BLUE SIDE
+    public static final AutoPOI[] blueFallbackPositions = new AutoPOI[] {
+      new AutoPOI(new Pose2d(8.000, 4.045, Rotation2d.fromDegrees(180)), "0"),
+      new AutoPOI(new Pose2d(8.000, 4.045, Rotation2d.fromDegrees(180)), "1"),
+      new AutoPOI(new Pose2d(8.000, 4.045, Rotation2d.fromDegrees(180)), "2"),
+      new AutoPOI(new Pose2d(8.000, 4.045, Rotation2d.fromDegrees(180)), "3"),
+      new AutoPOI(new Pose2d(8.000, 4.045, Rotation2d.fromDegrees(180)), "4"),
+      new AutoPOI(new Pose2d(8.000, 4.045, Rotation2d.fromDegrees(180)), "5"),
+    };
 
-    // test fallback positions
-    public static final AutoPOI[] fallbackPositions = new AutoPOI[] {
-      // tag indices are set to -1 because these poses have nothing to do with apriltags
-      new AutoPOI(new Pose2d(8.000, 4.045, Rotation2d.fromDegrees(180)), "Start1"), // centered on the start line, per actual field
+    // fallback positions for RED SIDE
+    public static final AutoPOI[] redFallbackPositions = new AutoPOI[] {
+      new AutoPOI(new Pose2d(8.000, 4.045, Rotation2d.fromDegrees(0)), "0"),
+      new AutoPOI(new Pose2d(8.000, 4.045, Rotation2d.fromDegrees(0)), "1"),
+      new AutoPOI(new Pose2d(8.000, 4.045, Rotation2d.fromDegrees(0)), "2"),
+      new AutoPOI(new Pose2d(8.000, 4.045, Rotation2d.fromDegrees(0)), "3"),
+      new AutoPOI(new Pose2d(8.000, 4.045, Rotation2d.fromDegrees(0)), "4"),
+      new AutoPOI(new Pose2d(8.000, 4.045, Rotation2d.fromDegrees(0)), "5"),
     };
 
     // should be 28 total
-    // TODO: red side
     public static final AutoPOI[] fieldPOIs = new AutoPOI[] {
       // BLUE corals
       new AutoPOI(new Pose2d(1.199, 7.010, Rotation2d.fromDegrees(126)), "BlueCoral1"),

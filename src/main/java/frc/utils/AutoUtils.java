@@ -122,7 +122,7 @@ public class AutoUtils {
     // TODO: make pose estimation/fallback a boolean passed into the function, instead of checking vision
     // do this ^^ to allow humans to make the call
 
-    public static Command actuallyBuildAutoFromCommands(String _commandString, Drivetrain driveSubsystem, Cameras cameraSubsystem, int fallbackStartingPose) {
+    public static Command actuallyBuildAutoFromCommands(String _commandString, Drivetrain driveSubsystem, Cameras cameraSubsystem, int fallbackStartingPoseId, boolean isRedSide) {
         // split the string up, commands are separated by commas obv
         String[] commands = separateCommandString(_commandString);
 
@@ -144,7 +144,13 @@ public class AutoUtils {
             // we cannot see any tags, so all we can do is use the fallback pose
 
             // use one of the existing POIs from auto constants
-            oldPOI = AutoConstants.fallbackPositions[fallbackStartingPose];
+
+            if (isRedSide) {
+                oldPOI = AutoConstants.redFallbackPositions[fallbackStartingPoseId];
+            }
+            else {
+                oldPOI = AutoConstants.blueFallbackPositions[fallbackStartingPoseId];
+            }
         }
 
         // reset odometry to the defined starting pose
@@ -169,7 +175,7 @@ public class AutoUtils {
             // this logic applies to commands that follow a straight line, i.e. anything but the path command
             if (getCommandType(commands[i]) == AutoCommands.Move.ordinal()) {
                 // defining the poi we need to get to
-                String name = getArguments(commands[i])[0];
+                String name = getSidePrefix(isRedSide) + getArguments(commands[i])[0];
                 newPOI.name = name;
                 newPOI.position = searchForPOI(name).position;
 
@@ -184,7 +190,7 @@ public class AutoUtils {
                 PathPlannerPath pathFromFile = null;
                 // following a path, different process
                 try {
-                    pathFromFile = PathPlannerPath.fromPathFile(oldPOI.name + "-" + getArguments(commands[i])[0]);
+                    pathFromFile = PathPlannerPath.fromPathFile(oldPOI.name + "-" + getSidePrefix(isRedSide) + getArguments(commands[i])[0]);
                 } catch (FileVersionException | IOException | ParseException e) {
                     e.printStackTrace();
                 }
@@ -208,19 +214,31 @@ public class AutoUtils {
         return autoCommand;
     } 
 
-    /*
-     * write this function pls thanks
-     */
-    // public static PathPlannerPath adjusPath(PathPlannerPath original, Pose2d newFirstWaypoint) {
+    public static String getSidePrefix(boolean isRed) {
+        return isRed ? "Red" : "Blue";
+    }
 
-    // }
+    // flip a path from one side to the other
+    public static PathPlannerPath flipPath(PathPlannerPath inputPath) {
+        return inputPath.flipPath();
+    }
+
+    // returns whether or not a given Path is on the red side
+    public static boolean isRed(PathPlannerPath inputPath) {
+        if (inputPath.name.substring(0, 3) == "Red") {
+            return true;
+        }
+        else {
+            return false;
+        }
+    }
 
     public static PathPlannerPath addCommandsToPath(PathPlannerPath inputPath) {
          // creating an empty list for event markers, filled if the POI has a tag id
          List<EventMarker> eventMarkers = new LinkedList<EventMarker>();
 
-         eventMarkers.add(new EventMarker("Stop Intake", 0));
-         eventMarkers.add(new EventMarker("Elevator Up", 0.05));
+        //  eventMarkers.add(new EventMarker("Stop Intake", 0));
+        //  eventMarkers.add(new EventMarker("Elevator Up", 0.05));
  
          PathPlannerPath path = new PathPlannerPath(
             inputPath.getWaypoints(), 
@@ -276,10 +294,10 @@ public class AutoUtils {
         List<EventMarker> eventMarkers = new LinkedList<EventMarker>();
 
         if (finish.name == "BlueReef4Left") {
-            eventMarkers.add(new EventMarker("Elevator Up", 1));
-            eventMarkers.add(new EventMarker("Pose Estimation", 1));
+            // eventMarkers.add(new EventMarker("Elevator Up", 1));
+            // eventMarkers.add(new EventMarker("Pose Estimation", 1));
 
-            eventMarkers.add(new EventMarker("Score", 1.9));
+            // eventMarkers.add(new EventMarker("Score", 1.9));
         }
 
         Translation2d alignmentOffset = VisionUtils.applyRotationMatrix(

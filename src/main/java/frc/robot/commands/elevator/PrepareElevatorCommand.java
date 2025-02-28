@@ -6,8 +6,12 @@ import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.Constants.ElevatorConstants.ElevatorMode;
 import frc.robot.subsystems.Elevator;
 
-
+/*
+ * pre-selects an elevator and harpoon position
+ * the operator runs this command, then the driver commands the actual position later on
+ */
 public class PrepareElevatorCommand extends Command {
+    // the subsystems required
     private Elevator elevatorSubsystem;
     private ElevatorMode mode;
     private DoubleSupplier position;

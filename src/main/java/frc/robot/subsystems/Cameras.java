@@ -123,6 +123,7 @@ public class Cameras extends SubsystemBase {
 
         // the total number of tags that can be seen by the cameras
         int visibleTagCount = 0;
+        int firstTagId = -1;
 
         // first we do a loop through all the tags to figure out which ones we can see, and count them up
         // necessary because each result is divided by the total number of results
@@ -132,6 +133,9 @@ public class Cameras extends SubsystemBase {
 
                 // adding to the total tag count
                 visibleTagCount++;
+                if (firstTagId == -1) {
+                    firstTagId = i;
+                }
             }
         }
 
@@ -173,10 +177,8 @@ public class Cameras extends SubsystemBase {
                 // dealing with the rotational estimate
                 // ----------------------
                 
-                // no matter if the angle is greater or less than 0, 
-                // we add it to the total AND DO NOT DIVIDE IT,
-                // the dividing is done at the end for rotation
-                if (i == 21) {
+                // ONLY ONE rotation measurement is used, and it's just the first tag the robot sees
+                if (i == firstTagId) {
                     finalRot += estimatedPosition.getRotation().getRadians();
                 }
             }

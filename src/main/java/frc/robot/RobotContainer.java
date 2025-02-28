@@ -27,7 +27,7 @@ import frc.robot.commands.SetLEDCommand;
 import frc.robot.commands.drive.TeleopDriveCommand;
 import frc.robot.commands.elevator.CalibrateElevator;
 import frc.robot.commands.elevator.PrepareElevatorCommand;
-import frc.robot.commands.elevator.ToggleElevatorCommand;
+import frc.robot.commands.elevator.ToggleMechanismCommand;
 import frc.robot.commands.harpoon.AutoScoreCommand;
 import frc.robot.commands.harpoon.IntakeCommand;
 import frc.robot.commands.harpoon.PrepareHarpoonCommand;
@@ -41,6 +41,7 @@ import frc.utils.AutoUtils;
 import frc.robot.subsystems.Elevator;
 import frc.robot.subsystems.Harpoon;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.Subsystem;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
@@ -55,32 +56,49 @@ import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
  */
 public class RobotContainer {
     // The robot's subsystems
+
+    // drivetrain
     private final Drivetrain m_robotDrive = new Drivetrain();
+
+    // the cameras subsystem, controls vision
     private final Cameras m_cameras = new Cameras();
+
+    // the elevator subsystem, controls intake and scoring positions
     public final Elevator elevator = new Elevator();
+
+    // the claw subsytem, controls intake/outtake and wrist
     private final Harpoon harpoon = new Harpoon();
+
+    // the led subsystems. each strip (left and right) is a separate class
     private final LED ledRight = new LED(0);
     private final LED ledLeft = new LED(1);
 
-    // Driving controller
+    // Driving controller, one for xbox and one for ps5
     CommandPS5Controller driverController_PS5 = new CommandPS5Controller(OIConstants.kMainControllerPort);
     CommandXboxController driverController_XBOX = new CommandXboxController(OIConstants.kMainControllerPort);
 
-    // operator controller
+    // operator controller, one for xbox and one for ps5
     CommandPS5Controller operatorController_PS5 = new CommandPS5Controller(OIConstants.kBackupControllerPort);
     CommandXboxController operatorController_XBOX = new CommandXboxController(OIConstants.kBackupControllerPort);
 
-    // selecting a driver controller
+    // drop down menu for selecting xbox/ps5 for the driver controller
     SendableChooser<String> controllerOptions_driver;
-    // selecting an operator controller
+    // drop down menu for selecting xbox/ps5 for the operator controller
     SendableChooser<String> controllerOptions_operator;
 
+    // dropdown menu for selecting autos
     SendableChooser<String> autoSelect;
+
+    // dropdown menu for selecting autos
+    SendableChooser<Integer> autoFallback;
+
+    private boolean isRedAlliance;
 
     /**
      * The container for the robot, initializing everything and setting up the controller chooser
      */
     public RobotContainer() {
+        // tell the cameras subsystem what the drivesubsystem is
         m_cameras.setDriveSubsystem(m_robotDrive);
         
         // setting up a dropdown for switching between xbox and playstation
@@ -97,29 +115,46 @@ public class RobotContainer {
         controllerOptions_operator.addOption("Playstation", "PS");
         SmartDashboard.putData("Operator Select", controllerOptions_operator);
 
+        // defining the auto selection dropdown
         autoSelect = new SendableChooser<String>();
-        autoSelect.addOption("1 Coral", "move(BlueReef4Left)");
+        autoSelect.addOption("1 Coral", "move(Reef4Left)");
+        autoSelect.addOption("1 Coral, Feeder", "move(Reef4Left)/path(Coral2Left)");
 
-        new EventTrigger("Elevator Up").onTrue(new ToggleElevatorCommand(ledLeft, ledRight, elevator, harpoon));
+        SmartDashboard.putData("Select Auto", autoSelect);
+
+        // defining the auto FALLBACK POSITION selection dropdown
+        autoFallback = new SendableChooser<Integer>();
+        autoFallback.addOption("1", 0);
+        autoFallback.addOption("2", 1);
+        autoFallback.addOption("3", 2);
+        autoFallback.addOption("4", 3);
+        autoFallback.addOption("5", 4);
+        autoFallback.addOption("6", 5);
+
+        SmartDashboard.putData("Select Fallback", autoFallback);
+
+        // defining event markers for auto
+        new EventTrigger("Elevator Up").onTrue(new ToggleMechanismCommand(ledLeft, ledRight, elevator, harpoon));
         new EventTrigger("Pose Estimation").onTrue(
             new InstantCommand(() -> {
                 m_robotDrive.setOdometryOffset(m_cameras.getPoseEstimatedOffset());
             }, new Subsystem[0])
         );
-
         new EventTrigger("Score").onTrue(new WaitCommand(2).andThen(new AutoScoreCommand(harpoon, 0.6)));
         new EventTrigger("Stop Intake").onTrue(new StopClawCommand(harpoon));
-
+        
+        // reseting both mechs to their default state (zeroing the elevator is important)
         harpoon.resetHarpoon();
         elevator.resetElevator();
-
-        boolean isRed = DriverStation.getAlliance().get() == DriverStation.Alliance.Red;
+        
+        // defining what alliance we are on
+        isRedAlliance = DriverStation.getAlliance().get() == DriverStation.Alliance.Red;
 
         // Setup the commands associated with all buttons on the controller
         // driver
-        configureButtonBindingsDriver(isRed, controllerOptions_driver.getSelected() == "XBOX");
+        configureButtonBindingsDriver(isRedAlliance, controllerOptions_driver.getSelected() == "XBOX");
         // operator
-        configureButtonBindingsOperator(isRed, controllerOptions_operator.getSelected() == "XBOX");
+        configureButtonBindingsOperator(isRedAlliance, controllerOptions_operator.getSelected() == "XBOX");
     }
 
     /**
@@ -127,13 +162,17 @@ public class RobotContainer {
      * @param isRedAlliance is the robot on the RED SIDE OR BLUE SIDE, used for inverting controls
      */
     public void configureDriveMode(boolean isRedAlliance) {
+        new SetLEDCommand(ledLeft, ledRight, 0.87, 0).schedule();
+
+        // this double is used as a multiplier to invert the joysticks for red alliance
         final double invert = isRedAlliance ? -1 : 1;
 
+        // making sure the controller variables are set properly
         String driverController = controllerOptions_driver.getSelected();
-        String operatorController = controllerOptions_operator.getSelected();
         
         // If no other command is running on the drivetrain, then this manual driving command (driving via controller) is used
         if (driverController == "XBOX") {
+            // for if we're using the xbox controller
             m_robotDrive.setDefaultCommand(new TeleopDriveCommand(
             () -> -MathUtil.applyDeadband(driverController_XBOX.getLeftY() * invert, 0.05),
             () -> -MathUtil.applyDeadband(driverController_XBOX.getLeftX() * invert, 0.05),
@@ -142,6 +181,7 @@ public class RobotContainer {
             m_robotDrive));
         }
         else {
+            // for if we're using the ps5 controller
             m_robotDrive.setDefaultCommand(new TeleopDriveCommand(
             () -> -MathUtil.applyDeadband(driverController_PS5.getLeftY() * invert, 0.05),
             () -> -MathUtil.applyDeadband(driverController_PS5.getLeftX() * invert, 0.05),
@@ -154,6 +194,7 @@ public class RobotContainer {
         m_robotDrive.setAlliance(isRedAlliance);
     }
 
+    // configure the button bindings on the driver controller
     private void configureButtonBindingsDriver(boolean isRedAlliance, boolean isXbox) {
         if (isXbox) {
             // Reset Gyro
@@ -169,7 +210,7 @@ public class RobotContainer {
 
             // toggling the elevator up and down
             driverController_XBOX.a().onTrue(
-                new ToggleElevatorCommand(ledLeft, ledRight, elevator, harpoon));
+                new ToggleMechanismCommand(ledLeft, ledRight, elevator, harpoon));
 
             // intake gamepiece
             this.driverController_XBOX.x()
@@ -197,7 +238,7 @@ public class RobotContainer {
                             () -> m_cameras.getOffsetY(),
                             () -> areJoysticksPressed()
                             )
-                            .alongWith( new ToggleElevatorCommand(ledLeft, ledRight, elevator, harpoon))
+                            .alongWith( new ToggleMechanismCommand(ledLeft, ledRight, elevator, harpoon))
                             .schedule();
                     }
                 })
@@ -216,7 +257,7 @@ public class RobotContainer {
             driverController_PS5.R1().onFalse(new InstantCommand(() -> m_robotDrive.setFastMode(false)));
 
             // toggling the elevator up and down
-            driverController_PS5.cross().onTrue(new ToggleElevatorCommand(ledLeft, ledRight, elevator, harpoon));
+            driverController_PS5.cross().onTrue(new ToggleMechanismCommand(ledLeft, ledRight, elevator, harpoon));
 
             // intake gamepiece
             this.driverController_PS5.square()
@@ -244,7 +285,7 @@ public class RobotContainer {
                             () -> m_cameras.getOffsetY(),
                             () -> areJoysticksPressed()
                             )
-                            .alongWith( new ToggleElevatorCommand(ledLeft, ledRight, elevator, harpoon))
+                            .alongWith( new ToggleMechanismCommand(ledLeft, ledRight, elevator, harpoon))
                             .schedule();
                     }
                 })
@@ -263,7 +304,7 @@ public class RobotContainer {
                             () -> m_cameras.getOffsetY(),
                             () -> areJoysticksPressed()
                             )
-                            .alongWith( new ToggleElevatorCommand(ledLeft, ledRight, elevator, harpoon))
+                            .alongWith( new ToggleMechanismCommand(ledLeft, ledRight, elevator, harpoon))
                             .schedule();
                     }
                 })
@@ -271,23 +312,10 @@ public class RobotContainer {
         }
     }
 
-    public boolean areJoysticksPressed() {
-        if (controllerOptions_driver.getSelected() == "XBOX") {
-            return Math.abs(driverController_XBOX.getLeftX()) > 0.05 ||
-            Math.abs(driverController_XBOX.getLeftY()) > 0.05 || 
-            Math.abs(driverController_XBOX.getRightX()) > 0.05;
-        }
-        else {
-            return Math.abs(driverController_PS5.getLeftX()) > 0.05 ||
-            Math.abs(driverController_PS5.getLeftY()) > 0.05 || 
-            Math.abs(driverController_PS5.getRightX()) > 0.05;
-        }
-    }
-
     /**
-     * configure what commands are called by what buttons (on both controllers)
+     * configure what commands are called by what buttons for the OPERATOR CONTROLLER
      * @param isRedAlliance is the robot on the RED OR BLUE SIDE
-     * @param useBackup whether the active controller is the backup (XBOX)
+     * @param isXbox whether the active controller is the backup (XBOX)
      */
     private void configureButtonBindingsOperator(boolean isRedAlliance, boolean isXbox) {
         //final double invert = isRedAlliance ? -1 : 1;
@@ -345,6 +373,19 @@ public class RobotContainer {
         }
     }
 
+    public boolean areJoysticksPressed() {
+        if (controllerOptions_driver.getSelected() == "XBOX") {
+            return Math.abs(driverController_XBOX.getLeftX()) > 0.05 ||
+            Math.abs(driverController_XBOX.getLeftY()) > 0.05 || 
+            Math.abs(driverController_XBOX.getRightX()) > 0.05;
+        }
+        else {
+            return Math.abs(driverController_PS5.getLeftX()) > 0.05 ||
+            Math.abs(driverController_PS5.getLeftY()) > 0.05 || 
+            Math.abs(driverController_PS5.getRightX()) > 0.05;
+        }
+    }
+
     public void resetAuto() {
         m_robotDrive.setDriveMode(DriveModes.MANUAL);
         m_robotDrive.resetOdometry(new Pose2d(0, 0, Rotation2d.fromDegrees(0)));
@@ -362,8 +403,11 @@ public class RobotContainer {
      */ 
     public Command getAutonomousCommand() throws FileVersionException, IOException, ParseException {
         //using the string provided by the user to build and run an auto
-        return AutoUtils.actuallyBuildAutoFromCommands("move(BlueReef4Left)/wait(5)/path(BlueCoral2Left)", m_robotDrive, m_cameras, 0);
-
-        //return Commands.none();
+        if (autoSelect.getSelected() != null && autoFallback.getSelected() != null) {
+            return AutoUtils.actuallyBuildAutoFromCommands(autoSelect.getSelected(), m_robotDrive, m_cameras, autoFallback.getSelected(), isRedAlliance);
+        }
+        else {
+            return Commands.none();
+        }
     }
 }

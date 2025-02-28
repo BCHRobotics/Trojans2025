@@ -5,19 +5,22 @@ import frc.robot.Constants.ElevatorConstants.ElevatorMode;
 import frc.robot.Constants.HarpoonConstants.HarpoonMode;
 import frc.robot.commands.SetLEDCommand;
 import frc.robot.commands.harpoon.IntakeCommand;
+import frc.robot.commands.harpoon.StopClawCommand;
 import frc.robot.subsystems.Elevator;
 import frc.robot.subsystems.Harpoon;
 import frc.robot.subsystems.LED;
 
-public class ToggleElevatorCommand extends Command {
+public class ToggleMechanismCommand extends Command {
 
+    // elevator and claw subsystems to call the commands on
     private Elevator elevatorSubsystem;
     private Harpoon harpoonSubsystem;
 
+    // led subsystems, used for intaking so that we can confirm a coral has been aquired
     private LED led1;
     private LED led2;
     
-    public ToggleElevatorCommand(LED led1, LED led2, Elevator elevatorSubsystem, Harpoon harpoonSubsystem) {
+    public ToggleMechanismCommand(LED led1, LED led2, Elevator elevatorSubsystem, Harpoon harpoonSubsystem) {
         this.elevatorSubsystem = elevatorSubsystem;
         this.harpoonSubsystem = harpoonSubsystem;
 
@@ -34,14 +37,17 @@ public class ToggleElevatorCommand extends Command {
 
             if (harpoonSubsystem.getNextMode() == HarpoonMode.FEEDER) {
                 new IntakeCommand(elevatorSubsystem, harpoonSubsystem, 0.6, () -> true).
-                alongWith(new SetLEDCommand(led1, led2, -0.11)).
-                andThen(new SetLEDCommand(led1, led2, -0.05))
+                alongWith(new SetLEDCommand(led1, led2, -0.11, 0)).
+                andThen(new SetLEDCommand(led1, led2, -0.05, 1.5))
                 .schedule();
             }
         }
         else {
             elevatorSubsystem.setMode(ElevatorMode.STOWED);
             harpoonSubsystem.setMode(HarpoonMode.STOWED);
+
+            new StopClawCommand(harpoonSubsystem).schedule();
+            new SetLEDCommand(led2, led1, 0.87, 0).schedule();
         }
     }
 

@@ -102,6 +102,7 @@ public class Robot extends TimedRobot {
       m_autonomousCommand.cancel();
     }
 
+    // defining what alliance we're on
     final boolean isRed = DriverStation.getAlliance().get() == DriverStation.Alliance.Red;
 
     // Schedules the teleop drive command when entering teleop
