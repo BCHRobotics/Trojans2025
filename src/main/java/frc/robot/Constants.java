@@ -45,6 +45,19 @@ public final class Constants {
     public static final boolean kFieldRelative = true;
     public static final boolean kRateLimited = true;
   }
+
+  public static final class ClimberConstants {
+
+    public static final double climberP = 0.1;
+    public static final double climberI = 0;
+    public static final double climberD = 0;
+
+    public static final double gearConversionFactor = 64;
+    public static final double fullyRotatedPositionDegrees = 90;
+    public static final double preparedPositionDegrees = -90;
+
+    public static final int kClimbMotorCANID = 40;
+  }
   
   public static class ElevatorConstants {
 
@@ -409,7 +422,11 @@ public final class Constants {
   }
 
   public static final class AutoStrings {
-    public String auto1 = "Path(Reef5Left-Coral1Right)/Path(Coral1Right-Reef5Right)/Path(Reef5Left-Coral1Right)";
+    public String auto1 = "Path(Reef5Left-Coral1Right)/Path(Coral1Right-Reef5Right)/Path(Reef5Left-Coral1Right)/Path(BlueCoral1Right-BlueReef4Left)";
+    public String auto2 = "Path(Reef5Right-Coral1Right)/Path(Coral1Right-Reef5Left)/Path(Reef5Left-Coral1Right)/Path(BlueCoral1Right-BlueReef4Left)";
+    public String auto3 = "Path(BlueReef4Right-BlueCoral1Right)/Path(BlueCoral1Right-BlueReef4Left)/Path(BlueReef4Left-BlueCoral1Right)/Path(Coral1Right-Reef5Left)";
+    public String auto4 = "Path(BlueReef4Right-BlueCoral1Right)/Path(BlueCoral1Right-BlueReef4Left)/Path(BlueReef4Left-BlueCoral1Right)/Path(Coral1Right-Reef5Left)";
+    public String auto5 = "Path(Reef1Left-Coral1Left)/Path(Coral1Right-Reef6Left)/Path(Reef6Left-Coral1Right)/Path(BlueCoral1Right-BlueReef4Left)";
     
   }
 }
