@@ -44,6 +44,19 @@ public final class Constants {
     public static final boolean kFieldRelative = true;
     public static final boolean kRateLimited = true;
   }
+
+  public static final class ClimberConstants {
+
+    public static final double climberP = 0.1;
+    public static final double climberI = 0;
+    public static final double climberD = 0;
+
+    public static final double gearConversionFactor = 64;
+    public static final double fullyRotatedPositionDegrees = 90;
+    public static final double preparedPositionDegrees = -90;
+
+    public static final int kClimbMotorCANID = 40;
+  }
   
   public static class ElevatorConstants {
 
