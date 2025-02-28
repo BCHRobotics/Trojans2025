@@ -404,7 +404,11 @@ public final class Constants {
   }
 
   public static final class AutoStrings {
-    public String auto1 = "Path(Reef5Left-Coral1Right)/Path(Coral1Right-Reef5Right)/Path(Reef5Left-Coral1Right)";
+    public String auto1 = "Path(Reef5Left-Coral1Right)/Path(Coral1Right-Reef5Right)/Path(Reef5Left-Coral1Right)/Path(BlueCoral1Right-BlueReef4Left)";
+    public String auto2 = "Path(Reef5Right-Coral1Right)/Path(Coral1Right-Reef5Left)/Path(Reef5Left-Coral1Right)/Path(BlueCoral1Right-BlueReef4Left)";
+    public String auto3 = "Path(BlueReef4Right-BlueCoral1Right)/Path(BlueCoral1Right-BlueReef4Left)/Path(BlueReef4Left-BlueCoral1Right)/Path(Coral1Right-Reef5Left)";
+    public String auto4 = "Path(BlueReef4Right-BlueCoral1Right)/Path(BlueCoral1Right-BlueReef4Left)/Path(BlueReef4Left-BlueCoral1Right)/Path(Coral1Right-Reef5Left)";
+    public String auto5 = "Path(Reef1Left-Coral1Left)/Path(Coral1Right-Reef6Left)/Path(Reef6Left-Coral1Right)/Path(BlueCoral1Right-BlueReef4Left)";
     
   }
 }
