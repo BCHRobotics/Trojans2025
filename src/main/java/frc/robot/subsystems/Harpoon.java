@@ -72,6 +72,7 @@ public class Harpoon extends SubsystemBase{
         this.kIntakeMotor.configure(this.kIntakeConfig, null, PersistMode.kPersistParameters);
     }
 
+    // reset the harpoon back to its default state
     public void resetHarpoon() {
         setSelectedPosition(HarpoonPosition.L3.getSetpoint());
         setNextMode(HarpoonMode.REEF);

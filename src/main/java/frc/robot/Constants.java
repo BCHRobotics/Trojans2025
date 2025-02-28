@@ -417,10 +417,10 @@ public final class Constants {
       AutoPOI.createPOIFromTag("RedReef6Left", 8, new Translation2d(0.432, -0.165)),
       AutoPOI.createPOIFromTag("RedReef6Right", 8, new Translation2d(0.432, 0.165)),
     };
-
-    
   }
 
+  // these are not gonna be used, because of the drop down menu
+  // but they're a useful reference
   public static final class AutoStrings {
     public String auto1 = "Path(Reef5Left-Coral1Right)/Path(Coral1Right-Reef5Right)/Path(Reef5Left-Coral1Right)/Path(BlueCoral1Right-BlueReef4Left)";
     public String auto2 = "Path(Reef5Right-Coral1Right)/Path(Coral1Right-Reef5Left)/Path(Reef5Left-Coral1Right)/Path(BlueCoral1Right-BlueReef4Left)";

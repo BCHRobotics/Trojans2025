@@ -80,6 +80,8 @@ public class Drivetrain extends SubsystemBase {
   // this can be used to easily check what mode the robot is in
   private DriveModes driveMode = DriveModes.MANUAL;
 
+  // TODO: please please please fix pose estimation
+
   private Transform2d odometryOffset = new Transform2d(0, 0, Rotation2d.fromRadians(0));
 
   // Odometry class for tracking robot pose

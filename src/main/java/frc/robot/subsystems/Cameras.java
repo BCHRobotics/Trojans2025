@@ -212,6 +212,7 @@ public class Cameras extends SubsystemBase {
             Rotation2d.fromDegrees(0));
     }
 
+    // get the distance between where the tag SHOULD BE on the field, and where the robot thinks it is
     public double getDistanceToTag(int tagId) {
         Pose2d staticTagPose = VisionConstants.tagTransforms[tagId].getPosition();
         Pose2d robotPose = driveSubsystem.getPose();

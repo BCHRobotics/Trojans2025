@@ -12,7 +12,6 @@ import com.pathplanner.lib.events.EventTrigger;
 import com.pathplanner.lib.util.FileVersionException;
 
 import edu.wpi.first.math.MathUtil;
-import edu.wpi.first.math.filter.LinearFilter;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.DriverStation;
@@ -34,7 +33,6 @@ import frc.robot.commands.harpoon.IntakeCommand;
 import frc.robot.commands.harpoon.PrepareHarpoonCommand;
 import frc.robot.commands.harpoon.ShootCommand;
 import frc.robot.commands.harpoon.StopClawCommand;
-import frc.robot.commands.vision.AlignTeleopCommand;
 import frc.robot.subsystems.Cameras;
 import frc.robot.subsystems.Drivetrain;
 import frc.robot.subsystems.LED;
@@ -226,7 +224,8 @@ public class RobotContainer {
 
              this.driverController_XBOX.povDown()
              .onTrue(new CalibrateElevator(elevator, this.driverController_XBOX.povDown()));
-
+            
+             // automatic vision lineup (taken out for now)
             //  this.driverController_XBOX.rightTrigger().onTrue(
             //     new InstantCommand(() -> {
             //         if(m_cameras.isVisionActive) {
@@ -274,6 +273,7 @@ public class RobotContainer {
              this.driverController_PS5.povDown()
              .onTrue(new CalibrateElevator(elevator, this.driverController_PS5.povDown()));
 
+             // automatic vision lineup (taken out for now)
             //  this.driverController_PS5.R2().onTrue(
             //     new InstantCommand(() -> {
             //         if(m_cameras.isVisionActive) {

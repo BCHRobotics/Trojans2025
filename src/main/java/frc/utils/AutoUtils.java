@@ -28,7 +28,6 @@ import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
-import edu.wpi.first.wpilibj2.command.InstantCommand;
 import frc.robot.Constants;
 import frc.robot.Constants.AutoConstants;
 import frc.robot.Constants.DriveConstants.DriveModes;
@@ -52,12 +51,15 @@ import frc.robot.subsystems.LED;
  */
 public class AutoUtils {
 
+    // TODO: make the score command reel in the coral to verify that it scored
+
     public enum AutoCommands {
         Move, // move in a straight line from one POI to another
         Path, // same thing but not a line, following a prebuilt path
         Wait, // wait a certain amount of seconds
-        Score,
-        Intake,
+        Score, // eject the currrently loaded coral
+        Intake, // move the harpoon and elevator to intake from the feeder
+        Prep, //
     }
 
     // PROCESSING AUTO COMMANDS
@@ -254,16 +256,8 @@ public class AutoUtils {
         return inputPath.flipPath();
     }
 
-    // returns whether or not a given Path is on the red side
-    public static boolean isRed(PathPlannerPath inputPath) {
-        if (inputPath.name.substring(0, 3) == "Red") {
-            return true;
-        }
-        else {
-            return false;
-        }
-    }
-
+    // add commands to lower the elevator and stop the intake
+    // why not just add these to the pathplanner GUI? because i dislike the GUI and its bad
     public static PathPlannerPath addCommandsToPath(PathPlannerPath inputPath) {
          // creating an empty list for event markers, filled if the POI has a tag id
          List<EventMarker> eventMarkers = new LinkedList<EventMarker>();
