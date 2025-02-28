@@ -202,6 +202,7 @@ public class Cameras extends SubsystemBase {
         return finalPose;
     }
 
+    // get the difference between 
     public Transform2d getPoseEstimatedOffset() {
         Pose2d estimatedPose = estimateRobotPoseManual(true);
         Pose2d odometryPose = driveSubsystem.getPose();
