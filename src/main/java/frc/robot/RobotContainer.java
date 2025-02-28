@@ -12,6 +12,7 @@ import com.pathplanner.lib.events.EventTrigger;
 import com.pathplanner.lib.util.FileVersionException;
 
 import edu.wpi.first.math.MathUtil;
+import edu.wpi.first.math.filter.LinearFilter;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.DriverStation;
@@ -117,8 +118,8 @@ public class RobotContainer {
 
         // defining the auto selection dropdown
         autoSelect = new SendableChooser<String>();
-        autoSelect.addOption("1 Coral", "move(Reef4Left)");
-        autoSelect.addOption("1 Coral, Feeder", "move(Reef4Left)/path(Coral2Left)");
+        autoSelect.addOption("1 Coral", "move(Reef4Left)/wait(1)/score(0)");
+        autoSelect.addOption("1 Coral, Feeder", "move(Reef4Left)/wait(1)/score(0)/path(Coral2Left)/intake(0)");
 
         SmartDashboard.putData("Select Auto", autoSelect);
 
@@ -162,7 +163,8 @@ public class RobotContainer {
      * @param isRedAlliance is the robot on the RED SIDE OR BLUE SIDE, used for inverting controls
      */
     public void configureDriveMode(boolean isRedAlliance) {
-        new SetLEDCommand(ledLeft, ledRight, 0.87, 0).schedule();
+        // 0.87 is blue, 0.67 is gold
+        new SetLEDCommand(ledLeft, ledRight, 0.67, 0).schedule();
 
         // this double is used as a multiplier to invert the joysticks for red alliance
         final double invert = isRedAlliance ? -1 : 1;
@@ -225,24 +227,24 @@ public class RobotContainer {
              this.driverController_XBOX.povDown()
              .onTrue(new CalibrateElevator(elevator, this.driverController_XBOX.povDown()));
 
-             this.driverController_XBOX.rightTrigger().onTrue(
-                new InstantCommand(() -> {
-                    if(m_cameras.isVisionActive) {
-                        new AlignTeleopCommand(
-                            m_cameras.getClosestTagId(),
-                            true, 
-                            true, 
-                            m_robotDrive, 
-                            m_cameras, 
-                            () -> m_cameras.getOffsetX(),
-                            () -> m_cameras.getOffsetY(),
-                            () -> areJoysticksPressed()
-                            )
-                            .alongWith( new ToggleMechanismCommand(ledLeft, ledRight, elevator, harpoon))
-                            .schedule();
-                    }
-                })
-            );
+            //  this.driverController_XBOX.rightTrigger().onTrue(
+            //     new InstantCommand(() -> {
+            //         if(m_cameras.isVisionActive) {
+            //             new AlignTeleopCommand(
+            //                 m_cameras.getClosestTagId(),
+            //                 true, 
+            //                 true, 
+            //                 m_robotDrive, 
+            //                 m_cameras, 
+            //                 () -> m_cameras.getOffsetX(),
+            //                 () -> m_cameras.getOffsetY(),
+            //                 () -> areJoysticksPressed()
+            //                 )
+            //                 .alongWith( new ToggleMechanismCommand(ledLeft, ledRight, elevator, harpoon))
+            //                 .schedule();
+            //         }
+            //     })
+            // );
         }
         else {
             // Reset Gyro
@@ -272,43 +274,43 @@ public class RobotContainer {
              this.driverController_PS5.povDown()
              .onTrue(new CalibrateElevator(elevator, this.driverController_PS5.povDown()));
 
-             this.driverController_PS5.R2().onTrue(
-                new InstantCommand(() -> {
-                    if(m_cameras.isVisionActive) {
-                        new AlignTeleopCommand(
-                            m_cameras.getClosestTagId(),
-                            true, 
-                            true, 
-                            m_robotDrive, 
-                            m_cameras, 
-                            () -> m_cameras.getOffsetX(),
-                            () -> m_cameras.getOffsetY(),
-                            () -> areJoysticksPressed()
-                            )
-                            .alongWith( new ToggleMechanismCommand(ledLeft, ledRight, elevator, harpoon))
-                            .schedule();
-                    }
-                })
-            );
+            //  this.driverController_PS5.R2().onTrue(
+            //     new InstantCommand(() -> {
+            //         if(m_cameras.isVisionActive) {
+            //             new AlignTeleopCommand(
+            //                 m_cameras.getClosestTagId(),
+            //                 true, 
+            //                 true, 
+            //                 m_robotDrive, 
+            //                 m_cameras, 
+            //                 () -> m_cameras.getOffsetX(),
+            //                 () -> m_cameras.getOffsetY(),
+            //                 () -> areJoysticksPressed()
+            //                 )
+            //                 .alongWith( new ToggleMechanismCommand(ledLeft, ledRight, elevator, harpoon))
+            //                 .schedule();
+            //         }
+            //     })
+            // );
 
-            this.driverController_PS5.L2().onTrue(
-                new InstantCommand(() -> {
-                    if(m_cameras.isVisionActive) {
-                        new AlignTeleopCommand(
-                            m_cameras.getClosestTagId(),
-                            true, 
-                            true, 
-                            m_robotDrive, 
-                            m_cameras, 
-                            () -> m_cameras.getOffsetX(),
-                            () -> m_cameras.getOffsetY(),
-                            () -> areJoysticksPressed()
-                            )
-                            .alongWith( new ToggleMechanismCommand(ledLeft, ledRight, elevator, harpoon))
-                            .schedule();
-                    }
-                })
-            );
+            // this.driverController_PS5.L2().onTrue(
+            //     new InstantCommand(() -> {
+            //         if(m_cameras.isVisionActive) {
+            //             new AlignTeleopCommand(
+            //                 m_cameras.getClosestTagId(),
+            //                 true, 
+            //                 true, 
+            //                 m_robotDrive, 
+            //                 m_cameras, 
+            //                 () -> m_cameras.getOffsetX(),
+            //                 () -> m_cameras.getOffsetY(),
+            //                 () -> areJoysticksPressed()
+            //                 )
+            //                 .alongWith( new ToggleMechanismCommand(ledLeft, ledRight, elevator, harpoon))
+            //                 .schedule();
+            //         }
+            //     })
+            // );
         }
     }
 
@@ -404,7 +406,7 @@ public class RobotContainer {
     public Command getAutonomousCommand() throws FileVersionException, IOException, ParseException {
         //using the string provided by the user to build and run an auto
         if (autoSelect.getSelected() != null && autoFallback.getSelected() != null) {
-            return AutoUtils.actuallyBuildAutoFromCommands(autoSelect.getSelected(), m_robotDrive, m_cameras, autoFallback.getSelected(), isRedAlliance);
+            return AutoUtils.actuallyBuildAutoFromCommands(autoSelect.getSelected(), ledLeft, ledRight, elevator, harpoon, m_robotDrive, m_cameras, autoFallback.getSelected(), isRedAlliance);
         }
         else {
             return Commands.none();

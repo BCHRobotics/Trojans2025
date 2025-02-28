@@ -129,7 +129,7 @@ public class Cameras extends SubsystemBase {
         // necessary because each result is divided by the total number of results
         for (int i = 1; i < fieldRelativeOffsets.length; i++) {
             if (fieldRelativeOffsets[i] != null) {
-                if ((getDistanceToTag(i) > 3.0 || fieldRelativeOffsets[i].getX() > 3.0) && distanceThreshold) {continue;}
+                if (i > 16 && (getDistanceToTag(i) > 3.0 || fieldRelativeOffsets[i].getX() > 3.0) && distanceThreshold) {continue;}
 
                 // adding to the total tag count
                 visibleTagCount++;
@@ -142,7 +142,7 @@ public class Cameras extends SubsystemBase {
         // looping through all the results again to actually add up the measurements
         for (int i = 1; i < fieldRelativeOffsets.length; i++) {
             if (fieldRelativeOffsets[i] != null) {
-                if ((getDistanceToTag(i) > 3.0 || fieldRelativeOffsets[i].getX() > 3.0) && distanceThreshold) {continue;}
+                if (i > 16 && (getDistanceToTag(i) > 3.0 || fieldRelativeOffsets[i].getX() > 3.0) && distanceThreshold) {continue;}
 
                 // the idea here is to figure out where the tag is (which is static),
                 // then figure out where the robot thinks it is relative to the tag,
@@ -178,7 +178,7 @@ public class Cameras extends SubsystemBase {
                 // ----------------------
                 
                 // ONLY ONE rotation measurement is used, and it's just the first tag the robot sees
-                if (i == firstTagId) {
+                if (i == 21) {
                     finalRot += estimatedPosition.getRotation().getRadians();
                 }
             }
@@ -243,6 +243,9 @@ public class Cameras extends SubsystemBase {
         //SmartDashboard.putBoolean("Right Cam", cameras[2].isConnected());
 
         //SmartDashboard.putNumber("x dist", VisionConstants.tagTransforms[18].xPosition - driveSubsystem.getPose().getX());
+
+        SmartDashboard.putNumber("f", estimateRobotPoseManual(true).getX());
+        SmartDashboard.putNumber("g", estimateRobotPoseManual(true).getY());
     }
 
     /*

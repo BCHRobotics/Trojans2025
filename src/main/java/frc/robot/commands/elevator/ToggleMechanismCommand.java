@@ -47,7 +47,7 @@ public class ToggleMechanismCommand extends Command {
             harpoonSubsystem.setMode(HarpoonMode.STOWED);
 
             new StopClawCommand(harpoonSubsystem).schedule();
-            new SetLEDCommand(led2, led1, 0.87, 0).schedule();
+            new SetLEDCommand(led2, led1, 0.67, 0).schedule();
         }
     }
 

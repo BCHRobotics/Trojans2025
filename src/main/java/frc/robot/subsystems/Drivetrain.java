@@ -141,7 +141,7 @@ public class Drivetrain extends SubsystemBase {
    * @param offset
    */
   public void setOdometryOffset(Transform2d offset) {
-    if (Math.abs(offset.getX()) > 0.15 || Math.abs(offset.getY()) > 0.15) {return;}
+    if (Math.abs(offset.getX()) > 0.2 || Math.abs(offset.getY()) > 0.2) {return;}
 
     odometryOffset = offset;
   }

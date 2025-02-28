@@ -67,7 +67,7 @@ public final class Constants {
       STOWED(0), // FINAL
       L1(4),
       L2(8.85),  // FINAL
-      L3(12.8),  // FINAL
+      L3(12.95),  // FINAL
       L4(20.3), // UNTESTED
       INTAKE(2.65), // FINAL
       ALGAE(8.55);
@@ -122,7 +122,7 @@ public final class Constants {
       L3(0.6002),
       L4(0.6001),
       INTAKE(0.85),
-      STOWED(1),
+      STOWED(1.015),
       ALGAE(0.61);
     
       private final double setpoint;
@@ -383,8 +383,8 @@ public final class Constants {
       AutoPOI.createPOIFromTag("BlueReef3Left", 20, new Translation2d(0.432, -0.165)),
       AutoPOI.createPOIFromTag("BlueReef3Right", 20, new Translation2d(0.432, 0.165)),
 
-      AutoPOI.createPOIFromTag("BlueReef4Left", 21, new Translation2d(0.6, -0.165)),
-      AutoPOI.createPOIFromTag("BlueReef4Right", 21, new Translation2d(0.6, 0.165)),
+      AutoPOI.createPOIFromTag("BlueReef4Left", 21, new Translation2d(0.59, -0.165)),
+      AutoPOI.createPOIFromTag("BlueReef4Right", 21, new Translation2d(0.59, 0.165)),
 
       AutoPOI.createPOIFromTag("BlueReef5Left", 22, new Translation2d(0.6, -0.1)),
       AutoPOI.createPOIFromTag("BlueReef5Right", 22, new Translation2d(1, 0.165)),

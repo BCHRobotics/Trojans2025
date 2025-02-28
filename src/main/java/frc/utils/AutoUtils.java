@@ -28,11 +28,23 @@ import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
+import edu.wpi.first.wpilibj2.command.InstantCommand;
 import frc.robot.Constants;
 import frc.robot.Constants.AutoConstants;
 import frc.robot.Constants.DriveConstants.DriveModes;
+import frc.robot.Constants.ElevatorConstants.ElevatorMode;
+import frc.robot.Constants.ElevatorConstants.ElevatorPosition;
+import frc.robot.Constants.HarpoonConstants.HarpoonMode;
+import frc.robot.Constants.HarpoonConstants.HarpoonPosition;
+import frc.robot.commands.elevator.PrepareElevatorCommand;
+import frc.robot.commands.elevator.ToggleMechanismCommand;
+import frc.robot.commands.harpoon.AutoScoreCommand;
+import frc.robot.commands.harpoon.PrepareHarpoonCommand;
 import frc.robot.subsystems.Cameras;
 import frc.robot.subsystems.Drivetrain;
+import frc.robot.subsystems.Elevator;
+import frc.robot.subsystems.Harpoon;
+import frc.robot.subsystems.LED;
 
 /*
  * This script is for helper functions related to autos
@@ -44,6 +56,8 @@ public class AutoUtils {
         Move, // move in a straight line from one POI to another
         Path, // same thing but not a line, following a prebuilt path
         Wait, // wait a certain amount of seconds
+        Score,
+        Intake,
     }
 
     // PROCESSING AUTO COMMANDS
@@ -122,7 +136,7 @@ public class AutoUtils {
     // TODO: make pose estimation/fallback a boolean passed into the function, instead of checking vision
     // do this ^^ to allow humans to make the call
 
-    public static Command actuallyBuildAutoFromCommands(String _commandString, Drivetrain driveSubsystem, Cameras cameraSubsystem, int fallbackStartingPoseId, boolean isRedSide) {
+    public static Command actuallyBuildAutoFromCommands(String _commandString, LED ledSubsystem1, LED ledSubsystem2, Elevator elevatorSubsystem, Harpoon harpoonSubsystem, Drivetrain driveSubsystem, Cameras cameraSubsystem, int fallbackStartingPoseId, boolean isRedSide) {
         // split the string up, commands are separated by commas obv
         String[] commands = separateCommandString(_commandString);
 
@@ -190,12 +204,18 @@ public class AutoUtils {
                 PathPlannerPath pathFromFile = null;
                 // following a path, different process
                 try {
-                    pathFromFile = PathPlannerPath.fromPathFile(oldPOI.name + "-" + getSidePrefix(isRedSide) + getArguments(commands[i])[0]);
+                    pathFromFile = PathPlannerPath.fromPathFile(oldPOI.name + "-" + "Blue" + getArguments(commands[i])[0]);
                 } catch (FileVersionException | IOException | ParseException e) {
                     e.printStackTrace();
                 }
 
                 if (pathFromFile == null) {System.out.println("no path!");continue;}
+
+                if (isRedSide) {
+                    pathFromFile = flipPath(pathFromFile);
+                }
+
+                System.out.println(pathFromFile.name);
 
                 autoCommand = autoCommand.andThen(
                     // TODO: adjust the path DURING THE AUTO to correct for positional errors
@@ -209,6 +229,17 @@ public class AutoUtils {
                     Commands.waitSeconds(Double.parseDouble(getArguments(commands[i])[0]))
                 );
             }
+            else if (getCommandType(commands[i]) == AutoCommands.Score.ordinal()) {
+                autoCommand = autoCommand.andThen(
+                    new AutoScoreCommand(harpoonSubsystem, 0.6)
+                );
+            } else if (getCommandType(commands[i]) == AutoCommands.Intake.ordinal()) {
+                autoCommand = autoCommand.andThen(
+                    new PrepareElevatorCommand(elevatorSubsystem, ElevatorMode.FEEDER, () -> ElevatorPosition.INTAKE.getSetpoint()).
+                    andThen(new PrepareHarpoonCommand(harpoonSubsystem, HarpoonMode.FEEDER, () -> HarpoonPosition.INTAKE.getSetpoint()))
+                    .andThen(new ToggleMechanismCommand(ledSubsystem1, ledSubsystem2, elevatorSubsystem, harpoonSubsystem))
+                );
+            } 
         }
 
         return autoCommand;
@@ -237,8 +268,8 @@ public class AutoUtils {
          // creating an empty list for event markers, filled if the POI has a tag id
          List<EventMarker> eventMarkers = new LinkedList<EventMarker>();
 
-        //  eventMarkers.add(new EventMarker("Stop Intake", 0));
-        //  eventMarkers.add(new EventMarker("Elevator Up", 0.05));
+         eventMarkers.add(new EventMarker("Stop Intake", 0));
+         eventMarkers.add(new EventMarker("Elevator Up", 0.04));
  
          PathPlannerPath path = new PathPlannerPath(
             inputPath.getWaypoints(), 
@@ -246,7 +277,7 @@ public class AutoUtils {
             inputPath.getPointTowardsZones(),
             inputPath.getConstraintZones(), 
              eventMarkers,
-             AutoConstants.defaultGlobalContstraints,
+             inputPath.getGlobalConstraints(),
              inputPath.getIdealStartingState(), 
              inputPath.getGoalEndState(),
              false);
@@ -293,12 +324,8 @@ public class AutoUtils {
         // creating an empty list for event markers, filled if the POI has a tag id
         List<EventMarker> eventMarkers = new LinkedList<EventMarker>();
 
-        if (finish.name == "BlueReef4Left") {
-            // eventMarkers.add(new EventMarker("Elevator Up", 1));
-            // eventMarkers.add(new EventMarker("Pose Estimation", 1));
-
-            // eventMarkers.add(new EventMarker("Score", 1.9));
-        }
+        eventMarkers.add(new EventMarker("Elevator Up", 1));
+        eventMarkers.add(new EventMarker("Pose Estimation", 1));
 
         Translation2d alignmentOffset = VisionUtils.applyRotationMatrix(
             new Translation2d(0.75, 0), 
@@ -408,6 +435,10 @@ public class AutoUtils {
             return AutoCommands.Path.ordinal();
         } else if (stringEquals(command.substring(0, 4), "wait")) { 
             return AutoCommands.Wait.ordinal();
+        }else if (stringEquals(command.substring(0, 5), "score")) {
+            return AutoCommands.Score.ordinal();
+        }else if (stringEquals(command.substring(0, 6), "intake")) {
+            return AutoCommands.Intake.ordinal();
         }
         System.err.println("ERROR: that auto command type doesn't exist or hasn't been implemented!");
         return -1;

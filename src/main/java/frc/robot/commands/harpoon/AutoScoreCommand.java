@@ -13,7 +13,6 @@ public class AutoScoreCommand extends Command {
     public AutoScoreCommand(Harpoon harpoonSubsystem, double speed) {
         // creating subsystem, adding the subsystem as a requirement so it is not used elsewhere which could cause problems. 
         this.harpoonSubsystem = harpoonSubsystem;
-        this.addRequirements(harpoonSubsystem);
         
         this.speed = speed;
         
@@ -32,10 +31,11 @@ public class AutoScoreCommand extends Command {
     public void end(boolean interrupt) {
         // we only need to set the reference once. This is true for probably all closed loop control systems
         harpoonSubsystem.setIntakeMotorVelocity(0);
+        System.out.println("DONE SCORING!");
     }
 
     @Override
     public boolean isFinished() {
-        return false;
+        return !harpoonSubsystem.isCoralDetected();
     }
 }
