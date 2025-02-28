@@ -14,7 +14,7 @@ import com.pathplanner.lib.util.FileVersionException;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.math.geometry.Translation2d;
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.Constants.ElevatorConstants.ElevatorMode;
@@ -41,7 +41,6 @@ import frc.utils.AutoUtils;
 import frc.robot.subsystems.Elevator;
 import frc.robot.subsystems.Harpoon;
 import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.Subsystem;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
@@ -76,6 +75,8 @@ public class RobotContainer {
     // selecting an operator controller
     SendableChooser<String> controllerOptions_operator;
 
+    SendableChooser<String> autoSelect;
+
     /**
      * The container for the robot, initializing everything and setting up the controller chooser
      */
@@ -96,7 +97,10 @@ public class RobotContainer {
         controllerOptions_operator.addOption("Playstation", "PS");
         SmartDashboard.putData("Operator Select", controllerOptions_operator);
 
-        new EventTrigger("Elevator Up").onTrue(new ToggleElevatorCommand(elevator, harpoon));
+        autoSelect = new SendableChooser<String>();
+        autoSelect.addOption("1 Coral", "move(BlueReef4Left)");
+
+        new EventTrigger("Elevator Up").onTrue(new ToggleElevatorCommand(ledLeft, ledRight, elevator, harpoon));
         new EventTrigger("Pose Estimation").onTrue(
             new InstantCommand(() -> {
                 m_robotDrive.setOdometryOffset(m_cameras.getPoseEstimatedOffset());
@@ -109,8 +113,13 @@ public class RobotContainer {
         harpoon.resetHarpoon();
         elevator.resetElevator();
 
-        new SetLEDCommand(ledLeft, 1).schedule();;
-        new SetLEDCommand(ledRight, 1).schedule();;
+        boolean isRed = DriverStation.getAlliance().get() == DriverStation.Alliance.Red;
+
+        // Setup the commands associated with all buttons on the controller
+        // driver
+        configureButtonBindingsDriver(isRed, controllerOptions_driver.getSelected() == "XBOX");
+        // operator
+        configureButtonBindingsOperator(isRed, controllerOptions_operator.getSelected() == "XBOX");
     }
 
     /**
@@ -140,12 +149,6 @@ public class RobotContainer {
             () -> OIConstants.kFieldRelative, () -> OIConstants.kRateLimited,
             m_robotDrive));
         }
-        
-        // Setup the commands associated with all buttons on the controller
-        // driver
-        configureButtonBindingsDriver(isRedAlliance, driverController == "XBOX");
-        // operator
-        configureButtonBindingsOperator(isRedAlliance, operatorController == "XBOX");
 
         // Set the alliance to either red or blue (to invert controls if necessary)
         m_robotDrive.setAlliance(isRedAlliance);
@@ -154,7 +157,7 @@ public class RobotContainer {
     private void configureButtonBindingsDriver(boolean isRedAlliance, boolean isXbox) {
         if (isXbox) {
             // Reset Gyro
-            driverController_XBOX.y().onTrue(new InstantCommand(() -> { m_robotDrive.zeroHeading(); m_robotDrive.resetOdometry(m_cameras.estimateRobotPoseManual(false));})); //  m_robotDrive.resetOdometry(m_cameras.estimateRobotPoseManual(false));
+            driverController_XBOX.y().onTrue(new InstantCommand(() -> { m_robotDrive.zeroHeading(); })); //  m_robotDrive.resetOdometry(m_cameras.estimateRobotPoseManual(false));
 
             // Slow mode command (Left Bumper)
             driverController_XBOX.leftBumper().onTrue(new InstantCommand(() -> m_robotDrive.setSlowMode(true)));
@@ -166,7 +169,7 @@ public class RobotContainer {
 
             // toggling the elevator up and down
             driverController_XBOX.a().onTrue(
-                new ToggleElevatorCommand(elevator, harpoon));
+                new ToggleElevatorCommand(ledLeft, ledRight, elevator, harpoon));
 
             // intake gamepiece
             this.driverController_XBOX.x()
@@ -185,21 +188,24 @@ public class RobotContainer {
                 new InstantCommand(() -> {
                     if(m_cameras.isVisionActive) {
                         new AlignTeleopCommand(
-                            21,  // m_cameras.getClosestTagId()
+                            m_cameras.getClosestTagId(),
                             true, 
                             true, 
                             m_robotDrive, 
                             m_cameras, 
-                            new Translation2d(0.575, -0.165),
-                            () -> driverController_XBOX.getLeftY()
-                            ).schedule();
+                            () -> m_cameras.getOffsetX(),
+                            () -> m_cameras.getOffsetY(),
+                            () -> areJoysticksPressed()
+                            )
+                            .alongWith( new ToggleElevatorCommand(ledLeft, ledRight, elevator, harpoon))
+                            .schedule();
                     }
                 })
             );
         }
         else {
             // Reset Gyro
-            driverController_PS5.triangle().onTrue(new InstantCommand(() -> { m_robotDrive.zeroHeading();m_robotDrive.resetOdometry(m_cameras.estimateRobotPoseManual(false));}));
+            driverController_PS5.triangle().onTrue(new InstantCommand(() -> { m_robotDrive.zeroHeading();}));
 
             // Slow mode command (Left Bumper)
             driverController_PS5.L1().onTrue(new InstantCommand(() -> m_robotDrive.setSlowMode(true)));
@@ -210,7 +216,7 @@ public class RobotContainer {
             driverController_PS5.R1().onFalse(new InstantCommand(() -> m_robotDrive.setFastMode(false)));
 
             // toggling the elevator up and down
-            driverController_PS5.cross().onTrue(new ToggleElevatorCommand(elevator, harpoon));
+            driverController_PS5.cross().onTrue(new ToggleElevatorCommand(ledLeft, ledRight, elevator, harpoon));
 
             // intake gamepiece
             this.driverController_PS5.square()
@@ -229,17 +235,52 @@ public class RobotContainer {
                 new InstantCommand(() -> {
                     if(m_cameras.isVisionActive) {
                         new AlignTeleopCommand(
-                            21,  // m_cameras.getClosestTagId()
+                            m_cameras.getClosestTagId(),
                             true, 
                             true, 
                             m_robotDrive, 
                             m_cameras, 
-                            new Translation2d(0.575, -0.165),
-                            () -> driverController_PS5.getLeftY()
-                            ).alongWith( new ToggleElevatorCommand(elevator, harpoon)).schedule();
+                            () -> m_cameras.getOffsetX(),
+                            () -> m_cameras.getOffsetY(),
+                            () -> areJoysticksPressed()
+                            )
+                            .alongWith( new ToggleElevatorCommand(ledLeft, ledRight, elevator, harpoon))
+                            .schedule();
                     }
                 })
             );
+
+            this.driverController_PS5.L2().onTrue(
+                new InstantCommand(() -> {
+                    if(m_cameras.isVisionActive) {
+                        new AlignTeleopCommand(
+                            m_cameras.getClosestTagId(),
+                            true, 
+                            true, 
+                            m_robotDrive, 
+                            m_cameras, 
+                            () -> m_cameras.getOffsetX(),
+                            () -> m_cameras.getOffsetY(),
+                            () -> areJoysticksPressed()
+                            )
+                            .alongWith( new ToggleElevatorCommand(ledLeft, ledRight, elevator, harpoon))
+                            .schedule();
+                    }
+                })
+            );
+        }
+    }
+
+    public boolean areJoysticksPressed() {
+        if (controllerOptions_driver.getSelected() == "XBOX") {
+            return Math.abs(driverController_XBOX.getLeftX()) > 0.05 ||
+            Math.abs(driverController_XBOX.getLeftY()) > 0.05 || 
+            Math.abs(driverController_XBOX.getRightX()) > 0.05;
+        }
+        else {
+            return Math.abs(driverController_PS5.getLeftX()) > 0.05 ||
+            Math.abs(driverController_PS5.getLeftY()) > 0.05 || 
+            Math.abs(driverController_PS5.getRightX()) > 0.05;
         }
     }
 
@@ -265,9 +306,17 @@ public class RobotContainer {
                 andThen(new PrepareHarpoonCommand(harpoon, HarpoonMode.REEF, () -> harpoon.getUpperSetpoint()))
             );
 
-            this.operatorController_XBOX.leftTrigger().onTrue(
+            this.operatorController_XBOX.y().onTrue(
                 new PrepareElevatorCommand(elevator, ElevatorMode.FEEDER, () -> ElevatorPosition.INTAKE.getSetpoint()).
                 andThen(new PrepareHarpoonCommand(harpoon, HarpoonMode.FEEDER, () -> HarpoonPosition.INTAKE.getSetpoint()))
+            );
+
+            this.operatorController_XBOX.rightTrigger().onTrue(
+                new InstantCommand(() -> m_cameras.switchOffset(false))
+            );
+
+            this.operatorController_XBOX.leftTrigger().onTrue(
+                new InstantCommand(() -> m_cameras.switchOffset(true))
             );
         }
         else {
@@ -281,9 +330,17 @@ public class RobotContainer {
                 andThen(new PrepareHarpoonCommand(harpoon, HarpoonMode.REEF, () -> harpoon.getUpperSetpoint()))
             );
 
-            this.operatorController_PS5.L2().onTrue(
+            this.operatorController_PS5.triangle().onTrue(
                 new PrepareElevatorCommand(elevator, ElevatorMode.FEEDER, () -> ElevatorPosition.INTAKE.getSetpoint()).
                 andThen(new PrepareHarpoonCommand(harpoon, HarpoonMode.FEEDER, () -> HarpoonPosition.INTAKE.getSetpoint()))
+            );
+
+            this.operatorController_PS5.R2().onTrue(
+                new InstantCommand(() -> m_cameras.switchOffset(false))
+            );
+
+            this.operatorController_PS5.L2().onTrue(
+                new InstantCommand(() -> m_cameras.switchOffset(true))
             );
         }
     }

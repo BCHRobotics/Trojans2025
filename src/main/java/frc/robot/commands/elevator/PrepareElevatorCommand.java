@@ -23,7 +23,7 @@ public class PrepareElevatorCommand extends Command {
         elevatorSubsystem.setSelectedPosition(position.getAsDouble());
         elevatorSubsystem.setNextMode(mode);
 
-        System.out.println("SELECTED ELEVATOR POSITION: " + position);
+        System.out.println("SELECTED ELEVATOR POSITION: " + position.getAsDouble());
     }
 
     @Override

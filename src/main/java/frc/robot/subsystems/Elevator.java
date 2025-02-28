@@ -17,8 +17,6 @@ import frc.robot.Constants.ElevatorConstants;
 import frc.robot.Constants.ElevatorConstants.ElevatorMode;
 import frc.robot.Constants.ElevatorConstants.ElevatorPosition;
 
-// TODO: tune PIDs
-
 /*
  * Subsystem for managing elevator movement
  */

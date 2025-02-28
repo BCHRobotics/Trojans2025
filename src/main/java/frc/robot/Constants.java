@@ -52,10 +52,10 @@ public final class Constants {
     public enum ElevatorPosition { // rotations
       STOWED(0), // FINAL
       L1(4),
-      L2(9.15),  // FINAL
-      L3(13.5),  // FINAL
-      L4(20.55), // UNTESTED
-      INTAKE(2.8), // FINAL
+      L2(8.85),  // FINAL
+      L3(12.8),  // FINAL
+      L4(20.3), // UNTESTED
+      INTAKE(2.65), // FINAL
       ALGAE(8.55);
       
       private final double setpoint;
@@ -79,7 +79,7 @@ public final class Constants {
     public static final int rightElevatorID = 20;
 
     // PID terms for elevator up/down motion
-    public static final double ElevatorkP = 0.07;
+    public static final double ElevatorkP = 0.065;
     public static final double ElevatorkI = 0.01;
     public static final double ElevatorkD = 0.000;
 
@@ -131,7 +131,7 @@ public final class Constants {
     public static final int kRotationMotorCANID = 31; // TO be changed to the actual rotation motor ID
 
     public static final double harpoonP = 2;
-    public static final double harpoonI = 0.1;
+    public static final double harpoonI = 0;
     public static final double harpoonD = 0;
 
     public static final double gearConversionFactor = 9; // This is the conversion factor from degrees to rotations
@@ -203,7 +203,7 @@ public final class Constants {
     // how far the robot can be from the setpoint during vision alignment
     // these CANNOT be zero, because then commands won't cancel because the robot cannot be perfect
     public static final double allowedXError = 0.13;
-    public static final double allowedYError = 0.05; 
+    public static final double allowedYError = 0.07; 
 
     // camera names, transforms, etc.
     public static final String[] cameraNames = new String[] {

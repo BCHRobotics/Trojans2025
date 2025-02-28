@@ -3,18 +3,26 @@ package frc.robot.commands.elevator;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.Constants.ElevatorConstants.ElevatorMode;
 import frc.robot.Constants.HarpoonConstants.HarpoonMode;
+import frc.robot.commands.SetLEDCommand;
 import frc.robot.commands.harpoon.IntakeCommand;
 import frc.robot.subsystems.Elevator;
 import frc.robot.subsystems.Harpoon;
+import frc.robot.subsystems.LED;
 
 public class ToggleElevatorCommand extends Command {
 
     private Elevator elevatorSubsystem;
     private Harpoon harpoonSubsystem;
+
+    private LED led1;
+    private LED led2;
     
-    public ToggleElevatorCommand(Elevator elevatorSubsystem, Harpoon harpoonSubsystem) {
+    public ToggleElevatorCommand(LED led1, LED led2, Elevator elevatorSubsystem, Harpoon harpoonSubsystem) {
         this.elevatorSubsystem = elevatorSubsystem;
         this.harpoonSubsystem = harpoonSubsystem;
+
+        this.led1 = led1;
+        this.led2 = led2;
     }
 
     @Override
@@ -25,7 +33,10 @@ public class ToggleElevatorCommand extends Command {
             harpoonSubsystem.setMode(harpoonSubsystem.getNextMode());
 
             if (harpoonSubsystem.getNextMode() == HarpoonMode.FEEDER) {
-                new IntakeCommand(elevatorSubsystem, harpoonSubsystem, 0.6, () -> true).schedule();
+                new IntakeCommand(elevatorSubsystem, harpoonSubsystem, 0.6, () -> true).
+                alongWith(new SetLEDCommand(led1, led2, -0.11)).
+                andThen(new SetLEDCommand(led1, led2, -0.05))
+                .schedule();
             }
         }
         else {

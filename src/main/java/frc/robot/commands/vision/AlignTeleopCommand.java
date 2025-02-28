@@ -4,6 +4,7 @@ import frc.robot.subsystems.Cameras;
 import frc.robot.subsystems.Drivetrain;
 import frc.utils.VisionUtils;
 
+import java.util.function.BooleanSupplier;
 import java.util.function.DoubleSupplier;
 
 import edu.wpi.first.math.MathUtil;
@@ -29,19 +30,23 @@ public class AlignTeleopCommand extends Command{
    Boolean isRateLimited;
    
    int tagId;
-   Translation2d desiredOffset;
+   
+   DoubleSupplier offsetX;
+   DoubleSupplier offsetY;
 
    Pose2d tagPosition;
 
    boolean lockedIn;
    boolean isDone;
 
-   DoubleSupplier joystickInput;
+   BooleanSupplier joystickInput;
 
-   public AlignTeleopCommand(int targetTagId, Boolean fieldRelative, Boolean rateLimit, Drivetrain driveSubsystem, Cameras cameraSubsystem, Translation2d offset, DoubleSupplier joystickInput){
+   public AlignTeleopCommand(int targetTagId, Boolean fieldRelative, Boolean rateLimit, Drivetrain driveSubsystem, Cameras cameraSubsystem, DoubleSupplier offsetX, DoubleSupplier offsetY, BooleanSupplier joystickInput){
         //tagId  = cameraSubsystem.getBestTargetID(cameraSubsystem.getBestTarget(1)); // to be changed. We need to reference the 3 front cameras 
         tagId = targetTagId;
-        desiredOffset = offset;
+        
+        this.offsetX = offsetX;
+        this.offsetY = offsetY;
 
         isFieldRelative = fieldRelative;
         isRateLimited = rateLimit;
@@ -59,15 +64,19 @@ public class AlignTeleopCommand extends Command{
 
    @Override
    public void initialize() {
-    System.out.println("ALIGN ON");
-       // Set the drive mode
-       driveSubsystem.setDriveMode(DriveModes.ALIGNTELE);
+    System.out.println("ALIGN ON! Tag ID: " + tagId);
+
+    // Set the drive mode
+    driveSubsystem.setDriveMode(DriveModes.ALIGNTELE);
    }
 
    @Override
    public void execute() {
+    if (tagId <= 0) { return;}
         // since the vector provided is a local vector, we make it field-relative
-        Translation2d fieldRelativeTagOffset = VisionUtils.applyRotationMatrix(desiredOffset, VisionConstants.tagTransforms[tagId].headingAngle * Math.PI / 180);
+        Translation2d fieldRelativeTagOffset = VisionUtils.applyRotationMatrix(new Translation2d(offsetX.getAsDouble(), offsetY.getAsDouble()), VisionConstants.tagTransforms[tagId].headingAngle * Math.PI / 180);
+
+        Translation2d pushbackOffset = VisionUtils.applyRotationMatrix(new Translation2d(0.5, 0), VisionConstants.tagTransforms[tagId].headingAngle * Math.PI / 180);
 
         // how far the robot is from the tag
         Transform2d fieldRelativeRobotToTag = cameraSubsystem.getFieldOrientedTagOffset(tagId);
@@ -81,8 +90,8 @@ public class AlignTeleopCommand extends Command{
 
             if (!lockedIn) {
                 actualOffset = new Transform2d(
-                fieldRelativeRobotToTag.getX() + fieldRelativeTagOffset.getX() + 0.5,
-                fieldRelativeRobotToTag.getY() + fieldRelativeTagOffset.getY(),
+                fieldRelativeRobotToTag.getX() + fieldRelativeTagOffset.getX() + pushbackOffset.getX(),
+                fieldRelativeRobotToTag.getY() + fieldRelativeTagOffset.getY() + pushbackOffset.getY(),
                 fieldRelativeRobotToTag.getRotation()
                 );
             }
@@ -99,18 +108,22 @@ public class AlignTeleopCommand extends Command{
             double commandedY = actualOffset.getY();
 
             if (Math.abs(actualOffset.getY()) < 0.1) {
-                commandedY = actualOffset.getY() * 0.5;
+                commandedY = actualOffset.getY() * 0.2;
             }  
             
             // the rotational speed
-            double commandedRot = pidRot.calculate(
-                Rotation2d.fromDegrees(driveSubsystem.getPose().getRotation().getDegrees()).
-                minus(Rotation2d.fromDegrees(180)).getDegrees(), 
-                VisionConstants.tagTransforms[tagId].headingAngle);
+            // double commandedRot = pidRot.calculate(
+            //     Rotation2d.fromDegrees(driveSubsystem.getPose().getRotation().getDegrees()).
+            //     minus(Rotation2d.fromDegrees(180)).getDegrees(), 
+            //     VisionConstants.tagTransforms[tagId].headingAngle);
+
+            double commandedRot = 0;
+
+                
 
             // clamp x and y speeds for testing, don't want the robot hitting anything
-            commandedX = MathUtil.clamp(commandedX, -0.4, 0.4);
-            commandedY = MathUtil.clamp(commandedY, -0.4, 0.4);
+            commandedX = MathUtil.clamp(commandedX, -0.5, 0.5);
+            commandedY = MathUtil.clamp(commandedY, -0.5, 0.5);
 
             commandedRot = MathUtil.clamp(commandedRot, -0.3, 0.3);
 
@@ -144,16 +157,22 @@ public class AlignTeleopCommand extends Command{
             // figure out what speeds to command to the drivetrain on 2 axis
             double commandedX = pid.calculate(-actualOffset.getX(), 0);
             double commandedY = actualOffset.getY(); 
+
+            if (Math.abs(actualOffset.getY()) < 0.1) {
+                commandedY = actualOffset.getY() * 0.2;
+            }  
             
             // the rotational speed
-            double commandedRot = pidRot.calculate(
-                Rotation2d.fromDegrees(driveSubsystem.getPose().getRotation().getDegrees()).
-                minus(Rotation2d.fromDegrees(180)).getDegrees(), 
-                VisionConstants.tagTransforms[tagId].headingAngle);
+            // double commandedRot = pidRot.calculate(
+            //     Rotation2d.fromDegrees(driveSubsystem.getPose().getRotation().getDegrees()).
+            //     minus(Rotation2d.fromDegrees(180)).getDegrees(), 
+            //     VisionConstants.tagTransforms[tagId].headingAngle);
+
+            double commandedRot = 0;
 
             // clamp x and y speeds for testing, don't want the robot hitting anything
-            commandedX = MathUtil.clamp(commandedX, -0.7, 0.7);
-            commandedY = MathUtil.clamp(commandedY, -0.7, 0.7);
+            commandedX = MathUtil.clamp(commandedX, -0.5, 0.5);
+            commandedY = MathUtil.clamp(commandedY, -0.5, 0.5);
 
             commandedRot = MathUtil.clamp(commandedRot, -0.3, 0.3);
 
@@ -185,6 +204,6 @@ public class AlignTeleopCommand extends Command{
 
    @Override
    public boolean isFinished() {
-       return driveSubsystem.getDriveMode() != DriveModes.ALIGNTELE || isDone || Math.abs(joystickInput.getAsDouble()) > 0.1;
+       return driveSubsystem.getDriveMode() != DriveModes.ALIGNTELE || isDone || joystickInput.getAsBoolean() || tagId <= 0;
    }
 }

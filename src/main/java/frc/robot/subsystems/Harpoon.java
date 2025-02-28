@@ -176,7 +176,7 @@ public class Harpoon extends SubsystemBase{
     }
 
     public double applyLimits(double input) {
-        if (kRotationMotor.getAbsoluteEncoder().getPosition() < 0.5 && setpoint > 0.9) {
+        if (kRotationMotor.getAbsoluteEncoder().getPosition() < 0.5 && setpoint > 0.95) {
             return 0;
         }
         else if (kRotationMotor.getAbsoluteEncoder().getPosition() < 0.5) {

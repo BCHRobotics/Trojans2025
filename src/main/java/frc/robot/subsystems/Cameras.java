@@ -38,6 +38,8 @@ public class Cameras extends SubsystemBase {
     // -----
     public boolean isVisionActive = true;
     // -----
+
+    private boolean targetingRight;
     
     public Cameras() {
         // initialize and fill any necessary arrays
@@ -53,6 +55,18 @@ public class Cameras extends SubsystemBase {
     // we need a reference to the drivetrain
     public void setDriveSubsystem(Drivetrain subsystem) {
         driveSubsystem = subsystem;
+    }
+
+    public double getOffsetX() {
+        return 0.575;
+    }
+
+    public double getOffsetY() {
+        return targetingRight ? -0.165 : 0.165;
+    }
+
+    public void switchOffset(boolean isRight) {
+        targetingRight = isRight;
     }
 
     @Override
@@ -118,7 +132,6 @@ public class Cameras extends SubsystemBase {
 
                 // adding to the total tag count
                 visibleTagCount++;
-                System.out.println(i);
             }
         }
 
@@ -168,8 +181,6 @@ public class Cameras extends SubsystemBase {
                 }
             }
         }
-
-        System.out.println("VISIBLE TAGS  " + visibleTagCount);
 
         // setting up the final pose
         // ----------------------------------------
