@@ -24,10 +24,24 @@ public class PrepareElevatorCommand extends Command {
 
     @Override
     public void initialize() {
-        elevatorSubsystem.setSelectedPosition(position.getAsDouble());
+
+        double newPos = position.getAsDouble();
+        elevatorSubsystem.setSelectedPosition(newPos);
         elevatorSubsystem.setNextMode(mode);
 
-        System.out.println("SELECTED ELEVATOR POSITION: " + position.getAsDouble());
+        // if (position.getAsDouble() == ElevatorPosition.L1.getSetpoint()) {
+        //     new SetLEDCommand(led2, led1, 0.61, 0).schedule();
+        // } else if (position.getAsDouble() == ElevatorPosition.L2.getSetpoint()) {
+        //     new SetLEDCommand(led2, led1, 0.65, 0).schedule();
+        // } else if (position.getAsDouble() == ElevatorPosition.L3.getSetpoint()) {
+        //     new SetLEDCommand(led2, led1, 0.69, 0).schedule();
+        // } else if (position.getAsDouble() == ElevatorPosition.L4.getSetpoint()) {
+        //     new SetLEDCommand(led2, led1, 0.77, 0).schedule();
+        // } else if (position.getAsDouble() == ElevatorPosition.INTAKE.getSetpoint()) {
+        //     new SetLEDCommand(led2, led1, 0.91, 0).schedule();
+        // }
+
+        System.out.println("SELECTED ELEVATOR POSITION: " + newPos);
     }
 
     @Override

@@ -232,6 +232,8 @@ public final class Constants {
     // these are the actual ones for 2025
     // TagTransform class for holding position, heading, y-rot, etc.
 
+    // METERS, DIVIDE BY 39.37!
+
     // since First decided to provide units in inches, I've left the raw units here
     // and just decided to make a function to correct them
     public static final TagTransform[] tagTransforms = new TagTransform[] {
@@ -380,8 +382,8 @@ public final class Constants {
       AutoPOI.createPOIFromTag("BlueReef2Left", 19, new Translation2d(0.432, -0.165)),
       AutoPOI.createPOIFromTag("BlueReef2Right", 19, new Translation2d(0.432, 0.165)),
 
-      AutoPOI.createPOIFromTag("BlueReef3Left", 20, new Translation2d(0.432, -0.165)),
-      AutoPOI.createPOIFromTag("BlueReef3Right", 20, new Translation2d(0.432, 0.165)),
+      AutoPOI.createPOIFromTag("BlueReef3Left", 20, new Translation2d(0.59, -0.165)),
+      AutoPOI.createPOIFromTag("BlueReef3Right", 20, new Translation2d(0.59, 0.165)),
 
       AutoPOI.createPOIFromTag("BlueReef4Left", 21, new Translation2d(0.59, -0.165)),
       AutoPOI.createPOIFromTag("BlueReef4Right", 21, new Translation2d(0.59, 0.165)),
@@ -405,8 +407,8 @@ public final class Constants {
       AutoPOI.createPOIFromTag("RedReef2Left", 6, new Translation2d(0.432, -0.165)),
       AutoPOI.createPOIFromTag("RedReef2Right", 6, new Translation2d(0.432, 0.165)),
 
-      AutoPOI.createPOIFromTag("RedReef3Left", 11, new Translation2d(0.432, -0.165)),
-      AutoPOI.createPOIFromTag("RedReef3Right", 11, new Translation2d(0.432, 0.165)),
+      AutoPOI.createPOIFromTag("RedReef3Left", 11, new Translation2d(0.59, -0.165)),
+      AutoPOI.createPOIFromTag("RedReef3Right", 11, new Translation2d(0.59, 0.165)),
 
       AutoPOI.createPOIFromTag("RedReef4Left", 10, new Translation2d(0.432, -0.165)),
       AutoPOI.createPOIFromTag("RedReef4Right", 10, new Translation2d(0.432, 0.165)),

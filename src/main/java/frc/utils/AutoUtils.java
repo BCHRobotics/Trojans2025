@@ -55,11 +55,12 @@ public class AutoUtils {
 
     public enum AutoCommands {
         Move, // move in a straight line from one POI to another
+        Shift, // move a set amount of meters on x and y
         Path, // same thing but not a line, following a prebuilt path
         Wait, // wait a certain amount of seconds
         Score, // eject the currrently loaded coral
         Intake, // move the harpoon and elevator to intake from the feeder
-        Prep, //
+        Prep, // TODO:
     }
 
     // PROCESSING AUTO COMMANDS
@@ -139,6 +140,7 @@ public class AutoUtils {
     // do this ^^ to allow humans to make the call
 
     public static Command actuallyBuildAutoFromCommands(String _commandString, LED ledSubsystem1, LED ledSubsystem2, Elevator elevatorSubsystem, Harpoon harpoonSubsystem, Drivetrain driveSubsystem, Cameras cameraSubsystem, int fallbackStartingPoseId, boolean isRedSide) {
+        if (_commandString == "none") {System.out.println("LOADING NULL AUTO..."); return Commands.none();}
         // split the string up, commands are separated by commas obv
         String[] commands = separateCommandString(_commandString);
 
@@ -169,6 +171,19 @@ public class AutoUtils {
             }
         }
 
+        if (oldPOI.position.getX() == 0) {
+            System.out.println("pose estimation failed! overriding starting position...");
+            if (isRedSide) {
+                oldPOI.position = new Pose2d(0, 0, Rotation2d.fromDegrees(0));
+            }
+            else {
+                oldPOI.position = new Pose2d(0, 0, Rotation2d.fromDegrees(180));
+            }
+        }
+        else {
+            System.out.println("pose estimation success!");
+        }
+
         // reset odometry to the defined starting pose
         final Pose2d commandedStartingPose = oldPOI.position;
 
@@ -196,7 +211,7 @@ public class AutoUtils {
                 newPOI.position = searchForPOI(name).position;
 
                 autoCommand = autoCommand.andThen(
-                    constructPathCommand(generatePathFromPOIs(oldPOI, newPOI, driveSubsystem), driveSubsystem, robotConfig)
+                    constructPathCommand(generatePathFromPOIs(oldPOI, newPOI, driveSubsystem, true), driveSubsystem, robotConfig)
                 );
                 
                 // set the previous POI to where the robot should now be at this time
@@ -240,6 +255,19 @@ public class AutoUtils {
                     new PrepareElevatorCommand(elevatorSubsystem, ElevatorMode.FEEDER, () -> ElevatorPosition.INTAKE.getSetpoint()).
                     andThen(new PrepareHarpoonCommand(harpoonSubsystem, HarpoonMode.FEEDER, () -> HarpoonPosition.INTAKE.getSetpoint()))
                     .andThen(new ToggleMechanismCommand(ledSubsystem1, ledSubsystem2, elevatorSubsystem, harpoonSubsystem))
+                );
+            } else if (getCommandType(commands[i]) == AutoCommands.Shift.ordinal()) {
+                // set up a poi path with the two
+                AutoPOI shiftedPOI = new AutoPOI();
+                shiftedPOI.name = "shift";
+                shiftedPOI.position = new Pose2d(
+                    oldPOI.position.getX() + Double.parseDouble(getArguments(commands[i])[0]),
+                    oldPOI.position.getY() + Double.parseDouble(getArguments(commands[i])[1]),
+                    oldPOI.position.getRotation()
+                );
+
+                autoCommand = autoCommand.andThen(
+                    constructPathCommand(generatePathFromPOIs(oldPOI, shiftedPOI, driveSubsystem, false), driveSubsystem, robotConfig)
                 );
             } 
         }
@@ -313,13 +341,15 @@ public class AutoUtils {
      * create a PathPlannerPath given two AutoPOI classes, going from one to the other
      * the path will be a straight line
      */
-    public static PathPlannerPath generatePathFromPOIs(AutoPOI start, AutoPOI finish, Drivetrain driveSubsystem) {
+    public static PathPlannerPath generatePathFromPOIs(AutoPOI start, AutoPOI finish, Drivetrain driveSubsystem, Boolean raiseElevator) {
         
         // creating an empty list for event markers, filled if the POI has a tag id
         List<EventMarker> eventMarkers = new LinkedList<EventMarker>();
 
-        eventMarkers.add(new EventMarker("Elevator Up", 1));
-        eventMarkers.add(new EventMarker("Pose Estimation", 1));
+        if (raiseElevator) {
+            eventMarkers.add(new EventMarker("Elevator Up", 1));
+            //eventMarkers.add(new EventMarker("Pose Estimation", 1));
+        }
 
         Translation2d alignmentOffset = VisionUtils.applyRotationMatrix(
             new Translation2d(0.75, 0), 
@@ -359,6 +389,27 @@ public class AutoUtils {
         return new Pose2d(initialPose.getX(), initialPose.getY(), 
         Rotation2d.fromRadians(angleFromPointToPoint(initialPose, finalPose)));
     }
+
+    
+
+    // fixes an input angle (provided in radians)
+    // angle goes in, goes out +180 - -180
+    public double fixAngle(double inputAngle) {
+        if (inputAngle < -Math.PI) {
+            return inputAngle + Math.PI * 2;
+        }
+        else if (inputAngle > Math.PI) {
+            return inputAngle - Math.PI * 2;
+        }
+        else {
+            return inputAngle;
+        }
+    }
+
+    // TODO: this (look in notebook)
+    // public double averageAngles() {
+
+    // }
     
     /*
      * standing at one point, what is the heading angle of the other point?
@@ -433,6 +484,8 @@ public class AutoUtils {
             return AutoCommands.Score.ordinal();
         }else if (stringEquals(command.substring(0, 6), "intake")) {
             return AutoCommands.Intake.ordinal();
+        }else if (stringEquals(command.substring(0, 5), "shift")) {
+            return AutoCommands.Shift.ordinal();
         }
         System.err.println("ERROR: that auto command type doesn't exist or hasn't been implemented!");
         return -1;

@@ -106,6 +106,8 @@ public class Cameras extends SubsystemBase {
      * @return a best guess of the robot's field relative pose, obtained from vision measurements
      */
     public Pose2d estimateRobotPoseManual(boolean distanceThreshold) {
+        // avoid non-reef tags 1, 2, 13, 12, 4, 5, 14, 15
+
         Transform2d[] fieldRelativeOffsets = getAllFieldRelativeOffsets();
         
         // variables for keeping track of the final x, y, rot
@@ -128,8 +130,8 @@ public class Cameras extends SubsystemBase {
         // first we do a loop through all the tags to figure out which ones we can see, and count them up
         // necessary because each result is divided by the total number of results
         for (int i = 1; i < fieldRelativeOffsets.length; i++) {
-            if (fieldRelativeOffsets[i] != null) {
-                if (i > 16 && (getDistanceToTag(i) > 3.0 || fieldRelativeOffsets[i].getX() > 3.0) && distanceThreshold) {continue;}
+            if (fieldRelativeOffsets[i] != null && isTagValid(i)) {
+                if ((getDistanceToTag(i) > 3.0 || fieldRelativeOffsets[i].getX() > 3.0) && distanceThreshold) {continue;}
 
                 // adding to the total tag count
                 visibleTagCount++;
@@ -141,8 +143,8 @@ public class Cameras extends SubsystemBase {
 
         // looping through all the results again to actually add up the measurements
         for (int i = 1; i < fieldRelativeOffsets.length; i++) {
-            if (fieldRelativeOffsets[i] != null) {
-                if (i > 16 && (getDistanceToTag(i) > 3.0 || fieldRelativeOffsets[i].getX() > 3.0) && distanceThreshold) {continue;}
+            if (fieldRelativeOffsets[i] != null && isTagValid(i)) {
+                if ((getDistanceToTag(i) > 3.0 || fieldRelativeOffsets[i].getX() > 3.0) && distanceThreshold) {continue;}
 
                 // the idea here is to figure out where the tag is (which is static),
                 // then figure out where the robot thinks it is relative to the tag,
@@ -178,7 +180,7 @@ public class Cameras extends SubsystemBase {
                 // ----------------------
                 
                 // ONLY ONE rotation measurement is used, and it's just the first tag the robot sees
-                if (i == 21) {
+                if (finalRot == 0) {
                     finalRot += estimatedPosition.getRotation().getRadians();
                 }
             }
@@ -200,6 +202,16 @@ public class Cameras extends SubsystemBase {
 
         // this is now our final pose which can be returned
         return finalPose;
+    }
+    
+    // avoid non-reef tags 1, 2, 13, 12, 4, 5, 14, 15
+    public boolean isTagValid(int id) {
+        if (id != 1 && id != 2 && id != 13 && id != 12 && id != 4 && id != 5 && id != 14 && id != 15) {
+            return true;
+        }
+        else {
+            return false;
+        }
     }
 
     // get the difference between 
@@ -246,8 +258,8 @@ public class Cameras extends SubsystemBase {
 
         //SmartDashboard.putNumber("x dist", VisionConstants.tagTransforms[18].xPosition - driveSubsystem.getPose().getX());
 
-        SmartDashboard.putNumber("f", estimateRobotPoseManual(true).getX());
-        SmartDashboard.putNumber("g", estimateRobotPoseManual(true).getY());
+        SmartDashboard.putNumber("f", estimateRobotPoseManual(false).getX());
+        SmartDashboard.putNumber("g", estimateRobotPoseManual(false).getY());
     }
 
     /*

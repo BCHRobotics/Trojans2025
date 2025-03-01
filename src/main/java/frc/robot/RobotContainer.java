@@ -91,6 +91,9 @@ public class RobotContainer {
     // dropdown menu for selecting autos
     SendableChooser<Integer> autoFallback;
 
+    Command autoCommand;
+    String autoCommandString;
+
     private boolean isRedAlliance;
 
     /**
@@ -116,8 +119,16 @@ public class RobotContainer {
 
         // defining the auto selection dropdown
         autoSelect = new SendableChooser<String>();
-        autoSelect.addOption("1 Coral", "move(Reef4Left)/wait(1)/score(0)");
-        autoSelect.addOption("1 Coral, Feeder", "move(Reef4Left)/wait(1)/score(0)/path(Coral2Left)/intake(0)");
+        autoSelect.addOption("None", "none");
+        autoSelect.addOption("Move (blue)", "shift(-1.5,0)");
+        autoSelect.addOption("Move (red)", "shift(1.5,0)");
+        autoSelect.addOption("1 Coral (10)", "move(Reef3Right)/wait(1)/score(0)");
+        autoSelect.addOption("1 Coral (11)", "move(Reef3Left)/wait(1)/score(0)");
+        autoSelect.addOption("1 Coral (12)", "move(Reef4Right)/wait(1)/score(0)");
+        autoSelect.addOption("1 Coral (1)", "move(Reef4Left)/wait(1)/score(0)");
+        autoSelect.addOption("1 Coral (2)", "move(Reef5Right)/wait(1)/score(0)");
+        autoSelect.addOption("1 Coral (3)", "move(Reef5Left)/wait(1)/score(0)");
+        // autoSelect.addOption("1 Coral, Feeder", "move(Reef4Left)/wait(1)/score(0)/path(Coral2Left)/intake(0)");
 
         SmartDashboard.putData("Select Auto", autoSelect);
 
@@ -341,13 +352,13 @@ public class RobotContainer {
                 andThen(new PrepareHarpoonCommand(harpoon, HarpoonMode.FEEDER, () -> HarpoonPosition.INTAKE.getSetpoint()))
             );
 
-            this.operatorController_XBOX.rightTrigger().onTrue(
-                new InstantCommand(() -> m_cameras.switchOffset(false))
-            );
+            // this.operatorController_XBOX.rightTrigger().onTrue(
+            //     new InstantCommand(() -> m_cameras.switchOffset(false))
+            // );
 
-            this.operatorController_XBOX.leftTrigger().onTrue(
-                new InstantCommand(() -> m_cameras.switchOffset(true))
-            );
+            // this.operatorController_XBOX.leftTrigger().onTrue(
+            //     new InstantCommand(() -> m_cameras.switchOffset(true))
+            // );
         }
         else {
             this.operatorController_PS5.L1().onTrue(
@@ -365,13 +376,13 @@ public class RobotContainer {
                 andThen(new PrepareHarpoonCommand(harpoon, HarpoonMode.FEEDER, () -> HarpoonPosition.INTAKE.getSetpoint()))
             );
 
-            this.operatorController_PS5.R2().onTrue(
-                new InstantCommand(() -> m_cameras.switchOffset(false))
-            );
+            // this.operatorController_PS5.R2().onTrue(
+            //     new InstantCommand(() -> m_cameras.switchOffset(false))
+            // );
 
-            this.operatorController_PS5.L2().onTrue(
-                new InstantCommand(() -> m_cameras.switchOffset(true))
-            );
+            // this.operatorController_PS5.L2().onTrue(
+            //     new InstantCommand(() -> m_cameras.switchOffset(true))
+            // );
         }
     }
 
@@ -396,6 +407,17 @@ public class RobotContainer {
         elevator.resetElevator();
     }
 
+    public void checkAuto() {
+        if(autoSelect.getSelected() == null || autoFallback.getSelected() == null) {return;}
+
+        if (autoCommandString != autoSelect.getSelected()) {
+            autoCommand = AutoUtils.actuallyBuildAutoFromCommands(autoSelect.getSelected(), ledLeft, ledRight, elevator, harpoon, m_robotDrive, m_cameras, autoFallback.getSelected(), isRedAlliance);
+            autoCommandString = autoSelect.getSelected();
+
+            SmartDashboard.putString("LOADED AUTO", autoCommandString);
+        }
+    }
+
     /**
      * Use this to pass the autonomous command to the main {@link Robot} class.
      * @return the command to run in autonomous
@@ -406,7 +428,7 @@ public class RobotContainer {
     public Command getAutonomousCommand() throws FileVersionException, IOException, ParseException {
         //using the string provided by the user to build and run an auto
         if (autoSelect.getSelected() != null && autoFallback.getSelected() != null) {
-            return AutoUtils.actuallyBuildAutoFromCommands(autoSelect.getSelected(), ledLeft, ledRight, elevator, harpoon, m_robotDrive, m_cameras, autoFallback.getSelected(), isRedAlliance);
+            return autoCommand;
         }
         else {
             return Commands.none();

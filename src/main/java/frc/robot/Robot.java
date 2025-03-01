@@ -63,7 +63,9 @@ public class Robot extends TimedRobot {
 
   /** This function is called periodically during Disabled mode. */
   @Override
-  public void disabledPeriodic() {}
+  public void disabledPeriodic() {
+    m_robotContainer.checkAuto();
+  }
 
   /** This autonomous runs the autonomous command selected by your {@link RobotContainer} class. */
   @Override
