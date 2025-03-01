@@ -406,10 +406,20 @@ public class AutoUtils {
         }
     }
 
-    // TODO: this (look in notebook)
-    // public double averageAngles() {
+    // averaging a bunch of heading measurements
+    // the angles processed MUST BE IN RADIANS
+    // the return angle is IN RADIANS
+    public double averageAngles(double[] measurements) {
+        double sumOfSin = 0;
+        double sumOfCos = 0;
 
-    // }
+        for (int i = 0; i < measurements.length; i++) {
+            sumOfSin += Math.sin(measurements[i]);
+            sumOfCos += Math.cos(measurements[i]);
+        }
+
+        return Math.atan2(sumOfSin, sumOfCos);
+    }
     
     /*
      * standing at one point, what is the heading angle of the other point?
