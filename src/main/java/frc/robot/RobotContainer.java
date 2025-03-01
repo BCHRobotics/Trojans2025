@@ -128,6 +128,7 @@ public class RobotContainer {
         autoSelect.addOption("1 Coral (1)", "move(Reef4Left)/wait(1)/score(0)");
         autoSelect.addOption("1 Coral (2)", "move(Reef5Right)/wait(1)/score(0)");
         autoSelect.addOption("1 Coral (3)", "move(Reef5Left)/wait(1)/score(0)");
+        // TODO: get this one ready
         // autoSelect.addOption("1 Coral, Feeder", "move(Reef4Left)/wait(1)/score(0)/path(Coral2Left)/intake(0)");
 
         SmartDashboard.putData("Select Auto", autoSelect);
