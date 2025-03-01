@@ -393,7 +393,7 @@ public class AutoUtils {
     
 
     // fixes an input angle (provided in radians)
-    // angle goes in, goes out +180 - -180
+    // angle goes in, goes out +180 - -180 (but in radians)
     public double fixAngle(double inputAngle) {
         if (inputAngle < -Math.PI) {
             return inputAngle + Math.PI * 2;

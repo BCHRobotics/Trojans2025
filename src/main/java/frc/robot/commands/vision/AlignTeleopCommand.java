@@ -110,22 +110,22 @@ public class AlignTeleopCommand extends Command{
             if (Math.abs(actualOffset.getY()) < 0.1) {
                 commandedY = actualOffset.getY() * 0.2;
             }  
+
+            // TODO: test on practice field @ 11:30
             
             // the rotational speed
-            // double commandedRot = pidRot.calculate(
-            //     Rotation2d.fromDegrees(driveSubsystem.getPose().getRotation().getDegrees()).
-            //     minus(Rotation2d.fromDegrees(180)).getDegrees(), 
-            //     VisionConstants.tagTransforms[tagId].headingAngle);
+            double commandedRot = pidRot.calculate(
+                Rotation2d.fromDegrees(driveSubsystem.getPose().getRotation().getDegrees()).
+                minus(Rotation2d.fromDegrees(180)).getDegrees(), 
+                VisionConstants.tagTransforms[tagId].headingAngle);
 
-            double commandedRot = 0;
-
-                
+            // ---
 
             // clamp x and y speeds for testing, don't want the robot hitting anything
-            commandedX = MathUtil.clamp(commandedX, -0.5, 0.5);
-            commandedY = MathUtil.clamp(commandedY, -0.5, 0.5);
-
-            commandedRot = MathUtil.clamp(commandedRot, -0.3, 0.3);
+            commandedX = MathUtil.clamp(commandedX, -VisionConstants.speedLimitX, VisionConstants.speedLimitX);
+            commandedY = MathUtil.clamp(commandedY, -VisionConstants.speedLimitY, VisionConstants.speedLimitY);
+            // ditto with rotational commanded speed
+            commandedRot = MathUtil.clamp(commandedRot, -VisionConstants.speedLimitRot, VisionConstants.speedLimitRot);
 
             if (Math.abs(actualOffset.getY()) < VisionConstants.allowedYError) {
                 commandedY = 0;
