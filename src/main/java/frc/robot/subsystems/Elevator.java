@@ -177,7 +177,7 @@ public class Elevator extends SubsystemBase{
 
         currentMode = ElevatorMode.STOWED;
         nextMode = ElevatorMode.REEF;
-        selectedPosition = ElevatorPosition.L3.getSetpoint();
+        selectedPosition = ElevatorPosition.L4.getSetpoint();
     }
 
     public void setSetpoint(double setpoint){

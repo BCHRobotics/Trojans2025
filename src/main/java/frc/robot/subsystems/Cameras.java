@@ -258,8 +258,10 @@ public class Cameras extends SubsystemBase {
 
         //SmartDashboard.putNumber("x dist", VisionConstants.tagTransforms[18].xPosition - driveSubsystem.getPose().getX());
 
+        // f is x, g is y, h is rot
         SmartDashboard.putNumber("f", estimateRobotPoseManual(false).getX());
         SmartDashboard.putNumber("g", estimateRobotPoseManual(false).getY());
+        SmartDashboard.putNumber("h", estimateRobotPoseManual(false).getRotation().getDegrees());
     }
 
     /*

@@ -210,9 +210,9 @@ public final class Constants {
   }
 
   public static final class VisionConstants{
-    public static final double speedLimitX = 0.6;
-    public static final double speedLimitY = 0.6;
-    public static final double speedLimitRot = 0.3;
+    public static final double speedLimitX = 0.05;
+    public static final double speedLimitY = 0.05;
+    public static final double speedLimitRot = 0.1;
 
     // how far the robot can be from the setpoint during vision alignment
     // these CANNOT be zero, because then commands won't cancel because the robot cannot be perfect

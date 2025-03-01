@@ -66,6 +66,8 @@ public class AlignTeleopCommand extends Command{
    public void initialize() {
     System.out.println("ALIGN ON! Tag ID: " + tagId);
 
+    driveSubsystem.resetOdometry(cameraSubsystem.estimateRobotPoseManual(true));
+
     // Set the drive mode
     driveSubsystem.setDriveMode(DriveModes.ALIGNTELE);
    }
@@ -111,15 +113,10 @@ public class AlignTeleopCommand extends Command{
                 commandedY = actualOffset.getY() * 0.2;
             }  
 
-            // TODO: test on practice field @ 11:30
-            
             // the rotational speed
             double commandedRot = pidRot.calculate(
-                Rotation2d.fromDegrees(driveSubsystem.getPose().getRotation().getDegrees()).
-                minus(Rotation2d.fromDegrees(180)).getDegrees(), 
-                VisionConstants.tagTransforms[tagId].headingAngle);
-
-            // ---
+                actualOffset.getRotation().getDegrees(), 
+                actualOffset.getRotation().getDegrees() < 0 ? -180 : 180);
 
             // clamp x and y speeds for testing, don't want the robot hitting anything
             commandedX = MathUtil.clamp(commandedX, -VisionConstants.speedLimitX, VisionConstants.speedLimitX);
@@ -132,7 +129,7 @@ public class AlignTeleopCommand extends Command{
             }
 
             // pass all values to the drivetrain
-            driveSubsystem.drive(commandedX, commandedY, commandedRot, isFieldRelative, isRateLimited);
+            driveSubsystem.drive(commandedX, commandedY, -commandedRot, isFieldRelative, isRateLimited);
             
             if (lockedIn && VisionUtils.hasReachedPosition(tagId, actualOffset.getTranslation(), driveSubsystem, cameraSubsystem)) {
                 isDone = true;
@@ -163,25 +160,22 @@ public class AlignTeleopCommand extends Command{
             }  
             
             // the rotational speed
-            // double commandedRot = pidRot.calculate(
-            //     Rotation2d.fromDegrees(driveSubsystem.getPose().getRotation().getDegrees()).
-            //     minus(Rotation2d.fromDegrees(180)).getDegrees(), 
-            //     VisionConstants.tagTransforms[tagId].headingAngle);
-
-            double commandedRot = 0;
+            double commandedRot = pidRot.calculate(
+                actualOffset.getRotation().getDegrees(), 
+                actualOffset.getRotation().getDegrees() < 0 ? -180 : 180);
 
             // clamp x and y speeds for testing, don't want the robot hitting anything
-            commandedX = MathUtil.clamp(commandedX, -0.5, 0.5);
-            commandedY = MathUtil.clamp(commandedY, -0.5, 0.5);
+            commandedX = MathUtil.clamp(commandedX, -VisionConstants.speedLimitX, VisionConstants.speedLimitX);
+            commandedY = MathUtil.clamp(commandedY, -VisionConstants.speedLimitY, VisionConstants.speedLimitY);
 
-            commandedRot = MathUtil.clamp(commandedRot, -0.3, 0.3);
+            commandedRot = MathUtil.clamp(commandedRot, -VisionConstants.speedLimitRot, VisionConstants.speedLimitRot);
 
             if (Math.abs(actualOffset.getY()) < VisionConstants.allowedYError) {
                 commandedY = 0;
             }
 
             // pass all values to the drivetrain
-            driveSubsystem.drive(commandedX, commandedY, commandedRot, isFieldRelative, isRateLimited);
+            driveSubsystem.drive(commandedX, commandedY, -commandedRot, isFieldRelative, isRateLimited);
             
             if (VisionUtils.hasReachedPosition(tagId, actualOffset.getTranslation(), driveSubsystem, cameraSubsystem)) {
                 isDone = true;

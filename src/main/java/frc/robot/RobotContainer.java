@@ -163,16 +163,17 @@ public class RobotContainer {
 
         // Setup the commands associated with all buttons on the controller
         // driver
-        configureButtonBindingsDriver(isRedAlliance, controllerOptions_driver.getSelected() == "XBOX");
+        configureButtonBindingsDriver(controllerOptions_driver.getSelected() == "XBOX");
         // operator
-        configureButtonBindingsOperator(isRedAlliance, controllerOptions_operator.getSelected() == "XBOX");
+        configureButtonBindingsOperator(controllerOptions_operator.getSelected() == "XBOX");
     }
 
     /**
      * Set up the joystick controls for the main and backup controller, called on teleopInit()
      * @param isRedAlliance is the robot on the RED SIDE OR BLUE SIDE, used for inverting controls
      */
-    public void configureDriveMode(boolean isRedAlliance) {
+    public void configureDriveMode() {
+        isRedAlliance = DriverStation.getAlliance().get() == DriverStation.Alliance.Red;
         // 0.87 is blue, 0.67 is gold
         new SetLEDCommand(ledLeft, ledRight, 0.67, 0).schedule();
 
@@ -207,7 +208,7 @@ public class RobotContainer {
     }
 
     // configure the button bindings on the driver controller
-    private void configureButtonBindingsDriver(boolean isRedAlliance, boolean isXbox) {
+    private void configureButtonBindingsDriver(boolean isXbox) {
         if (isXbox) {
             // Reset Gyro
             driverController_XBOX.y().onTrue(new InstantCommand(() -> { m_robotDrive.zeroHeading(); })); //  m_robotDrive.resetOdometry(m_cameras.estimateRobotPoseManual(false));
@@ -259,7 +260,7 @@ public class RobotContainer {
         }
         else {
             // Reset Gyro
-            driverController_PS5.triangle().onTrue(new InstantCommand(() -> { m_robotDrive.zeroHeading();}));
+            driverController_PS5.triangle().onTrue(new InstantCommand(() -> { m_robotDrive.zeroHeading(); }));
 
             // Slow mode command (Left Bumper)
             driverController_PS5.L1().onTrue(new InstantCommand(() -> m_robotDrive.setSlowMode(true)));
@@ -299,7 +300,7 @@ public class RobotContainer {
             //                 () -> m_cameras.getOffsetY(),
             //                 () -> areJoysticksPressed()
             //                 )
-            //                 .alongWith( new ToggleMechanismCommand(ledLeft, ledRight, elevator, harpoon))
+            //                 //.alongWith( new ToggleMechanismCommand(ledLeft, ledRight, elevator, harpoon))
             //                 .schedule();
             //         }
             //     })
@@ -318,7 +319,7 @@ public class RobotContainer {
             //                 () -> m_cameras.getOffsetY(),
             //                 () -> areJoysticksPressed()
             //                 )
-            //                 .alongWith( new ToggleMechanismCommand(ledLeft, ledRight, elevator, harpoon))
+            //                 //.alongWith( new ToggleMechanismCommand(ledLeft, ledRight, elevator, harpoon))
             //                 .schedule();
             //         }
             //     })
@@ -331,7 +332,7 @@ public class RobotContainer {
      * @param isRedAlliance is the robot on the RED OR BLUE SIDE
      * @param isXbox whether the active controller is the backup (XBOX)
      */
-    private void configureButtonBindingsOperator(boolean isRedAlliance, boolean isXbox) {
+    private void configureButtonBindingsOperator(boolean isXbox) {
         //final double invert = isRedAlliance ? -1 : 1;
 
         if (isXbox) {
@@ -409,6 +410,9 @@ public class RobotContainer {
     }
 
     public void checkAuto() {
+        // defining what alliance we are on
+        isRedAlliance = DriverStation.getAlliance().get() == DriverStation.Alliance.Red;
+
         if(autoSelect.getSelected() == null || autoFallback.getSelected() == null) {return;}
 
         if (autoCommandString != autoSelect.getSelected()) {
@@ -417,6 +421,8 @@ public class RobotContainer {
 
             SmartDashboard.putString("LOADED AUTO", autoCommandString);
         }
+
+        SmartDashboard.putBoolean("i", isRedAlliance);
     }
 
     /**

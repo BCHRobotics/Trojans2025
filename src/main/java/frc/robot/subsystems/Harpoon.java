@@ -74,7 +74,7 @@ public class Harpoon extends SubsystemBase{
 
     // reset the harpoon back to its default state
     public void resetHarpoon() {
-        setSelectedPosition(HarpoonPosition.L3.getSetpoint());
+        setSelectedPosition(HarpoonPosition.L4.getSetpoint());
         setNextMode(HarpoonMode.REEF);
 
         setMode(HarpoonMode.STOWED);

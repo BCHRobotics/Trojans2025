@@ -394,7 +394,7 @@ public class AutoUtils {
 
     // fixes an input angle (provided in radians)
     // angle goes in, goes out +180 - -180 (but in radians)
-    public double fixAngle(double inputAngle) {
+    public static double fixAngle(double inputAngle) {
         if (inputAngle < -Math.PI) {
             return inputAngle + Math.PI * 2;
         }
@@ -409,7 +409,7 @@ public class AutoUtils {
     // averaging a bunch of heading measurements
     // the angles processed MUST BE IN RADIANS
     // the return angle is IN RADIANS
-    public double averageAngles(double[] measurements) {
+    public static double averageAngles(double[] measurements) {
         double sumOfSin = 0;
         double sumOfCos = 0;
 
