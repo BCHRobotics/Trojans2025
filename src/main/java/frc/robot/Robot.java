@@ -4,12 +4,6 @@
 
 package frc.robot;
 
-import java.io.IOException;
-
-import org.json.simple.parser.ParseException;
-
-import com.pathplanner.lib.util.FileVersionException;
-
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
@@ -72,11 +66,7 @@ public class Robot extends TimedRobot {
 
     m_robotContainer.resetAuto();
 
-    try {
-      m_autonomousCommand = m_robotContainer.getAutonomousCommand();
-    } catch (FileVersionException | IOException | ParseException e) {
-      e.printStackTrace();
-    }
+    m_autonomousCommand = m_robotContainer.getAutonomousCommand();
 
     // schedule the autonomous command (example)
     if (m_autonomousCommand != null) {

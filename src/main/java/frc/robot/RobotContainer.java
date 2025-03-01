@@ -8,7 +8,8 @@ import java.io.IOException;
 
 import org.json.simple.parser.ParseException;
 
-import com.pathplanner.lib.events.EventTrigger;
+import com.pathplanner.lib.auto.AutoBuilder;
+import com.pathplanner.lib.auto.NamedCommands;
 import com.pathplanner.lib.util.FileVersionException;
 
 import edu.wpi.first.math.MathUtil;
@@ -33,17 +34,15 @@ import frc.robot.commands.harpoon.IntakeCommand;
 import frc.robot.commands.harpoon.PrepareHarpoonCommand;
 import frc.robot.commands.harpoon.ShootCommand;
 import frc.robot.commands.harpoon.StopClawCommand;
+import frc.robot.commands.vision.AlignTeleopCommand;
 import frc.robot.subsystems.Cameras;
 import frc.robot.subsystems.Drivetrain;
 import frc.robot.subsystems.LED;
-import frc.utils.AutoUtils;
 import frc.robot.subsystems.Elevator;
 import frc.robot.subsystems.Harpoon;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
-import edu.wpi.first.wpilibj2.command.Subsystem;
-import edu.wpi.first.wpilibj2.command.WaitCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandPS5Controller;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 
@@ -85,14 +84,16 @@ public class RobotContainer {
     // drop down menu for selecting xbox/ps5 for the operator controller
     SendableChooser<String> controllerOptions_operator;
 
-    // dropdown menu for selecting autos
-    SendableChooser<String> autoSelect;
+    // // dropdown menu for selecting autos
+    // SendableChooser<String> autoSelect;
 
-    // dropdown menu for selecting autos
-    SendableChooser<Integer> autoFallback;
+    // // dropdown menu for selecting autos
+    // SendableChooser<Integer> autoFallback;
 
-    Command autoCommand;
-    String autoCommandString;
+    SendableChooser<Command> autoChooser;
+
+    // Command autoCommand;
+    // String autoCommandString;
 
     private boolean isRedAlliance;
 
@@ -117,42 +118,49 @@ public class RobotContainer {
         controllerOptions_operator.addOption("Playstation", "PS");
         SmartDashboard.putData("Operator Select", controllerOptions_operator);
 
-        // defining the auto selection dropdown
-        autoSelect = new SendableChooser<String>();
-        autoSelect.addOption("None", "none");
-        autoSelect.addOption("Move (blue)", "shift(-1.5,0)");
-        autoSelect.addOption("Move (red)", "shift(1.5,0)");
-        autoSelect.addOption("1 Coral (10)", "move(Reef3Right)/wait(1)/score(0)");
-        autoSelect.addOption("1 Coral (11)", "move(Reef3Left)/wait(1)/score(0)");
-        autoSelect.addOption("1 Coral (12)", "move(Reef4Right)/wait(1)/score(0)");
-        autoSelect.addOption("1 Coral (1)", "move(Reef4Left)/wait(1)/score(0)");
-        autoSelect.addOption("1 Coral (2)", "move(Reef5Right)/wait(1)/score(0)");
-        autoSelect.addOption("1 Coral (3)", "move(Reef5Left)/wait(1)/score(0)");
-        // TODO: get this one ready
-        // autoSelect.addOption("1 Coral, Feeder", "move(Reef4Left)/wait(1)/score(0)/path(Coral2Left)/intake(0)");
+        // // defining the auto selection dropdown
+        // autoSelect = new SendableChooser<String>();
+        // autoSelect.addOption("None", "none");
+        // autoSelect.addOption("Move (blue)", "shift(-1.5,0)/wait(1)/score(0)");
+        // autoSelect.addOption("Move (red)", "shift(1.5,0)");
+        // autoSelect.addOption("1 Coral (10)", "move(Reef3Right)/wait(1)/score(0)");
+        // autoSelect.addOption("1 Coral (11)", "move(Reef3Left)/wait(1)/score(0)");
+        // autoSelect.addOption("1 Coral (12)", "move(Reef4Right)/wait(1)/score(0)");
+        // autoSelect.addOption("1 Coral (1)", "move(Reef4Left)/wait(1)/score(0)");
+        // autoSelect.addOption("1 Coral (2)", "move(Reef5Right)/wait(1)/score(0)");
+        // autoSelect.addOption("1 Coral (3)", "move(Reef5Left)/wait(1)/score(0)");
+        // // TODO: get this one ready
+        // // autoSelect.addOption("1 Coral, Feeder", "move(Reef4Left)/wait(1)/score(0)/path(Coral2Left)/intake(0)");
 
-        SmartDashboard.putData("Select Auto", autoSelect);
+        NamedCommands.registerCommand("SCORE", new AutoScoreCommand(harpoon, 0.6));
+        NamedCommands.registerCommand("RAISE", new ToggleMechanismCommand(ledRight, ledLeft, elevator, harpoon));
 
-        // defining the auto FALLBACK POSITION selection dropdown
-        autoFallback = new SendableChooser<Integer>();
-        autoFallback.addOption("1", 0);
-        autoFallback.addOption("2", 1);
-        autoFallback.addOption("3", 2);
-        autoFallback.addOption("4", 3);
-        autoFallback.addOption("5", 4);
-        autoFallback.addOption("6", 5);
+        autoChooser = AutoBuilder.buildAutoChooser();
+        SmartDashboard.putData("uuu", autoChooser);
 
-        SmartDashboard.putData("Select Fallback", autoFallback);
+        //SmartDashboard.putData("Select Auto", autoSelect);
 
-        // defining event markers for auto
-        new EventTrigger("Elevator Up").onTrue(new ToggleMechanismCommand(ledLeft, ledRight, elevator, harpoon));
-        new EventTrigger("Pose Estimation").onTrue(
-            new InstantCommand(() -> {
-                m_robotDrive.setOdometryOffset(m_cameras.getPoseEstimatedOffset());
-            }, new Subsystem[0])
-        );
-        new EventTrigger("Score").onTrue(new WaitCommand(2).andThen(new AutoScoreCommand(harpoon, 0.6)));
-        new EventTrigger("Stop Intake").onTrue(new StopClawCommand(harpoon));
+        // // defining the auto FALLBACK POSITION selection dropdown
+        // autoFallback = new SendableChooser<Integer>();
+        // autoFallback.addOption("1", 0);
+        // autoFallback.addOption("2", 1);
+        // autoFallback.addOption("3", 2);
+        // autoFallback.addOption("4", 3);
+        // autoFallback.addOption("5", 4);
+        // autoFallback.addOption("6", 5);
+
+        // SmartDashboard.putData("Select Fallback", autoFallback);
+
+        // // defining event markers for auto
+        // new EventTrigger("Elevator Up").onTrue(new ToggleMechanismCommand(ledLeft, ledRight, elevator, harpoon));
+        // new EventTrigger("Pose Estimation").onTrue(
+        //     new InstantCommand(() -> {
+        //         m_robotDrive.setOdometryOffset(m_cameras.getPoseEstimatedOffset());
+        //         System.out.println("OFFSET HAS BEEN ESTIMATED!");
+        //     }, new Subsystem[0])
+        // );
+        // new EventTrigger("Score").onTrue(new WaitCommand(2).andThen(new AutoScoreCommand(harpoon, 0.6)));
+        // new EventTrigger("Stop Intake").onTrue(new StopClawCommand(harpoon));
         
         // reseting both mechs to their default state (zeroing the elevator is important)
         harpoon.resetHarpoon();
@@ -287,43 +295,43 @@ public class RobotContainer {
              .onTrue(new CalibrateElevator(elevator, this.driverController_PS5.povDown()));
 
              // automatic vision lineup (taken out for now)
-            //  this.driverController_PS5.R2().onTrue(
-            //     new InstantCommand(() -> {
-            //         if(m_cameras.isVisionActive) {
-            //             new AlignTeleopCommand(
-            //                 m_cameras.getClosestTagId(),
-            //                 true, 
-            //                 true, 
-            //                 m_robotDrive, 
-            //                 m_cameras, 
-            //                 () -> m_cameras.getOffsetX(),
-            //                 () -> m_cameras.getOffsetY(),
-            //                 () -> areJoysticksPressed()
-            //                 )
-            //                 //.alongWith( new ToggleMechanismCommand(ledLeft, ledRight, elevator, harpoon))
-            //                 .schedule();
-            //         }
-            //     })
-            // );
+             this.driverController_PS5.R2().onTrue(
+                new InstantCommand(() -> {
+                    if(m_cameras.isVisionActive) {
+                        new AlignTeleopCommand(
+                            m_cameras.getClosestTagId(),
+                            true, 
+                            true, 
+                            m_robotDrive, 
+                            m_cameras, 
+                            () -> m_cameras.getOffsetX(),
+                            () -> m_cameras.getOffsetY(),
+                            () -> areJoysticksPressed()
+                            )
+                            //.alongWith( new ToggleMechanismCommand(ledLeft, ledRight, elevator, harpoon))
+                            .schedule();
+                    }
+                })
+            );
 
-            // this.driverController_PS5.L2().onTrue(
-            //     new InstantCommand(() -> {
-            //         if(m_cameras.isVisionActive) {
-            //             new AlignTeleopCommand(
-            //                 m_cameras.getClosestTagId(),
-            //                 true, 
-            //                 true, 
-            //                 m_robotDrive, 
-            //                 m_cameras, 
-            //                 () -> m_cameras.getOffsetX(),
-            //                 () -> m_cameras.getOffsetY(),
-            //                 () -> areJoysticksPressed()
-            //                 )
-            //                 //.alongWith( new ToggleMechanismCommand(ledLeft, ledRight, elevator, harpoon))
-            //                 .schedule();
-            //         }
-            //     })
-            // );
+            this.driverController_PS5.L2().onTrue(
+                new InstantCommand(() -> {
+                    if(m_cameras.isVisionActive) {
+                        new AlignTeleopCommand(
+                            m_cameras.getClosestTagId(),
+                            true, 
+                            true, 
+                            m_robotDrive, 
+                            m_cameras, 
+                            () -> m_cameras.getOffsetX(),
+                            () -> m_cameras.getOffsetY(),
+                            () -> areJoysticksPressed()
+                            )
+                            //.alongWith( new ToggleMechanismCommand(ledLeft, ledRight, elevator, harpoon))
+                            .schedule();
+                    }
+                })
+            );
         }
     }
 
@@ -354,13 +362,13 @@ public class RobotContainer {
                 andThen(new PrepareHarpoonCommand(harpoon, HarpoonMode.FEEDER, () -> HarpoonPosition.INTAKE.getSetpoint()))
             );
 
-            // this.operatorController_XBOX.rightTrigger().onTrue(
-            //     new InstantCommand(() -> m_cameras.switchOffset(false))
-            // );
+            this.operatorController_XBOX.rightTrigger().onTrue(
+                new InstantCommand(() -> m_cameras.switchOffset(false))
+            );
 
-            // this.operatorController_XBOX.leftTrigger().onTrue(
-            //     new InstantCommand(() -> m_cameras.switchOffset(true))
-            // );
+            this.operatorController_XBOX.leftTrigger().onTrue(
+                new InstantCommand(() -> m_cameras.switchOffset(true))
+            );
         }
         else {
             this.operatorController_PS5.L1().onTrue(
@@ -378,13 +386,13 @@ public class RobotContainer {
                 andThen(new PrepareHarpoonCommand(harpoon, HarpoonMode.FEEDER, () -> HarpoonPosition.INTAKE.getSetpoint()))
             );
 
-            // this.operatorController_PS5.R2().onTrue(
-            //     new InstantCommand(() -> m_cameras.switchOffset(false))
-            // );
+            this.operatorController_PS5.R2().onTrue(
+                new InstantCommand(() -> m_cameras.switchOffset(false))
+            );
 
-            // this.operatorController_PS5.L2().onTrue(
-            //     new InstantCommand(() -> m_cameras.switchOffset(true))
-            // );
+            this.operatorController_PS5.L2().onTrue(
+                new InstantCommand(() -> m_cameras.switchOffset(true))
+            );
         }
     }
 
@@ -410,19 +418,19 @@ public class RobotContainer {
     }
 
     public void checkAuto() {
-        // defining what alliance we are on
-        isRedAlliance = DriverStation.getAlliance().get() == DriverStation.Alliance.Red;
+        // // defining what alliance we are on
+        // isRedAlliance = DriverStation.getAlliance().get() == DriverStation.Alliance.Red;
 
-        if(autoSelect.getSelected() == null || autoFallback.getSelected() == null) {return;}
+        // if(autoSelect.getSelected() == null || autoFallback.getSelected() == null) {return;}
 
-        if (autoCommandString != autoSelect.getSelected()) {
-            autoCommand = AutoUtils.actuallyBuildAutoFromCommands(autoSelect.getSelected(), ledLeft, ledRight, elevator, harpoon, m_robotDrive, m_cameras, autoFallback.getSelected(), isRedAlliance);
-            autoCommandString = autoSelect.getSelected();
+        // if (autoCommandString != autoSelect.getSelected()) {
+        //     autoCommand = AutoUtils.actuallyBuildAutoFromCommands(autoSelect.getSelected(), ledLeft, ledRight, elevator, harpoon, m_robotDrive, m_cameras, autoFallback.getSelected(), isRedAlliance);
+        //     autoCommandString = autoSelect.getSelected();
 
-            SmartDashboard.putString("LOADED AUTO", autoCommandString);
-        }
+        //     SmartDashboard.putString("LOADED AUTO", autoCommandString);
+        // }
 
-        SmartDashboard.putBoolean("i", isRedAlliance);
+        // SmartDashboard.putBoolean("i", isRedAlliance);
     }
 
     /**
@@ -432,10 +440,9 @@ public class RobotContainer {
      * @throws IOException 
      * @throws FileVersionException 
      */ 
-    public Command getAutonomousCommand() throws FileVersionException, IOException, ParseException {
-        //using the string provided by the user to build and run an auto
-        if (autoSelect.getSelected() != null && autoFallback.getSelected() != null) {
-            return autoCommand;
+    public Command getAutonomousCommand() {
+        if (autoChooser.getSelected() != null) {
+            return autoChooser.getSelected();
         }
         else {
             return Commands.none();

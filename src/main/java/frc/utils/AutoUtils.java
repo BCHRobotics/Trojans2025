@@ -348,11 +348,11 @@ public class AutoUtils {
 
         if (raiseElevator) {
             eventMarkers.add(new EventMarker("Elevator Up", 1));
-            //eventMarkers.add(new EventMarker("Pose Estimation", 1));
+            eventMarkers.add(new EventMarker("Pose Estimation", 1));
         }
 
         Translation2d alignmentOffset = VisionUtils.applyRotationMatrix(
-            new Translation2d(0.75, 0), 
+            new Translation2d(0.1, 0), 
             finish.position.getRotation().getRadians() + Math.PI);
 
         Pose2d alignmentPose = new Pose2d(

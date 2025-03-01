@@ -143,7 +143,10 @@ public class Drivetrain extends SubsystemBase {
    * @param offset
    */
   public void setOdometryOffset(Transform2d offset) {
-    if (Math.abs(offset.getX()) > 0.2 || Math.abs(offset.getY()) > 0.2) {return;}
+    SmartDashboard.putNumber("correction x", offset.getX());
+    SmartDashboard.putNumber("correction y", offset.getY());
+
+    if (Math.abs(offset.getX()) > 0.3 || Math.abs(offset.getY()) > 0.3) {return;}
 
     odometryOffset = offset;
   }
@@ -160,8 +163,8 @@ public class Drivetrain extends SubsystemBase {
     Pose2d rawPose = getPose();
 
     return new Pose2d(
-      rawPose.getX(),
-      rawPose.getY(),
+      rawPose.getX() + odometryOffset.getX(),
+      rawPose.getY() + odometryOffset.getY(),
       rawPose.getRotation()
     );
   }
@@ -405,7 +408,7 @@ public class Drivetrain extends SubsystemBase {
         AutoConstants.translationConstants, 
         AutoConstants.rotationConstants, 0.02), 
         robotConfig, 
-        this::getAlliance, 
+        () -> false, 
         this);
   }      
   

@@ -3,25 +3,25 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 9.95,
-        "y": 2.0
+        "x": 9.566188524590164,
+        "y": 3.857172131147541
       },
       "prevControl": null,
       "nextControl": {
-        "x": 5.322749017199385,
-        "y": 0.4415891098554452
+        "x": 10.566188524590164,
+        "y": 3.857172131147541
       },
       "isLocked": false,
       "linkedName": null
     },
     {
       "anchor": {
-        "x": -0.5993852459016393,
-        "y": 8.64938524590164
+        "x": 11.759938524590163,
+        "y": 3.857172131147541
       },
       "prevControl": {
-        "x": -1.5993852459016398,
-        "y": 8.64938524590164
+        "x": 10.026938524590163,
+        "y": 3.857172131147541
       },
       "nextControl": null,
       "isLocked": false,
@@ -31,10 +31,22 @@
   "rotationTargets": [],
   "constraintZones": [],
   "pointTowardsZones": [],
-  "eventMarkers": [],
+  "eventMarkers": [
+    {
+      "name": "Elevator Up",
+      "waypointRelativePos": 0.9,
+      "endWaypointRelativePos": null,
+      "command": {
+        "type": "named",
+        "data": {
+          "name": "RAISE"
+        }
+      }
+    }
+  ],
   "globalConstraints": {
-    "maxVelocity": 2.0,
-    "maxAcceleration": 0.75,
+    "maxVelocity": 1.5,
+    "maxAcceleration": 0.5,
     "maxAngularVelocity": 540.0,
     "maxAngularAcceleration": 720.0,
     "nominalVoltage": 12.0,
@@ -47,8 +59,8 @@
   "reversed": false,
   "folder": null,
   "idealStartingState": {
-    "velocity": 0.0,
-    "rotation": 180.0
+    "velocity": 0,
+    "rotation": 0.0
   },
   "useDefaultConstraints": true
 }
