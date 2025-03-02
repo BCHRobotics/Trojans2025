@@ -13,10 +13,7 @@ import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.math.util.Units;
-import frc.utils.AutoPOI;
-import frc.utils.CameraTransform;
-import frc.utils.TagTransform;
-import frc.utils.VisionUtils;
+
 
 
 /**
@@ -226,13 +223,6 @@ public final class Constants {
     //"Front Right"
     };
 
-    public static final CameraTransform[] cameraOffsets = 
-    new CameraTransform[] {
-      //new CameraTransform(Units.inchesToMeters(7.5), Units.inchesToMeters(12.5), 30 / (180 * Math.PI)),
-      new CameraTransform(Units.inchesToMeters(12.5), 0, 0),
-      //new CameraTransform(Units.inchesToMeters(7.5), Units.inchesToMeters(12.5), -30 / (180 * Math.PI)),
-    };
-
     // these are the actual ones for 2025
     // TagTransform class for holding position, heading, y-rot, etc.
 
@@ -240,31 +230,7 @@ public final class Constants {
 
     // since First decided to provide units in inches, I've left the raw units here
     // and just decided to make a function to correct them
-    public static final TagTransform[] tagTransforms = new TagTransform[] {
-      VisionUtils.correctTagUnits(new TagTransform(0, 0, 0, 0, 0)), // null tag so indexing makes sense
-      VisionUtils.correctTagUnits(new TagTransform(657.37, 25.80, 58.50, 126, 0)), // 1
-      VisionUtils.correctTagUnits(new TagTransform(657.37, 291.20, 58.50, 234, 0)), // 2
-      VisionUtils.correctTagUnits(new TagTransform(455.15, 317.15, 51.25, 270, 0)), // 3
-      VisionUtils.correctTagUnits(new TagTransform(365.20, 241.64, 73.54, 0, 30)), // 4
-      VisionUtils.correctTagUnits(new TagTransform(365.20, 75.39, 12.13, 0, 30)), // 5
-      VisionUtils.correctTagUnits(new TagTransform(530.49, 130.17, 12.13, 300, 0)), // 6
-      VisionUtils.correctTagUnits(new TagTransform(546.87, 158.50, 12.13, 0, 0)), // 7
-      VisionUtils.correctTagUnits(new TagTransform(530.49, 186.83, 12.13, 60, 0)), // 8
-      VisionUtils.correctTagUnits(new TagTransform(497.77, 186.83, 12.13, 120, 0)), // 9
-      VisionUtils.correctTagUnits(new TagTransform(481.39, 158.50, 12.13, 180, 0)), // 10
-      VisionUtils.correctTagUnits(new TagTransform(497.77, 130.17, 12.13, 240, 0)), // 11
-      VisionUtils.correctTagUnits(new TagTransform(33.51, 25.80, 58.50, 54, 0)), // 12
-      VisionUtils.correctTagUnits(new TagTransform(33.51, 291.20, 58.50, 306, 0)), // 13
-      VisionUtils.correctTagUnits(new TagTransform(325.68, 241.64, 73.54, 180, 30)), // 14
-      VisionUtils.correctTagUnits(new TagTransform(325.68, 75.39, 73.54, 180, 30)), // 15
-      VisionUtils.correctTagUnits(new TagTransform(235.73, -0.15, 51.25, 90, 0)), // 16
-      VisionUtils.correctTagUnits(new TagTransform(160.39, 130.17, 12.13, 240, 0)), // 17
-      VisionUtils.correctTagUnits(new TagTransform(144.00, 158.50, 12.13, 180, 0)), // 18
-      VisionUtils.correctTagUnits(new TagTransform(160.39, 186.83, 12.13, 120, 0)), // 19
-      VisionUtils.correctTagUnits(new TagTransform(193.10, 186.83, 12.13, 60, 0)), // 20
-      VisionUtils.correctTagUnits(new TagTransform(209.49, 158.50, 12.13, 0, 0)), // 21
-      VisionUtils.correctTagUnits(new TagTransform(193.10, 130.17, 12.13, 300, 0)), // 22
-    };
+
 
     // the constants used for moving the bot towards the apriltag during vision alignment
     // NOTE - y axis doesn't go through PID, this is only for x
@@ -354,75 +320,9 @@ public final class Constants {
         kMaxAngularSpeedRadiansPerSecond, kMaxAngularSpeedRadiansPerSecondSquared);
 
     // fallback positions for BLUE SIDE
-    public static final AutoPOI[] blueFallbackPositions = new AutoPOI[] {
-      new AutoPOI(new Pose2d(8.000, 4.045, Rotation2d.fromDegrees(180)), "0"),
-      new AutoPOI(new Pose2d(8.000, 4.045, Rotation2d.fromDegrees(180)), "1"),
-      new AutoPOI(new Pose2d(8.000, 4.045, Rotation2d.fromDegrees(180)), "2"),
-      new AutoPOI(new Pose2d(8.000, 4.045, Rotation2d.fromDegrees(180)), "3"),
-      new AutoPOI(new Pose2d(8.000, 4.045, Rotation2d.fromDegrees(180)), "4"),
-      new AutoPOI(new Pose2d(8.000, 4.045, Rotation2d.fromDegrees(180)), "5"),
-    };
 
-    // fallback positions for RED SIDE
-    public static final AutoPOI[] redFallbackPositions = new AutoPOI[] {
-      new AutoPOI(new Pose2d(8.000, 4.045, Rotation2d.fromDegrees(0)), "0"),
-      new AutoPOI(new Pose2d(8.000, 4.045, Rotation2d.fromDegrees(0)), "1"),
-      new AutoPOI(new Pose2d(8.000, 4.045, Rotation2d.fromDegrees(0)), "2"),
-      new AutoPOI(new Pose2d(8.000, 4.045, Rotation2d.fromDegrees(0)), "3"),
-      new AutoPOI(new Pose2d(8.000, 4.045, Rotation2d.fromDegrees(0)), "4"),
-      new AutoPOI(new Pose2d(8.000, 4.045, Rotation2d.fromDegrees(0)), "5"),
-    };
 
-    // should be 28 total
-    public static final AutoPOI[] fieldPOIs = new AutoPOI[] {
-      // BLUE corals
-      new AutoPOI(new Pose2d(1.199, 7.010, Rotation2d.fromDegrees(126)), "BlueCoral1"),
-      new AutoPOI(new Pose2d(1.199, 0.968, Rotation2d.fromDegrees(-126)), "BlueCoral2"),
-
-      // BLUE reefs (offset of 0.432 on x, +/-0.165 on y)
-      AutoPOI.createPOIFromTag("BlueReef1Left", 18, new Translation2d(0.432, -0.165)),
-      AutoPOI.createPOIFromTag("BlueReef1Right", 18, new Translation2d(0.432, 0.165)),
-
-      AutoPOI.createPOIFromTag("BlueReef2Left", 19, new Translation2d(0.432, -0.165)),
-      AutoPOI.createPOIFromTag("BlueReef2Right", 19, new Translation2d(0.432, 0.165)),
-
-      AutoPOI.createPOIFromTag("BlueReef3Left", 20, new Translation2d(0.59, -0.165)),
-      AutoPOI.createPOIFromTag("BlueReef3Right", 20, new Translation2d(0.59, 0.165)),
-
-      AutoPOI.createPOIFromTag("BlueReef4Left", 21, new Translation2d(0.59, -0.165)),
-      AutoPOI.createPOIFromTag("BlueReef4Right", 21, new Translation2d(0.59, 0.165)),
-
-      AutoPOI.createPOIFromTag("BlueReef5Left", 22, new Translation2d(0.6, -0.1)),
-      AutoPOI.createPOIFromTag("BlueReef5Right", 22, new Translation2d(1, 0.165)),
-
-      AutoPOI.createPOIFromTag("BlueReef6Left", 17, new Translation2d(0.5, -0.1)),
-      AutoPOI.createPOIFromTag("BlueReef6Right", 17, new Translation2d(0.432, 0.165)),
-      
-      // -----------------------
-
-      // RED corals
-      new AutoPOI(new Pose2d(16.351, 1.016, Rotation2d.fromDegrees(-54)), "RedCoral1"),
-      new AutoPOI(new Pose2d(16.351, 7.046, Rotation2d.fromDegrees(54)), "RedCoral2"),
-
-      // RED reefs (offset of 0.432 on x, +/-0.165 on y)
-      AutoPOI.createPOIFromTag("RedReef1Left", 7, new Translation2d(0.432, -0.165)),
-      AutoPOI.createPOIFromTag("RedReef1Right", 7, new Translation2d(0.432, 0.165)),
-
-      AutoPOI.createPOIFromTag("RedReef2Left", 6, new Translation2d(0.432, -0.165)),
-      AutoPOI.createPOIFromTag("RedReef2Right", 6, new Translation2d(0.432, 0.165)),
-
-      AutoPOI.createPOIFromTag("RedReef3Left", 11, new Translation2d(0.59, -0.165)),
-      AutoPOI.createPOIFromTag("RedReef3Right", 11, new Translation2d(0.59, 0.165)),
-
-      AutoPOI.createPOIFromTag("RedReef4Left", 10, new Translation2d(0.432, -0.165)),
-      AutoPOI.createPOIFromTag("RedReef4Right", 10, new Translation2d(0.432, 0.165)),
-
-      AutoPOI.createPOIFromTag("RedReef5Left", 9, new Translation2d(0.432, -0.165)),
-      AutoPOI.createPOIFromTag("RedReef5Right", 9, new Translation2d(0.432, 0.165)),
-
-      AutoPOI.createPOIFromTag("RedReef6Left", 8, new Translation2d(0.432, -0.165)),
-      AutoPOI.createPOIFromTag("RedReef6Right", 8, new Translation2d(0.432, 0.165)),
-    };
+  
   }
 
   // these are not gonna be used, because of the drop down menu

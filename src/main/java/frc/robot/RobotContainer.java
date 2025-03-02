@@ -35,7 +35,6 @@ import frc.robot.commands.harpoon.PrepareHarpoonCommand;
 import frc.robot.commands.harpoon.ShootCommand;
 import frc.robot.commands.harpoon.StopClawCommand;
 import frc.robot.commands.vision.AlignTeleopCommand;
-import frc.robot.subsystems.Cameras;
 import frc.robot.subsystems.Drivetrain;
 import frc.robot.subsystems.LED;
 import frc.robot.subsystems.Elevator;
@@ -57,9 +56,6 @@ public class RobotContainer {
 
     // drivetrain
     private final Drivetrain m_robotDrive = new Drivetrain();
-
-    // the cameras subsystem, controls vision
-    private final Cameras m_cameras = new Cameras();
 
     // the elevator subsystem, controls intake and scoring positions
     public final Elevator elevator = new Elevator();
@@ -101,8 +97,7 @@ public class RobotContainer {
      * The container for the robot, initializing everything and setting up the controller chooser
      */
     public RobotContainer() {
-        // tell the cameras subsystem what the drivesubsystem is
-        m_cameras.setDriveSubsystem(m_robotDrive);
+
         
         // setting up a dropdown for switching between xbox and playstation
         // FOR DRIVER
@@ -295,43 +290,9 @@ public class RobotContainer {
              .onTrue(new CalibrateElevator(elevator, this.driverController_PS5.povDown()));
 
              // automatic vision lineup (taken out for now)
-             this.driverController_PS5.R2().onTrue(
-                new InstantCommand(() -> {
-                    if(m_cameras.isVisionActive) {
-                        new AlignTeleopCommand(
-                            m_cameras.getClosestTagId(),
-                            true, 
-                            true, 
-                            m_robotDrive, 
-                            m_cameras, 
-                            () -> m_cameras.getOffsetX(),
-                            () -> m_cameras.getOffsetY(),
-                            () -> areJoysticksPressed()
-                            )
-                            //.alongWith( new ToggleMechanismCommand(ledLeft, ledRight, elevator, harpoon))
-                            .schedule();
-                    }
-                })
-            );
+             
 
-            this.driverController_PS5.L2().onTrue(
-                new InstantCommand(() -> {
-                    if(m_cameras.isVisionActive) {
-                        new AlignTeleopCommand(
-                            m_cameras.getClosestTagId(),
-                            true, 
-                            true, 
-                            m_robotDrive, 
-                            m_cameras, 
-                            () -> m_cameras.getOffsetX(),
-                            () -> m_cameras.getOffsetY(),
-                            () -> areJoysticksPressed()
-                            )
-                            //.alongWith( new ToggleMechanismCommand(ledLeft, ledRight, elevator, harpoon))
-                            .schedule();
-                    }
-                })
-            );
+            
         }
     }
 
@@ -362,13 +323,6 @@ public class RobotContainer {
                 andThen(new PrepareHarpoonCommand(harpoon, HarpoonMode.FEEDER, () -> HarpoonPosition.INTAKE.getSetpoint()))
             );
 
-            this.operatorController_XBOX.rightTrigger().onTrue(
-                new InstantCommand(() -> m_cameras.switchOffset(false))
-            );
-
-            this.operatorController_XBOX.leftTrigger().onTrue(
-                new InstantCommand(() -> m_cameras.switchOffset(true))
-            );
         }
         else {
             this.operatorController_PS5.L1().onTrue(
@@ -386,13 +340,6 @@ public class RobotContainer {
                 andThen(new PrepareHarpoonCommand(harpoon, HarpoonMode.FEEDER, () -> HarpoonPosition.INTAKE.getSetpoint()))
             );
 
-            this.operatorController_PS5.R2().onTrue(
-                new InstantCommand(() -> m_cameras.switchOffset(false))
-            );
-
-            this.operatorController_PS5.L2().onTrue(
-                new InstantCommand(() -> m_cameras.switchOffset(true))
-            );
         }
     }
 

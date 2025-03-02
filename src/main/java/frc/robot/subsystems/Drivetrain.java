@@ -26,7 +26,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.Constants.AutoConstants;
 import frc.robot.Constants.DriveConstants;
 import frc.robot.Constants.DriveConstants.DriveModes;
-import frc.utils.AutoUtils;
+
 import frc.utils.SwerveUtils;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
@@ -395,21 +395,7 @@ public class Drivetrain extends SubsystemBase {
    * this configuration allows PathPlannerPath classes to be turned into follow commands
    */
   public void initializeAuto() {
-    // this function in AutoUtils just gets the robot settings from the GUI
-    RobotConfig robotConfig = AutoUtils.geRobotConfig();
-
-    // only needs to be called once every deploy (pretty sure)
-    AutoBuilder.configure(
-      this::getOffsetedPose, 
-      this::resetOdometry, 
-      this::getChassisSpeeds, 
-      this::setChassisSpeeds, 
-      new PPHolonomicDriveController(
-        AutoConstants.translationConstants, 
-        AutoConstants.rotationConstants, 0.02), 
-        robotConfig, 
-        () -> false, 
-        this);
+ 
   }      
   
   /**
