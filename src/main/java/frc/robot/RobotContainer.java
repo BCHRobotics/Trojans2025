@@ -7,6 +7,7 @@ package frc.robot;
 import java.io.IOException;
 
 import org.json.simple.parser.ParseException;
+import org.photonvision.PhotonCamera;
 
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.auto.NamedCommands;
@@ -37,6 +38,7 @@ import frc.robot.commands.harpoon.StopClawCommand;
 
 import frc.robot.subsystems.Drivetrain;
 import frc.robot.subsystems.LED;
+import frc.robot.subsystems.PoseEstimatorSubsystem;
 import frc.robot.subsystems.Elevator;
 import frc.robot.subsystems.Harpoon;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -66,6 +68,12 @@ public class RobotContainer {
     // the led subsystems. each strip (left and right) is a separate class
     private final LED ledRight = new LED(0);
     private final LED ledLeft = new LED(1);
+
+    // the photon camera
+    private final PhotonCamera m_camera = new PhotonCamera("photonvision"); // will change name
+
+    // the pose estimation subsystem, used for vision processing
+    private final PoseEstimatorSubsystem m_poseEstimator = new PoseEstimatorSubsystem(m_camera, m_robotDrive);
 
     // Driving controller, one for xbox and one for ps5
     CommandPS5Controller driverController_PS5 = new CommandPS5Controller(OIConstants.kMainControllerPort);

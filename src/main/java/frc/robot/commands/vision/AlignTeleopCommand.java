@@ -56,6 +56,8 @@ public class AlignTeleopCommand extends Command{
         this.offsetX = offsetX;
         this.offsetY = offsetY;
         this.joystickInput = joystickInput;
+
+        this.addRequirements(getRequirements());
    } 
 
    @Override
