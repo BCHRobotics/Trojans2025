@@ -1,3 +1,5 @@
+// We might not use this. See PoseEstimatorSubsystem.java
+
 package frc.robot.subsystems;
 
 import java.util.Optional;
@@ -21,9 +23,10 @@ public class Cameras extends SubsystemBase{
 
 
     private static final double camPitch = Units.degreesToRadians(30.0);
-    public static final Transform3d kRobotToCam =
-            new Transform3d(new Translation3d(0.5, 0.0, 0.5), new Rotation3d(0, -camPitch, 0));
-    //private final PhotonPoseEstimator photonEstimator;
+
+    public static final Transform3d kRobotToCam = 
+        new Transform3d(new Translation3d(0.5, 0.0, 0.5), 
+        new Rotation3d(0, -camPitch, 0));
 
     // The layout of the AprilTags on the field
     public static final AprilTagFieldLayout kTagLayout =
@@ -50,12 +53,10 @@ public class Cameras extends SubsystemBase{
             Transform3d fieldToCamera = result.getBestTarget().getBestCameraToTarget();
         }
     }
-    
+
     public Optional<EstimatedRobotPose> getEstimatedGlobalPose(Pose2d prevEstimatedRobotPose) {
         photonPoseEstimator.setReferencePose(prevEstimatedRobotPose);
         var result = camera1.getLatestResult();
         return photonPoseEstimator.update(result);
     }
-
-
 }

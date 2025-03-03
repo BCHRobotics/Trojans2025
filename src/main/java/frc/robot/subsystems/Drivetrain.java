@@ -192,6 +192,18 @@ public class Drivetrain extends SubsystemBase {
         },
         pose);
   }
+  public SwerveModulePosition[] getModulePositions() {
+    return new SwerveModulePosition[] {
+        m_frontLeft.getPosition(),
+        m_frontRight.getPosition(),
+        m_rearLeft.getPosition(),
+        m_rearRight.getPosition()
+    };
+  }
+
+  public Rotation2d getGyroscopeRotation() {
+    return Rotation2d.fromDegrees(m_gyro.getAngle());
+  }
 
   /**
    * set the alliance to either BLUE SIDE or RED SIDE
