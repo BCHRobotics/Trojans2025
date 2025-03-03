@@ -3,6 +3,7 @@ package frc.robot.subsystems;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 import java.util.Optional;
+import java.util.function.Supplier;
 
 import org.photonvision.PhotonCamera;
 
@@ -123,6 +124,12 @@ public class PoseEstimatorSubsystem extends SubsystemBase{
       return poseEstimator.getEstimatedPosition();
     }
   
+    public Supplier<Pose2d> getCurrentPoseSupplier() {
+
+        Supplier<Pose2d> poseSupplier = this::getCurrentPose;
+
+        return poseSupplier;
+      }
     /**
      * Resets the current pose to the specified pose. This should ONLY be called
      * when the robot's position on the field is known, like at the beginning of

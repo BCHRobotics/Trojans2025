@@ -75,6 +75,7 @@ public class RobotContainer {
     // the pose estimation subsystem, used for vision processing
     private final PoseEstimatorSubsystem m_poseEstimator = new PoseEstimatorSubsystem(m_camera, m_robotDrive);
 
+
     // Driving controller, one for xbox and one for ps5
     CommandPS5Controller driverController_PS5 = new CommandPS5Controller(OIConstants.kMainControllerPort);
     CommandXboxController driverController_XBOX = new CommandXboxController(OIConstants.kMainControllerPort);
@@ -105,6 +106,7 @@ public class RobotContainer {
      * The container for the robot, initializing everything and setting up the controller chooser
      */
     public RobotContainer() {
+        m_robotDrive.initializeAuto(m_poseEstimator.getCurrentPoseSupplier());
 
         
         // setting up a dropdown for switching between xbox and playstation

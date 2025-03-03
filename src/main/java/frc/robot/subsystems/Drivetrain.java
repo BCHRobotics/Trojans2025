@@ -7,6 +7,11 @@ package frc.robot.subsystems;
 import com.studica.frc.AHRS;
 import com.studica.frc.AHRS.NavXComType;
 
+import java.util.function.Supplier;
+
+import com.pathplanner.lib.auto.AutoBuilder;
+import com.pathplanner.lib.config.RobotConfig;
+import com.pathplanner.lib.controllers.PPHolonomicDriveController;
 import com.pathplanner.lib.util.DriveFeedforwards;
 
 import edu.wpi.first.math.filter.SlewRateLimiter;
@@ -19,9 +24,10 @@ import edu.wpi.first.math.kinematics.SwerveDriveOdometry;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.util.WPIUtilJNI;
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-
+import frc.robot.Constants;
 import frc.robot.Constants.DriveConstants;
 import frc.robot.Constants.DriveConstants.DriveModes;
 
@@ -82,6 +88,8 @@ public class Drivetrain extends SubsystemBase {
 
   private Transform2d odometryOffset = new Transform2d(0, 0, Rotation2d.fromRadians(0));
 
+  private PoseEstimatorSubsystem combinedEstimator;
+
   // Odometry class for tracking robot pose
   SwerveDriveOdometry m_odometry = new SwerveDriveOdometry(
       DriveConstants.kDriveKinematics,
@@ -95,7 +103,8 @@ public class Drivetrain extends SubsystemBase {
 
   /** Creates a new DriveSubsystem. */
   public Drivetrain() {
-    this.initializeAuto();
+    //this.combinedEstimator = combinedEstimator;
+    //this.initializeAuto();
   }
 
   @Override
@@ -404,8 +413,38 @@ public class Drivetrain extends SubsystemBase {
    * Setting up (pathplanner) AutoBuilder
    * this configuration allows PathPlannerPath classes to be turned into follow commands
    */
-  public void initializeAuto() {
- 
+  public void initializeAuto(Supplier<Pose2d> robotPose2d) {
+    RobotConfig robotConfig = null; //RobotConfig.fromGUISettings();
+
+    try{
+      robotConfig = RobotConfig.fromGUISettings();
+    } catch (Exception e) {
+      // Handle exception as needed
+      e.printStackTrace();
+    }
+
+    AutoBuilder.configure(
+          robotPose2d, 
+          this::resetOdometry, 
+          this::getChassisSpeeds, 
+          this::setChassisSpeeds, 
+          new PPHolonomicDriveController(
+            Constants.AutoConstants.translationConstants, 
+            Constants.AutoConstants.rotationConstants, 0.02), 
+            robotConfig, 
+            () -> {
+              // Boolean supplier that controls when the path will be mirrored for the red alliance
+              // This will flip the path being followed to the red side of the field.
+              // THE ORIGIN WILL REMAIN ON THE BLUE SIDE
+
+              var alliance = DriverStation.getAlliance();
+              if (alliance.isPresent()) {
+                return alliance.get() == DriverStation.Alliance.Red;
+              }
+              return false;
+            },
+            this // Reference to this subsystem to set requirements
+    );
   }      
   
   /**
