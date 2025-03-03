@@ -30,12 +30,12 @@ import org.photonvision.PhotonPoseEstimator.PoseStrategy;
  * to update the robot's odometry.
  */
 public class PhotonVisionPoseV2 {
-    private final Drivetrain m_drivetrain;
-    private PhotonCamera m_camera;
-    private Transform3d m_cameraToRobot;
-    private AprilTagFieldLayout m_fieldLayout;
-    private PhotonPoseEstimator m_poseEstimator;
-    private boolean m_visionPoseEnabled = true;
+    private final Drivetrain m_drivetrain; // Reference to the drivetrain subsystem
+    private PhotonCamera m_camera; // PhotonVision camera for detecting AprilTags
+    private Transform3d m_cameraToRobot; // Transform from the robot center to the camera
+    private AprilTagFieldLayout m_fieldLayout; // Layout of AprilTags on the field
+    private PhotonPoseEstimator m_poseEstimator; // Estimator for calculating robot pose
+    private boolean m_visionPoseEnabled = true; // Flag to enable/disable vision-based updates
 
     /**
      * Creates a new PhotonVisionPoseV2 utility.
@@ -45,18 +45,23 @@ public class PhotonVisionPoseV2 {
     public PhotonVisionPoseV2(Drivetrain drivetrain) {
         m_drivetrain = drivetrain;
         try {
+            // Initialize the camera using the first camera name from constants
             m_camera = new PhotonCamera(VisionConstants.cameraNames[0]);
+            // Create the camera to robot transform using offsets from constants
             m_cameraToRobot = new Transform3d(
                 new Translation3d(VisionConstants.cameraOffsets[0].xOffset, VisionConstants.cameraOffsets[0].yOffset, 0.0),
                 new Rotation3d(0, 0, VisionConstants.cameraOffsets[0].angleOffset));
-            //Update the field layout to the 2025 field
+            // Load the default field layout for AprilTags
             m_fieldLayout = AprilTagFields.kDefaultField.loadAprilTagLayoutField();
+            // Initialize the pose estimator with the field layout, strategy, and camera transform
             m_poseEstimator = new PhotonPoseEstimator(m_fieldLayout, PoseStrategy.LOWEST_AMBIGUITY, m_cameraToRobot);
+            // Indicate successful initialization on the SmartDashboard
             SmartDashboard.putBoolean("PhotonVisionV2 Initialized", true);
         } catch (Exception e) {
+            // Report initialization error to the DriverStation and SmartDashboard
             DriverStation.reportError("Error initializing PhotonVisionV2: " + e.getMessage(), e.getStackTrace());
             SmartDashboard.putBoolean("PhotonVisionV2 Initialized", false);
-            m_fieldLayout = null;
+            m_fieldLayout = null; // Set field layout to null on error
         }
     }
 
@@ -71,18 +76,25 @@ public class PhotonVisionPoseV2 {
 
     /**
      * Updates the robot's pose using PhotonPoseEstimator.
+     * This method processes all unread results from the camera, estimates the robot's pose
+     * using the PhotonPoseEstimator, and updates the drivetrain's odometry if a valid pose is found.
      */
     public void updatePose() {
+        // Check if vision updates are enabled and if the camera and field layout are initialized
         if (!m_visionPoseEnabled || m_camera == null || m_fieldLayout == null) {
-            return;
+            return; // Exit if any condition is not met
         }
 
+        // Retrieve all unread pipeline results from the camera
         List<PhotonPipelineResult> results = m_camera.getAllUnreadResults();
         for (PhotonPipelineResult result : results) {
+            // Update the pose estimator with the current result and get the estimated pose
             Optional<EstimatedRobotPose> estimatedPose = m_poseEstimator.update(result);
             if (estimatedPose.isPresent()) {
+                // Convert the estimated pose to Pose2d and update the drivetrain's odometry
                 Pose2d robotPose = estimatedPose.get().estimatedPose.toPose2d();
                 m_drivetrain.resetOdometry(robotPose);
+                // Display the estimated pose on the SmartDashboard
                 SmartDashboard.putNumber("Estimated X", robotPose.getX());
                 SmartDashboard.putNumber("Estimated Y", robotPose.getY());
                 SmartDashboard.putNumber("Estimated Rotation", robotPose.getRotation().getDegrees());
