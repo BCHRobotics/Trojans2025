@@ -143,6 +143,4 @@ public class PoseEstimatorSubsystem extends SubsystemBase{
     public void resetFieldPosition() {
       setCurrentPose(new Pose2d());
     }
-  
-    
 }
