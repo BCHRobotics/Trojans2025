@@ -49,6 +49,7 @@ public class PhotonVisionPoseV2 {
             m_cameraToRobot = new Transform3d(
                 new Translation3d(VisionConstants.cameraOffsets[0].xOffset, VisionConstants.cameraOffsets[0].yOffset, 0.0),
                 new Rotation3d(0, 0, VisionConstants.cameraOffsets[0].angleOffset));
+            //Update the field layout to the 2025 field
             m_fieldLayout = AprilTagFields.kDefaultField.loadAprilTagLayoutField();
             m_poseEstimator = new PhotonPoseEstimator(m_fieldLayout, PoseStrategy.LOWEST_AMBIGUITY, m_cameraToRobot);
             SmartDashboard.putBoolean("PhotonVisionV2 Initialized", true);
