@@ -40,6 +40,13 @@ public class AlignTeleopCommand extends Command{
 
    BooleanSupplier joystickInput;
 
+   double currentX;
+   double currentY;
+   double differenceInX;;
+   double differenceInY;
+   double xOutput;
+   double yOutput;
+
    public AlignTeleopCommand(int targetTagId, PoseEstimatorSubsystem poseEstimatorSubsystem, Boolean fieldRelative, Boolean rateLimit, Drivetrain driveSubsystem, DoubleSupplier offsetX, DoubleSupplier offsetY, BooleanSupplier joystickInput){
         this.driveSubsystem = driveSubsystem;
         this.poseEstimatorSubsystem = poseEstimatorSubsystem;
@@ -57,16 +64,16 @@ public class AlignTeleopCommand extends Command{
 
    @Override
    public void execute() {
-      double presentX = poseEstimatorSubsystem.getCurrentPose().getX();
-      double presentY = poseEstimatorSubsystem.getCurrentPose().getY();
+      currentX = poseEstimatorSubsystem.getCurrentPose().getX();
+      currentY = poseEstimatorSubsystem.getCurrentPose().getY();
 
-      double differenceInX = 
-         tagPosition.getX() + offsetX.getAsDouble() - presentX;
-      double differenceInY = 
-         tagPosition.getY() + offsetY.getAsDouble() - presentY;
+      differenceInX = 
+         tagPosition.getX() + offsetX.getAsDouble() - currentX;
+      differenceInY = 
+         tagPosition.getY() + offsetY.getAsDouble() - currentY;
 
-      double xOutput = pid.calculate(differenceInX);
-      double yOutput = pid.calculate(differenceInY);
+      xOutput = pid.calculate(differenceInX);
+      yOutput = pid.calculate(differenceInY);
 
       driveSubsystem.drive(xOutput, yOutput, 0, isFieldRelative, isRateLimited);
    }
@@ -78,8 +85,9 @@ public class AlignTeleopCommand extends Command{
 
    @Override
    public boolean isFinished() {
-   
-      
-    return joystickInput.getAsBoolean();
+      if (currentX < VisionConstants.allowedXError && currentY < VisionConstants.allowedYError){
+         return true;
+      }
+   return joystickInput.getAsBoolean();
    }
 }
