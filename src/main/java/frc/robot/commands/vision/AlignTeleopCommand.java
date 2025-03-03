@@ -32,8 +32,11 @@ public class AlignTeleopCommand extends Command{
    DoubleSupplier offsetX;
    DoubleSupplier offsetY;
 
-   Pose2d tagPosition 
-   = new Pose2d(657.37, 25.80, new Rotation2d(Units.degreesToRadians(0))); // this is tag 1 for now
+   /*
+    * we want to be able to get the closest tag ID and move towards it 
+    */
+
+   Pose2d tagPosition = new Pose2d(657.37, 25.80, new Rotation2d(Units.degreesToRadians(0))); // this is tag 1 for now
 
    boolean lockedIn;
    boolean isDone;
