@@ -81,7 +81,7 @@ public class PhotonVisionPose {
       
       // Create the AprilTag field layout - using the field layout
       //REQUIRES WPILIB 2025.3.1
-      m_fieldLayout = AprilTagFields.k2025Reefscape.loadAprilTagLayoutField();
+      m_fieldLayout = AprilTagFields.kDefaultField.loadAprilTagLayoutField();
       
       SmartDashboard.putBoolean("PhotonVision Initialized", true);
     } catch (Exception e) {

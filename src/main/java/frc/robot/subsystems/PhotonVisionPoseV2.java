@@ -17,6 +17,7 @@ import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.VisionConstants;
@@ -37,6 +38,7 @@ public class PhotonVisionPoseV2 extends SubsystemBase {
     private AprilTagFieldLayout m_fieldLayout; // Layout of AprilTags on the field
     private PhotonPoseEstimator m_poseEstimator; // Estimator for calculating robot pose
     private boolean m_visionPoseEnabled = true; // Flag to enable/disable vision-based updates
+    private final Field2d field2d = new Field2d();
 
     /**
      * Creates a new PhotonVisionPoseV2 subsystem.
@@ -53,7 +55,7 @@ public class PhotonVisionPoseV2 extends SubsystemBase {
                 new Translation3d(VisionConstants.cameraOffsets[0].xOffset, VisionConstants.cameraOffsets[0].yOffset, 0.0),
                 new Rotation3d(0, 0, VisionConstants.cameraOffsets[0].angleOffset));
             // Load the default field layout for AprilTags
-            m_fieldLayout = AprilTagFields.kDefaultField.loadAprilTagLayoutField();
+            m_fieldLayout = AprilTagFields.k2025ReefscapeWelded.loadAprilTagLayoutField();
             // Initialize the pose estimator with the field layout, strategy, and camera transform
             m_poseEstimator = new PhotonPoseEstimator(m_fieldLayout, PoseStrategy.LOWEST_AMBIGUITY, m_cameraToRobot);
             // Indicate successful initialization on the SmartDashboard
@@ -92,15 +94,22 @@ public class PhotonVisionPoseV2 extends SubsystemBase {
         updatePose();
     }
 
+    public <Supplier>Pose2d estimatedPose(Pose2d pose){
+
+            Supplier<Pose2d> poseSupplier = updatePose();
+            
+            return poseSupplier;
+    }
+
     /**
      * Updates the robot's pose using PhotonPoseEstimator.
      * This method processes all unread results from the camera, estimates the robot's pose
      * using the PhotonPoseEstimator, and updates the drivetrain's odometry if a valid pose is found.
      */
-    private void updatePose() {
+    private Pose2d updatePose() {
         // Check if vision updates are enabled and if the camera and field layout are initialized
         if (!m_visionPoseEnabled || m_camera == null || m_fieldLayout == null) {
-            return; // Exit if any condition is not met
+            return null; // Exit if any condition is not met
         }
 
         // Retrieve all unread pipeline results from the camera
@@ -116,7 +125,14 @@ public class PhotonVisionPoseV2 extends SubsystemBase {
                 SmartDashboard.putNumber("Estimated X", robotPose.getX());
                 SmartDashboard.putNumber("Estimated Y", robotPose.getY());
                 SmartDashboard.putNumber("Estimated Rotation", robotPose.getRotation().getDegrees());
+                field2d.setRobotPose(robotPose);
+                SmartDashboard.putNumber("Tag Seen", result.getBestTarget().getFiducialId());
+                SmartDashboard.putData("Field",field2d);
+                System.out.println(result.getBestTarget().getFiducialId());
+                return new Pose2d(robotPose.getX(),robotPose.getY(),robotPose.getRotation());
             }
+             
         }
+        return null;
     }
 } 

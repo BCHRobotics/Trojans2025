@@ -7,6 +7,7 @@ package frc.robot;
 import java.io.IOException;
 
 import org.json.simple.parser.ParseException;
+import org.photonvision.proto.Photon;
 
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.auto.NamedCommands;
@@ -45,6 +46,7 @@ import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandPS5Controller;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
+import frc.robot.subsystems.PhotonVisionPoseV2;
 
 /*
  * This class is where the bulk of the robot should be declared.  Since Command-based is a
@@ -57,6 +59,10 @@ public class RobotContainer {
 
     // drivetrain
     private final Drivetrain m_robotDrive = new Drivetrain();
+
+    //pose Estimator 
+
+    private final PhotonVisionPoseV2 poseEstimator = new PhotonVisionPoseV2(m_robotDrive);
 
     // the cameras subsystem, controls vision
     private final Cameras m_cameras = new Cameras();
@@ -136,7 +142,7 @@ public class RobotContainer {
         NamedCommands.registerCommand("RAISE", new ToggleMechanismCommand(ledRight, ledLeft, elevator, harpoon));
 
         autoChooser = AutoBuilder.buildAutoChooser();
-        SmartDashboard.putData("uuu", autoChooser);
+        SmartDashboard.putData("Auto Name", autoChooser);
 
         //SmartDashboard.putData("Select Auto", autoSelect);
 
