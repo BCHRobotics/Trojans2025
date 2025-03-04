@@ -1,4 +1,4 @@
-package frc.utils;
+package frc.robot.subsystems;
 
 import java.util.Optional;
 import java.util.List;
@@ -18,18 +18,19 @@ import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.VisionConstants;
-import frc.robot.subsystems.Drivetrain;
+
 import org.photonvision.PhotonPoseEstimator.PoseStrategy;
 
 /**
- * PhotonVisionPoseV2 utility class for updating robot odometry using PhotonPoseEstimator.
+ * PhotonVisionPoseV2 subsystem for updating robot odometry using PhotonPoseEstimator.
  * 
- * This class uses the PhotonVision library's PhotonPoseEstimator to detect AprilTags and estimate
+ * This subsystem uses the PhotonVision library's PhotonPoseEstimator to detect AprilTags and estimate
  * the robot's position on the field. It integrates with the Drivetrain subsystem
  * to update the robot's odometry.
  */
-public class PhotonVisionPoseV2 {
+public class PhotonVisionPoseV2 extends SubsystemBase {
     private final Drivetrain m_drivetrain; // Reference to the drivetrain subsystem
     private PhotonCamera m_camera; // PhotonVision camera for detecting AprilTags
     private Transform3d m_cameraToRobot; // Transform from the robot center to the camera
@@ -38,7 +39,7 @@ public class PhotonVisionPoseV2 {
     private boolean m_visionPoseEnabled = true; // Flag to enable/disable vision-based updates
 
     /**
-     * Creates a new PhotonVisionPoseV2 utility.
+     * Creates a new PhotonVisionPoseV2 subsystem.
      * 
      * @param drivetrain The drivetrain subsystem to update with vision measurements
      */
@@ -75,11 +76,28 @@ public class PhotonVisionPoseV2 {
     }
 
     /**
+     * Returns whether vision-based pose updates are enabled
+     * @return True if vision pose updates are enabled, false otherwise
+     */
+    public boolean isVisionPoseEnabled() {
+        return m_visionPoseEnabled;
+    }
+
+    /**
+     * Periodic method that runs every scheduler cycle.
+     * This method updates the robot's pose using PhotonPoseEstimator.
+     */
+    @Override
+    public void periodic() {
+        updatePose();
+    }
+
+    /**
      * Updates the robot's pose using PhotonPoseEstimator.
      * This method processes all unread results from the camera, estimates the robot's pose
      * using the PhotonPoseEstimator, and updates the drivetrain's odometry if a valid pose is found.
      */
-    public void updatePose() {
+    private void updatePose() {
         // Check if vision updates are enabled and if the camera and field layout are initialized
         if (!m_visionPoseEnabled || m_camera == null || m_fieldLayout == null) {
             return; // Exit if any condition is not met
