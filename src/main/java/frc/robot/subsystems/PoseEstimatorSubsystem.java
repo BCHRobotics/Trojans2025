@@ -48,7 +48,7 @@ public class PoseEstimatorSubsystem extends SubsystemBase{
      * Standard deviations of the vision measurements. Increase these numbers to trust global measurements from vision
      * less. This matrix is in the form [x, y, theta]ᵀ, with units in meters and radians.
      */
-    private static final Vector<N3> visionMeasurementStdDevs = VecBuilder.fill(0.5, 0.5, Units.degreesToRadians(10));
+    private static final Vector<N3> visionMeasurementStdDevs = VecBuilder.fill(0, 0, Units.degreesToRadians(10));
   
     private final SwerveDrivePoseEstimator poseEstimator;
   
@@ -57,8 +57,8 @@ public class PoseEstimatorSubsystem extends SubsystemBase{
     private double previousPipelineTimestamp = 0;
 
     public static final Transform3d kRobotToCam = 
-        new Transform3d(new Translation3d(0.5, 0.0, 0.5), 
-        new Rotation3d(0, -0, 0));
+        new Transform3d(new Translation3d(0.32, 0.0, 0), // meters
+        new Rotation3d(0, 0, 0));
   
     public PoseEstimatorSubsystem(PhotonCamera photonCamera, Drivetrain drivetrainSubsystem) {
       this.photonCamera = photonCamera;
@@ -88,6 +88,7 @@ public class PoseEstimatorSubsystem extends SubsystemBase{
     public void periodic() {
       // Update pose estimator with the best visible target
       var pipelineResult = photonCamera.getLatestResult();
+      
       var resultTimestamp = pipelineResult.getTimestampSeconds();
       if (resultTimestamp != previousPipelineTimestamp && pipelineResult.hasTargets()) {
         previousPipelineTimestamp = resultTimestamp;
@@ -102,6 +103,8 @@ public class PoseEstimatorSubsystem extends SubsystemBase{
   
           var visionMeasurement = camPose.transformBy(kRobotToCam);
           poseEstimator.addVisionMeasurement(visionMeasurement.toPose2d(), resultTimestamp);
+          //SmartDashboard.putData("Seen Tag ID",target.getFiducialId());
+          System.out.println(target.getFiducialId());
         }
       }
       // Update pose estimator with drivetrain sensors
@@ -110,6 +113,8 @@ public class PoseEstimatorSubsystem extends SubsystemBase{
         drivetrainSubsystem.getModulePositions());
   
       field2d.setRobotPose(getCurrentPose());
+      //SmartDashboard.putData("Field", field2d);
+      SmartDashboard.putString("Pose",  this.getFormattedPose());
     }
   
     private String getFormattedPose() {

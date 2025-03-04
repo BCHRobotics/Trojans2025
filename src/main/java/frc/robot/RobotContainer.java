@@ -70,7 +70,7 @@ public class RobotContainer {
     private final LED ledLeft = new LED(1);
 
     // the photon camera
-    private final PhotonCamera m_camera = new PhotonCamera("photonvision"); // will change name
+    private final PhotonCamera m_camera = new PhotonCamera("Center"); // will change name
 
     // the pose estimation subsystem, used for vision processing
     private final PoseEstimatorSubsystem m_poseEstimator = new PoseEstimatorSubsystem(m_camera, m_robotDrive);
