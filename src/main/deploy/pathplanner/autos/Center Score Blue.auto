@@ -17,27 +17,33 @@
           }
         },
         {
-          "type": "named",
+          "type": "path",
           "data": {
-            "name": "SCORE"
-          }
-        },
-        {
-          "type": "wait",
-          "data": {
-            "waitTime": 4.0
-          }
-        },
-        {
-          "type": "named",
-          "data": {
-            "name": "STOW"
+            "pathName": "Reef4Left-BlueCoral2Right"
           }
         },
         {
           "type": "path",
           "data": {
-            "pathName": "Reef4Left-BlueCoral2Right"
+            "pathName": "BlueCoralLeft-17Left"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "17-BlueCoralLeft"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "BlueCoralLeft-17Right"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "17-BlueCoralLeft"
           }
         }
       ]

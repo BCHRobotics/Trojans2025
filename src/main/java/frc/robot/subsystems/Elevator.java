@@ -181,6 +181,7 @@ public class Elevator extends SubsystemBase{
     }
 
     public void setSetpoint(double setpoint){
+        System.out.println("Setting Elevator Setpoint");
         this.setpoint = setpoint; 
     }
 
