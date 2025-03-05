@@ -304,6 +304,9 @@ public class RobotContainer {
              this.driverController_PS5.povDown()
              .onTrue(new CalibrateElevator(elevator, this.driverController_PS5.povDown()));}
 
+             this.driverController_PS5.R2()
+             .onTrue(new AlignTeleopCommand(m_robotDrive, poseEstimator, this.driverController_PS5.povUp()));
+
              // automatic vision lineup (taken out for now)
              /* 
              this.driverController_PS5.R2().onTrue(

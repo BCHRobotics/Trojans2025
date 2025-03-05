@@ -1,28 +1,26 @@
 package frc.robot.commands.vision;
 
-import frc.robot.subsystems.Cameras;
+
 import frc.robot.subsystems.Drivetrain;
 import frc.robot.subsystems.PhotonVisionPoseV2;
-import frc.utils.VisionUtils;
 
+import java.util.HashMap;
 import java.util.function.BooleanSupplier;
 import java.util.function.DoubleSupplier;
 
-import edu.wpi.first.math.MathUtil;
+import com.pathplanner.lib.path.PathConstraints;
+import com.pathplanner.lib.pathfinding.Pathfinding;
+
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.geometry.Pose2d;
-import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.math.geometry.Transform2d;
-import edu.wpi.first.math.geometry.Translation2d;
+
 import edu.wpi.first.wpilibj2.command.Command;
 
-import frc.robot.Constants.DriveConstants.DriveModes;
+
 import frc.robot.Constants.VisionConstants;
 
 
 public class AlignTeleopCommand extends Command{
-   private Drivetrain driveSubsystem;
-   private Cameras cameraSubsystem;
    private PhotonVisionPoseV2 poseEstimator;
    
    PIDController pid = new PIDController(VisionConstants.kAlignP,VisionConstants.kAlignI,VisionConstants.kAlignD);
@@ -43,37 +41,52 @@ public class AlignTeleopCommand extends Command{
 
    BooleanSupplier joystickInput;
 
-   public AlignTeleopCommand( Boolean fieldRelative, Boolean rateLimit, Drivetrain driveSubsystem, PhotonVisionPoseV2 poseEstimator, Cameras cameraSubsystem, DoubleSupplier offsetX, DoubleSupplier offsetY, BooleanSupplier joystickInput){
-        //tagId  = cameraSubsystem.getBestTargetID(cameraSubsystem.getBestTarget(1)); // to be changed. We need to reference the 3 front cameras 
- 
-        this.offsetX = offsetX;
-        this.offsetY = offsetY;
+   private Command path;
 
-        isFieldRelative = fieldRelative;
-        isRateLimited = rateLimit;
+   PathConstraints constraints = new PathConstraints(3.0, 3.0, 2 * Math.PI, 4 * Math.PI); // The constraints for this path.
+// PathConstraints constraints = PathConstraints.unlimitedConstraints(12.0); // You can also use unlimited constraints, only limited by motor torque and nominal battery voltage
+    HashMap<Integer, Pose2d> tagPositions = VisionConstants.getTagPositions();
 
-        this.driveSubsystem = driveSubsystem;
-        this.cameraSubsystem = cameraSubsystem;
 
-        this.addRequirements(driveSubsystem);
 
-        lockedIn = false;
-        isDone = false;
+   public AlignTeleopCommand( Drivetrain driveSubsystem, PhotonVisionPoseV2 poseEstimator, BooleanSupplier joystickInput) {
 
-        this.joystickInput = joystickInput;
+    this.poseEstimator = poseEstimator;
+    this.joystickInput = joystickInput;
 
-        this.poseEstimator = poseEstimator;
-        tagId = poseEstimator.m_camera.getLatestResult().getBestTarget().getFiducialId();
-   } 
+    this.addRequirements(driveSubsystem);
+
+    lockedIn = false;
+    isDone = false;
+    
+}
+
 
    @Override
    public void initialize() {
+    // DO THIS FIRST
+    
 
-   }
+    var result = poseEstimator.m_camera.getLatestResult();
+    if (result.hasTargets()) {
+        tagId = result.getBestTarget().getFiducialId();
+        tagPosition = tagPositions.get(result.getBestTarget().getFiducialId()); // Implement this method in PhotonVisionPoseV2
+
+        System.out.println("Aligning to Tag: " + tagId);
+
+        // Generate a trajectory to the tag using PathPlanner
+        Command path = poseEstimator.generatePathToPose2d(tagPosition);
+        path.schedule();
+    } else {
+        System.out.println("No valid tags detected.");
+        isDone = true;
+        
+    }
+}
 
    @Override
    public void execute() {
-   
+
    }
 
    @Override
@@ -86,6 +99,6 @@ public class AlignTeleopCommand extends Command{
 
    @Override
    public boolean isFinished() {
-        return true;   
+        return path.isFinished() || path == null || joystickInput.getAsBoolean();   
     }
 }
