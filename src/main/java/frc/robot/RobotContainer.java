@@ -7,7 +7,6 @@ package frc.robot;
 import java.io.IOException;
 
 import org.json.simple.parser.ParseException;
-import org.photonvision.proto.Photon;
 
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.auto.NamedCommands;
@@ -36,7 +35,6 @@ import frc.robot.commands.harpoon.PrepareHarpoonCommand;
 import frc.robot.commands.harpoon.ShootCommand;
 import frc.robot.commands.harpoon.StopClawCommand;
 import frc.robot.commands.vision.AlignTeleopCommand;
-import frc.robot.subsystems.Cameras;
 import frc.robot.subsystems.Drivetrain;
 import frc.robot.subsystems.LED;
 import frc.robot.subsystems.Elevator;
@@ -62,11 +60,7 @@ public class RobotContainer {
     private final Drivetrain m_robotDrive = new Drivetrain();
 
     //pose Estimator 
-
     private final PhotonVisionPoseV2 poseEstimator = new PhotonVisionPoseV2(m_robotDrive);
-
-    // the cameras subsystem, controls vision
-    private final Cameras m_cameras = new Cameras();
 
     // the elevator subsystem, controls intake and scoring positions
     public final Elevator elevator = new Elevator();
@@ -91,16 +85,7 @@ public class RobotContainer {
     // drop down menu for selecting xbox/ps5 for the operator controller
     SendableChooser<String> controllerOptions_operator;
 
-    // // dropdown menu for selecting autos
-    // SendableChooser<String> autoSelect;
-
-    // // dropdown menu for selecting autos
-    // SendableChooser<Integer> autoFallback;
-
     SendableChooser<Command> autoChooser;
-
-    // Command autoCommand;
-    // String autoCommandString;
 
     private boolean isRedAlliance;
 
@@ -108,9 +93,6 @@ public class RobotContainer {
      * The container for the robot, initializing everything and setting up the controller chooser
      */
     public RobotContainer() {
-        // tell the cameras subsystem what the drivesubsystem is
-        m_cameras.setDriveSubsystem(m_robotDrive);
-        
         // setting up a dropdown for switching between xbox and playstation
         // FOR DRIVER
         controllerOptions_driver = new SendableChooser<String>();
@@ -147,30 +129,6 @@ public class RobotContainer {
 
         autoChooser = AutoBuilder.buildAutoChooser();
         SmartDashboard.putData("Auto Name", autoChooser);
-
-        //SmartDashboard.putData("Select Auto", autoSelect);
-
-        // // defining the auto FALLBACK POSITION selection dropdown
-        // autoFallback = new SendableChooser<Integer>();
-        // autoFallback.addOption("1", 0);
-        // autoFallback.addOption("2", 1);
-        // autoFallback.addOption("3", 2);
-        // autoFallback.addOption("4", 3);
-        // autoFallback.addOption("5", 4);
-        // autoFallback.addOption("6", 5);
-
-        // SmartDashboard.putData("Select Fallback", autoFallback);
-
-        // // defining event markers for auto
-        // new EventTrigger("Elevator Up").onTrue(new ToggleMechanismCommand(ledLeft, ledRight, elevator, harpoon));
-        // new EventTrigger("Pose Estimation").onTrue(
-        //     new InstantCommand(() -> {
-        //         m_robotDrive.setOdometryOffset(m_cameras.getPoseEstimatedOffset());
-        //         System.out.println("OFFSET HAS BEEN ESTIMATED!");
-        //     }, new Subsystem[0])
-        // );
-        // new EventTrigger("Score").onTrue(new WaitCommand(2).andThen(new AutoScoreCommand(harpoon, 0.6)));
-        // new EventTrigger("Stop Intake").onTrue(new StopClawCommand(harpoon));
         
         // reseting both mechs to their default state (zeroing the elevator is important)
         harpoon.resetHarpoon();
@@ -375,14 +333,6 @@ public class RobotContainer {
                 new PrepareElevatorCommand(elevator, ElevatorMode.FEEDER, () -> ElevatorPosition.INTAKE.getSetpoint()).
                 andThen(new PrepareHarpoonCommand(harpoon, HarpoonMode.FEEDER, () -> HarpoonPosition.INTAKE.getSetpoint()))
             );
-
-            this.operatorController_XBOX.rightTrigger().onTrue(
-                new InstantCommand(() -> m_cameras.switchOffset(false))
-            );
-
-            this.operatorController_XBOX.leftTrigger().onTrue(
-                new InstantCommand(() -> m_cameras.switchOffset(true))
-            );
         }
         else {
             this.operatorController_PS5.L1().onTrue(
@@ -398,14 +348,6 @@ public class RobotContainer {
             this.operatorController_PS5.triangle().onTrue(
                 new PrepareElevatorCommand(elevator, ElevatorMode.FEEDER, () -> ElevatorPosition.INTAKE.getSetpoint()).
                 andThen(new PrepareHarpoonCommand(harpoon, HarpoonMode.FEEDER, () -> HarpoonPosition.INTAKE.getSetpoint()))
-            );
-
-            this.operatorController_PS5.R2().onTrue(
-                new InstantCommand(() -> m_cameras.switchOffset(false))
-            );
-
-            this.operatorController_PS5.L2().onTrue(
-                new InstantCommand(() -> m_cameras.switchOffset(true))
             );
         }
     }

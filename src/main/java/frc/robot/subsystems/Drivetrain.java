@@ -396,7 +396,7 @@ public class Drivetrain extends SubsystemBase {
    */
   public void initializeAuto() {
     // this function in AutoUtils just gets the robot settings from the GUI
-    RobotConfig robotConfig = AutoUtils.geRobotConfig();
+    RobotConfig robotConfig = AutoUtils.getRobotConfig();
 
     // only needs to be called once every deploy (pretty sure)
     AutoBuilder.configure(
