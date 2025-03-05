@@ -2,6 +2,7 @@ package frc.robot.commands.vision;
 
 import frc.robot.subsystems.Cameras;
 import frc.robot.subsystems.Drivetrain;
+import frc.robot.subsystems.PhotonVisionPoseV2;
 import frc.utils.VisionUtils;
 
 import java.util.function.BooleanSupplier;
@@ -22,6 +23,7 @@ import frc.robot.Constants.VisionConstants;
 public class AlignTeleopCommand extends Command{
    private Drivetrain driveSubsystem;
    private Cameras cameraSubsystem;
+   private PhotonVisionPoseV2 poseEstimator;
    
    PIDController pid = new PIDController(VisionConstants.kAlignP,VisionConstants.kAlignI,VisionConstants.kAlignD);
    PIDController pidRot = new PIDController(VisionConstants.kRotP,VisionConstants.kRotI,VisionConstants.kRotD);
@@ -41,10 +43,9 @@ public class AlignTeleopCommand extends Command{
 
    BooleanSupplier joystickInput;
 
-   public AlignTeleopCommand(int targetTagId, Boolean fieldRelative, Boolean rateLimit, Drivetrain driveSubsystem, Cameras cameraSubsystem, DoubleSupplier offsetX, DoubleSupplier offsetY, BooleanSupplier joystickInput){
+   public AlignTeleopCommand( Boolean fieldRelative, Boolean rateLimit, Drivetrain driveSubsystem, PhotonVisionPoseV2 poseEstimator, Cameras cameraSubsystem, DoubleSupplier offsetX, DoubleSupplier offsetY, BooleanSupplier joystickInput){
         //tagId  = cameraSubsystem.getBestTargetID(cameraSubsystem.getBestTarget(1)); // to be changed. We need to reference the 3 front cameras 
-        tagId = targetTagId;
-        
+ 
         this.offsetX = offsetX;
         this.offsetY = offsetY;
 
@@ -54,12 +55,15 @@ public class AlignTeleopCommand extends Command{
         this.driveSubsystem = driveSubsystem;
         this.cameraSubsystem = cameraSubsystem;
 
-        addRequirements(driveSubsystem);
+        this.addRequirements(driveSubsystem);
 
         lockedIn = false;
         isDone = false;
 
         this.joystickInput = joystickInput;
+
+        this.poseEstimator = poseEstimator;
+        tagId = poseEstimator.m_camera.getLatestResult().getBestTarget().getFiducialId();
    } 
 
    @Override

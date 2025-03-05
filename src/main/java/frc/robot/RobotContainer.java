@@ -302,9 +302,10 @@ public class RobotContainer {
              .onFalse(new StopClawCommand(harpoon));
 
              this.driverController_PS5.povDown()
-             .onTrue(new CalibrateElevator(elevator, this.driverController_PS5.povDown()));
+             .onTrue(new CalibrateElevator(elevator, this.driverController_PS5.povDown()));}
 
              // automatic vision lineup (taken out for now)
+             /* 
              this.driverController_PS5.R2().onTrue(
                 new InstantCommand(() -> {
                     if(m_cameras.isVisionActive) {
@@ -342,7 +343,7 @@ public class RobotContainer {
                     }
                 })
             );
-        }
+        }*/
     }
 
     /**

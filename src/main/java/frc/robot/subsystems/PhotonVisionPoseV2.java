@@ -34,7 +34,7 @@ import org.photonvision.PhotonPoseEstimator.PoseStrategy;
  */
 public class PhotonVisionPoseV2 extends SubsystemBase {
     private final Drivetrain m_drivetrain; // Reference to the drivetrain subsystem
-    private PhotonCamera m_camera; // PhotonVision camera for detecting AprilTags
+    public PhotonCamera m_camera; // PhotonVision camera for detecting AprilTags
     private Transform3d m_cameraToRobot; // Transform from the robot center to the camera
     private AprilTagFieldLayout m_fieldLayout; // Layout of AprilTags on the field
     private PhotonPoseEstimator m_poseEstimator; // Estimator for calculating robot pose
@@ -121,6 +121,14 @@ public class PhotonVisionPoseV2 extends SubsystemBase {
             if (estimatedPose.isPresent()) {
                 // Convert the estimated pose to Pose2d and update the drivetrain's odometry
                 Pose2d robotPose = estimatedPose.get().estimatedPose.toPose2d();
+
+                double ambiguity = result.getBestTarget().getPoseAmbiguity();
+
+                // Reject poses with high ambiguity
+                if (ambiguity > 0.2) {
+                    continue; // Skip this measurement
+                }
+                
                 m_drivetrain.resetOdometry(robotPose);
                 // Display the estimated pose on the SmartDashboard
                 SmartDashboard.putNumber("Estimated X", robotPose.getX());
