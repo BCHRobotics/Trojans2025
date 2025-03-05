@@ -14,6 +14,7 @@ import edu.wpi.first.apriltag.AprilTagFieldLayout;
 import edu.wpi.first.apriltag.AprilTagFields;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Pose3d;
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Translation3d;
@@ -103,6 +104,23 @@ public class PhotonVisionPoseV2 extends SubsystemBase {
     }
 
     /**
+     * 
+     * @param newPose 
+     * @param currentPose
+     * @return
+     * This is a helper function for smoothing the position. We don't know how well this works since it hasn't been tested yet
+     */
+    private Pose2d smoothPose(Pose2d newPose, Pose2d currentPose) {
+    double alpha = 0.7; // 0.0 = trust old pose, 1.0 = trust new pose
+    double smoothedX = alpha * newPose.getX() + (1 - alpha) * currentPose.getX();
+    double smoothedY = alpha * newPose.getY() + (1 - alpha) * currentPose.getY();
+    double smoothedTheta = alpha * newPose.getRotation().getRadians() + 
+                           (1 - alpha) * currentPose.getRotation().getRadians();
+
+    return new Pose2d(smoothedX, smoothedY, new Rotation2d(smoothedTheta));
+}
+
+    /**
      * Updates the robot's pose using PhotonPoseEstimator.
      * This method processes all unread results from the camera, estimates the robot's pose
      * using the PhotonPoseEstimator, and updates the drivetrain's odometry if a valid pose is found.
@@ -128,7 +146,7 @@ public class PhotonVisionPoseV2 extends SubsystemBase {
                 if (ambiguity > 0.2) {
                     continue; // Skip this measurement
                 }
-                
+
                 m_drivetrain.resetOdometry(robotPose);
                 // Display the estimated pose on the SmartDashboard
                 SmartDashboard.putNumber("Estimated X", robotPose.getX());
