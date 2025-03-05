@@ -242,28 +242,28 @@ public final class Constants {
 
         // Extracting the TagTransform parameters and creating Pose2d objects
         tagPositions.put(0, new Pose2d(new Translation2d(0, 0), new Rotation2d(0))); // null tag
-        tagPositions.put(1, new Pose2d(new Translation2d(657.37, 25.80), new Rotation2d(Math.toRadians(126))));
-        tagPositions.put(2, new Pose2d(new Translation2d(657.37, 291.20), new Rotation2d(Math.toRadians(234))));
-        tagPositions.put(3, new Pose2d(new Translation2d(455.15, 317.15), new Rotation2d(Math.toRadians(270))));
-        tagPositions.put(4, new Pose2d(new Translation2d(365.20, 241.64), new Rotation2d(Math.toRadians(0))));
-        tagPositions.put(5, new Pose2d(new Translation2d(365.20, 75.39), new Rotation2d(Math.toRadians(0))));
-        tagPositions.put(6, new Pose2d(new Translation2d(530.49, 130.17), new Rotation2d(Math.toRadians(300))));
-        tagPositions.put(7, new Pose2d(new Translation2d(546.87, 158.50), new Rotation2d(Math.toRadians(0))));
-        tagPositions.put(8, new Pose2d(new Translation2d(530.49, 186.83), new Rotation2d(Math.toRadians(60))));
-        tagPositions.put(9, new Pose2d(new Translation2d(497.77, 186.83), new Rotation2d(Math.toRadians(120))));
-        tagPositions.put(10, new Pose2d(new Translation2d(481.39, 158.50), new Rotation2d(Math.toRadians(180))));
-        tagPositions.put(11, new Pose2d(new Translation2d(497.77, 130.17), new Rotation2d(Math.toRadians(240))));
-        tagPositions.put(12, new Pose2d(new Translation2d(33.51, 25.80), new Rotation2d(Math.toRadians(54))));
-        tagPositions.put(13, new Pose2d(new Translation2d(33.51, 291.20), new Rotation2d(Math.toRadians(306))));
-        tagPositions.put(14, new Pose2d(new Translation2d(325.68, 241.64), new Rotation2d(Math.toRadians(180))));
-        tagPositions.put(15, new Pose2d(new Translation2d(325.68, 75.39), new Rotation2d(Math.toRadians(180))));
-        tagPositions.put(16, new Pose2d(new Translation2d(235.73, -0.15), new Rotation2d(Math.toRadians(90))));
-        tagPositions.put(17, new Pose2d(new Translation2d(160.39, 130.17), new Rotation2d(Math.toRadians(240))));
-        tagPositions.put(18, new Pose2d(new Translation2d(144.00, 158.50), new Rotation2d(Math.toRadians(180))));
-        tagPositions.put(19, new Pose2d(new Translation2d(160.39, 186.83), new Rotation2d(Math.toRadians(120))));
-        tagPositions.put(20, new Pose2d(new Translation2d(193.10, 186.83), new Rotation2d(Math.toRadians(60))));
-        tagPositions.put(21, new Pose2d(new Translation2d(209.49, 158.50), new Rotation2d(Math.toRadians(0))));
-        tagPositions.put(22, new Pose2d(new Translation2d(193.10, 130.17), new Rotation2d(Math.toRadians(300))));
+        tagPositions.put(1, new Pose2d(new Translation2d(Units.inchesToMeters(657.37), Units.inchesToMeters(25.80)), new Rotation2d(Math.toRadians(126))));
+        tagPositions.put(2, new Pose2d(new Translation2d(Units.inchesToMeters(657.37), Units.inchesToMeters(291.20)), new Rotation2d(Math.toRadians(234))));
+        tagPositions.put(3, new Pose2d(new Translation2d(Units.inchesToMeters(455.15), Units.inchesToMeters(317.15)), new Rotation2d(Math.toRadians(270))));
+        tagPositions.put(4, new Pose2d(new Translation2d(Units.inchesToMeters(365.20), Units.inchesToMeters(241.64)), new Rotation2d(Math.toRadians(0))));
+        tagPositions.put(5, new Pose2d(new Translation2d(Units.inchesToMeters(365.20), Units.inchesToMeters(75.39)), new Rotation2d(Math.toRadians(0))));
+        tagPositions.put(6, new Pose2d(new Translation2d(Units.inchesToMeters(530.49), Units.inchesToMeters(130.17)), new Rotation2d(Math.toRadians(300))));
+        tagPositions.put(7, new Pose2d(new Translation2d(Units.inchesToMeters(546.87), Units.inchesToMeters(158.50)), new Rotation2d(Math.toRadians(0))));
+        tagPositions.put(8, new Pose2d(new Translation2d(Units.inchesToMeters(530.49), Units.inchesToMeters(186.83)), new Rotation2d(Math.toRadians(60))));
+        tagPositions.put(9, new Pose2d(new Translation2d(Units.inchesToMeters(497.77), Units.inchesToMeters(186.83)), new Rotation2d(Math.toRadians(120))));
+        tagPositions.put(10, new Pose2d(new Translation2d(Units.inchesToMeters(481.39), Units.inchesToMeters(158.50)), new Rotation2d(Math.toRadians(180))));
+        tagPositions.put(11, new Pose2d(new Translation2d(Units.inchesToMeters(497.77), Units.inchesToMeters(130.17)), new Rotation2d(Math.toRadians(240))));
+        tagPositions.put(12, new Pose2d(new Translation2d(Units.inchesToMeters(33.51), Units.inchesToMeters(25.80)), new Rotation2d(Math.toRadians(54))));
+        tagPositions.put(13, new Pose2d(new Translation2d(Units.inchesToMeters(33.51), Units.inchesToMeters(291.20)), new Rotation2d(Math.toRadians(306))));
+        tagPositions.put(14, new Pose2d(new Translation2d(Units.inchesToMeters(325.68), Units.inchesToMeters(241.64)), new Rotation2d(Math.toRadians(180))));
+        tagPositions.put(15, new Pose2d(new Translation2d(Units.inchesToMeters(325.68), Units.inchesToMeters(75.39)), new Rotation2d(Math.toRadians(180))));
+        tagPositions.put(16, new Pose2d(new Translation2d(Units.inchesToMeters(235.73), Units.inchesToMeters(-0.15)), new Rotation2d(Math.toRadians(90))));
+        tagPositions.put(17, new Pose2d(new Translation2d(Units.inchesToMeters(160.39), Units.inchesToMeters(130.17)), new Rotation2d(Math.toRadians(240))));
+        tagPositions.put(18, new Pose2d(new Translation2d(Units.inchesToMeters(144.00), Units.inchesToMeters(158.50)), new Rotation2d(Math.toRadians(180))));
+        tagPositions.put(19, new Pose2d(new Translation2d(Units.inchesToMeters(160.39), Units.inchesToMeters(186.83)), new Rotation2d(Math.toRadians(120))));
+        tagPositions.put(20, new Pose2d(new Translation2d(Units.inchesToMeters(193.10), Units.inchesToMeters(186.83)), new Rotation2d(Math.toRadians(60))));
+        tagPositions.put(21, new Pose2d(new Translation2d(Units.inchesToMeters(209.49), Units.inchesToMeters(158.50)), new Rotation2d(Math.toRadians(0))));
+        tagPositions.put(22, new Pose2d(new Translation2d(Units.inchesToMeters(193.10), Units.inchesToMeters(130.17)), new Rotation2d(Math.toRadians(300))));
 
         return tagPositions;
     }
