@@ -116,6 +116,8 @@ public class PhotonVisionPoseV2 extends SubsystemBase {
      * @return
      * This is a helper function for smoothing the position. We don't know how well this works since it hasn't been tested yet
      */
+    ///WARNING!!! ANGLE WRAPPING IS NOT IMPLEMENTED IN THIS FUNCTION- ndykstra
+    /// 
     private Pose2d smoothPose(Pose2d newPose, Pose2d currentPose) {
     double alpha = 0.7; // 0.0 = trust old pose, 1.0 = trust new pose
     double smoothedX = alpha * newPose.getX() + (1 - alpha) * currentPose.getX();
