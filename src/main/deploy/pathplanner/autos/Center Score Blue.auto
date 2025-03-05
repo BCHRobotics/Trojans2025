@@ -21,6 +21,24 @@
           "data": {
             "name": "SCORE"
           }
+        },
+        {
+          "type": "wait",
+          "data": {
+            "waitTime": 4.0
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "STOW"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "Reef4Left-BlueCoral2Right"
+          }
         }
       ]
     }

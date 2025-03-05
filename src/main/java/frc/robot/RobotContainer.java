@@ -48,6 +48,7 @@ import edu.wpi.first.wpilibj2.command.button.CommandPS5Controller;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import frc.robot.subsystems.PhotonVisionPoseV2;
 
+
 /*
  * This class is where the bulk of the robot should be declared.  Since Command-based is a
  * "declarative" paradigm, very little robot logic should actually be handled in the {@link Robot}
@@ -140,6 +141,9 @@ public class RobotContainer {
 
         NamedCommands.registerCommand("SCORE", new AutoScoreCommand(harpoon, 0.6));
         NamedCommands.registerCommand("RAISE", new ToggleMechanismCommand(ledRight, ledLeft, elevator, harpoon));
+        NamedCommands.registerCommand("STOW", new InstantCommand(()->harpoon.setRotationMotorPosition(0.98))
+                .andThen(()->elevator.setSetpoint(ElevatorPosition.STOWED.getSetpoint())));
+
 
         autoChooser = AutoBuilder.buildAutoChooser();
         SmartDashboard.putData("Auto Name", autoChooser);
