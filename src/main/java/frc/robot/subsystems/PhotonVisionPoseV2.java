@@ -1,6 +1,7 @@
 package frc.robot.subsystems;
 
 import java.util.Optional;
+import java.util.function.Supplier;
 import java.util.List;
 
 import org.photonvision.PhotonCamera;
@@ -57,7 +58,7 @@ public class PhotonVisionPoseV2 extends SubsystemBase {
             // Load the default field layout for AprilTags
             m_fieldLayout = AprilTagFields.k2025ReefscapeWelded.loadAprilTagLayoutField();
             // Initialize the pose estimator with the field layout, strategy, and camera transform
-            m_poseEstimator = new PhotonPoseEstimator(m_fieldLayout, PoseStrategy.LOWEST_AMBIGUITY, m_cameraToRobot);
+            m_poseEstimator = new PhotonPoseEstimator(m_fieldLayout, PoseStrategy.MULTI_TAG_PNP_ON_COPROCESSOR, m_cameraToRobot);
             // Indicate successful initialization on the SmartDashboard
             SmartDashboard.putBoolean("PhotonVisionV2 Initialized", true);
         } catch (Exception e) {
@@ -94,10 +95,10 @@ public class PhotonVisionPoseV2 extends SubsystemBase {
         updatePose();
     }
 
-    public <Supplier>Pose2d estimatedPose(Pose2d pose){
+    public Supplier<Pose2d> estimatedPose(){
 
-            Supplier<Pose2d> poseSupplier = updatePose();
-            
+            Supplier<Pose2d> poseSupplier = this::updatePose;
+
             return poseSupplier;
     }
 
