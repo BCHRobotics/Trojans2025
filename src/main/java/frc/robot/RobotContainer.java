@@ -142,7 +142,7 @@ public class RobotContainer {
         NamedCommands.registerCommand("SCORE", new AutoScoreCommand(harpoon, 0.6));
         NamedCommands.registerCommand("RAISE", new ToggleMechanismCommand(ledRight, ledLeft, elevator, harpoon));
         NamedCommands.registerCommand("STOW", new InstantCommand(()->harpoon.setRotationMotorPosition(0.98))
-                .andThen(()->elevator.setSetpoint(ElevatorPosition.STOWED.getSetpoint())));
+                .andThen(new InstantCommand(()->elevator.setSetpoint(ElevatorPosition.STOWED.getSetpoint()))));
 
 
         autoChooser = AutoBuilder.buildAutoChooser();
