@@ -75,7 +75,7 @@ public class AlignTeleopCommand extends Command{
         System.out.println("Aligning to Tag: " + tagId);
 
         // Generate a trajectory to the tag using PathPlanner
-        Command path = poseEstimator.generatePathToPose2d(tagPosition);
+        Command path = poseEstimator.generatePathToPose2d(new Pose2d(tagPosition.getX()-0.2,tagPosition.getY(),tagPosition.getRotation()));
         path.schedule();
     } else {
         System.out.println("No valid tags detected.");
