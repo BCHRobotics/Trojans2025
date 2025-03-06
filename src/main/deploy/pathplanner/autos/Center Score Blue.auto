@@ -19,7 +19,7 @@
         {
           "type": "path",
           "data": {
-            "pathName": "Return-Reef4left-CoralLeft"
+            "pathName": "Return-Reef4Left-CoralLeft"
           }
         },
         {
@@ -31,7 +31,7 @@
         {
           "type": "path",
           "data": {
-            "pathName": "17-BlueCoralLeft"
+            "pathName": "Return-Reef2Left-CoralLeft"
           }
         },
         {
@@ -43,7 +43,7 @@
         {
           "type": "path",
           "data": {
-            "pathName": "17-BlueCoralLeft"
+            "pathName": "Return-Reef2Right-CoralLeft"
           }
         }
       ]

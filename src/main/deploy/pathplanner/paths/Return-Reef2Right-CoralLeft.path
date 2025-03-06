@@ -1,0 +1,59 @@
+{
+  "version": "2025.0",
+  "waypoints": [
+    {
+      "anchor": {
+        "x": 3.877,
+        "y": 2.665
+      },
+      "prevControl": null,
+      "nextControl": {
+        "x": 4.676676136363636,
+        "y": 2.5192897727272725
+      },
+      "isLocked": false,
+      "linkedName": null
+    },
+    {
+      "anchor": {
+        "x": 1.548,
+        "y": 0.907
+      },
+      "prevControl": {
+        "x": 1.1666761363636364,
+        "y": 1.242926136363635
+      },
+      "nextControl": null,
+      "isLocked": false,
+      "linkedName": null
+    }
+  ],
+  "rotationTargets": [
+    {
+      "waypointRelativePos": 0.4335106382978686,
+      "rotationDegrees": 49.42629392708479
+    }
+  ],
+  "constraintZones": [],
+  "pointTowardsZones": [],
+  "eventMarkers": [],
+  "globalConstraints": {
+    "maxVelocity": 5.0,
+    "maxAcceleration": 1.5,
+    "maxAngularVelocity": 720.0,
+    "maxAngularAcceleration": 720.0,
+    "nominalVoltage": 12.0,
+    "unlimited": false
+  },
+  "goalEndState": {
+    "velocity": 0,
+    "rotation": -131.42
+  },
+  "reversed": false,
+  "folder": "Blue Coral Reef 2",
+  "idealStartingState": {
+    "velocity": 0,
+    "rotation": 57.99499999999999
+  },
+  "useDefaultConstraints": true
+}
