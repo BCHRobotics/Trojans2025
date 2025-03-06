@@ -132,7 +132,7 @@ public class RobotContainer {
         }
         else {
             // Reset Gyro
-            m_operatorController.y().onTrue(new InstantCommand(() -> { m_robotDrive.zeroHeading(); m_robotDrive.resetOdometry(m_cameras.estimateRobotPoseManual()); }));
+            m_operatorController.y().onTrue(new InstantCommand(() -> { m_robotDrive.zeroHeading(); }));
 
             // Slow mode command (Left Bumper)
             m_operatorController.leftBumper().onTrue(new InstantCommand(() -> m_robotDrive.setSlowMode(true)));
