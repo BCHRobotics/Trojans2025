@@ -13,7 +13,7 @@ import com.pathplanner.lib.pathfinding.Pathfinding;
 
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.geometry.Pose2d;
-
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj2.command.Command;
 
 
@@ -42,6 +42,10 @@ public class AlignTeleopCommand extends Command{
    BooleanSupplier joystickInput;
 
    private Command path;
+
+    // Offset values (meters)
+    double offsetBack = 0.5; // Move 0.5 meters behind the tag
+    double offsetSide = 0.3; // Move 0.3 meters to the right (or left if negative)
 
    PathConstraints constraints = new PathConstraints(3.0, 3.0, 2 * Math.PI, 4 * Math.PI); // The constraints for this path.
 // PathConstraints constraints = PathConstraints.unlimitedConstraints(12.0); // You can also use unlimited constraints, only limited by motor torque and nominal battery voltage
@@ -74,8 +78,12 @@ public class AlignTeleopCommand extends Command{
 
         System.out.println("Aligning to Tag: " + tagId);
 
+        double newX = tagPosition.getX() - (offsetBack * Math.cos(tagPosition.getRotation().getRadians())) + (offsetSide * Math.sin(tagPosition.getRotation().getRadians()));
+        double newY = tagPosition.getY() - (offsetBack * Math.sin(tagPosition.getRotation().getRadians())) - (offsetSide * Math.cos(tagPosition.getRotation().getRadians()));
+
         // Generate a trajectory to the tag using PathPlanner
-        Command path = poseEstimator.generatePathToPose2d(new Pose2d(tagPosition.getX()-0.2,tagPosition.getY(),tagPosition.getRotation()));
+        // we want the robot facing the tag so we just flip the rotation
+        Command path = poseEstimator.generatePathToPose2d(new Pose2d(newX,newY,new Rotation2d(-tagPosition.getRotation().getRadians())));
         path.schedule();
     } else {
         System.out.println("No valid tags detected.");
