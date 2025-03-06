@@ -60,7 +60,7 @@ public class PhotonVisionPoseV2 extends SubsystemBase {
         try {
             // Initialize the cameras using the camera names from constants
             m_cameraMain = new PhotonCamera(VisionConstants.cameraNames[0]);
-            m_cameraSecondary = new PhotonCamera(VisionConstants.cameraNames[1]);
+            // m_cameraSecondary = new PhotonCamera(VisionConstants.cameraNames[1]); // Uncomment for secondary camera
             // Create the camera to robot transform using offsets from constants
             m_cameraMainToRobot = new Transform3d(
                 new Translation3d(VisionConstants.cameraOffsets[0].xOffset, VisionConstants.cameraOffsets[0].yOffset, 0.0),
@@ -168,7 +168,7 @@ public class PhotonVisionPoseV2 extends SubsystemBase {
         // Retrieve all unread pipeline results from the camera
         List<PhotonPipelineResult> results = m_cameraMain.getAllUnreadResults();
 
-        List<PhotonPipelineResult> secondaryResults = m_cameraSecondary.getAllUnreadResults();
+        // List<PhotonPipelineResult> secondaryResults = m_cameraSecondary.getAllUnreadResults();
 
         double ambiguity = Double.MAX_VALUE;
         double ambiguitySecondary;
@@ -201,6 +201,7 @@ public class PhotonVisionPoseV2 extends SubsystemBase {
             }
              
         }
+        /* 
 
         for (PhotonPipelineResult result : secondaryResults) {
             // Update the pose estimator with the current result and get the estimated pose
@@ -219,6 +220,7 @@ public class PhotonVisionPoseV2 extends SubsystemBase {
             
             
         }
+            */
         return null;
     }
 } 
