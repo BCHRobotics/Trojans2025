@@ -3,25 +3,25 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 0.6630000000000001,
-        "y": 1.353499999999999
+        "x": 1.60875,
+        "y": 0.6807499999999993
       },
       "prevControl": null,
       "nextControl": {
-        "x": 4.53375,
-        "y": 1.4607499999999993
+        "x": 5.479500000000001,
+        "y": 0.7879999999999996
       },
       "isLocked": false,
       "linkedName": null
     },
     {
       "anchor": {
-        "x": 5.950171232876712,
-        "y": 3.8522046232876708
+        "x": 5.814940068493151,
+        "y": 3.852
       },
       "prevControl": {
-        "x": 8.30967123287671,
-        "y": 3.637704623287671
+        "x": 8.174440068493151,
+        "y": 3.6374999999999997
       },
       "nextControl": null,
       "isLocked": false,
@@ -45,7 +45,7 @@
     "rotation": 180.0
   },
   "reversed": false,
-  "folder": null,
+  "folder": "Blue Coral Reef 4",
   "idealStartingState": {
     "velocity": 0,
     "rotation": -126.0

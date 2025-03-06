@@ -2,7 +2,15 @@
   "robotWidth": 0.864,
   "robotLength": 0.864,
   "holonomicMode": true,
-  "pathFolders": [],
+  "pathFolders": [
+    "Blue Coral Reef 2",
+    "Blue Coral Reef 3",
+    "Blue Coral Reef 4",
+    "Blue Coral Reef 5",
+    "Blue Coral Reef 6",
+    "Blue Coral Scoring",
+    "Blue Coral Reef 1"
+  ],
   "autoFolders": [],
   "defaultMaxVel": 5.0,
   "defaultMaxAccel": 1.5,
