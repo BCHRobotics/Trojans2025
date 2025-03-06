@@ -39,12 +39,16 @@ import org.photonvision.PhotonPoseEstimator.PoseStrategy;
  */
 public class PhotonVisionPoseV2 extends SubsystemBase {
     private final Drivetrain m_drivetrain; // Reference to the drivetrain subsystem
-    public PhotonCamera m_camera; // PhotonVision camera for detecting AprilTags
-    private Transform3d m_cameraToRobot; // Transform from the robot center to the camera
+    public PhotonCamera m_cameraMain; // PhotonVision camera for detecting AprilTags
+    public PhotonCamera m_cameraSecondary; // PhotonVision camera for detecting AprilTags
+    private Transform3d m_cameraMainToRobot; // Transform from the robot center to the camera
+    private Transform3d m_cameraSecondaryToRobot; // Transform from the robot center to the camera
     private AprilTagFieldLayout m_fieldLayout; // Layout of AprilTags on the field
     private PhotonPoseEstimator m_poseEstimator; // Estimator for calculating robot pose
+    private PhotonPoseEstimator m_poseEstimatorSecondary; // Estimator for calculating robot pose
     private boolean m_visionPoseEnabled = true; // Flag to enable/disable vision-based updates
     private final Field2d field2d = new Field2d();
+    
 
     /**
      * Creates a new PhotonVisionPoseV2 subsystem.
@@ -54,16 +58,22 @@ public class PhotonVisionPoseV2 extends SubsystemBase {
     public PhotonVisionPoseV2(Drivetrain drivetrain) {
         m_drivetrain = drivetrain;
         try {
-            // Initialize the camera using the first camera name from constants
-            m_camera = new PhotonCamera(VisionConstants.cameraNames[0]);
+            // Initialize the cameras using the camera names from constants
+            m_cameraMain = new PhotonCamera(VisionConstants.cameraNames[0]);
+            m_cameraSecondary = new PhotonCamera(VisionConstants.cameraNames[1]);
             // Create the camera to robot transform using offsets from constants
-            m_cameraToRobot = new Transform3d(
+            m_cameraMainToRobot = new Transform3d(
+                new Translation3d(VisionConstants.cameraOffsets[0].xOffset, VisionConstants.cameraOffsets[0].yOffset, 0.0),
+                new Rotation3d(0, 0, VisionConstants.cameraOffsets[0].angleOffset));
+
+            m_cameraSecondaryToRobot = new Transform3d(
                 new Translation3d(VisionConstants.cameraOffsets[0].xOffset, VisionConstants.cameraOffsets[0].yOffset, 0.0),
                 new Rotation3d(0, 0, VisionConstants.cameraOffsets[0].angleOffset));
             // Load the default field layout for AprilTags
             m_fieldLayout = AprilTagFields.k2025ReefscapeWelded.loadAprilTagLayoutField();
             // Initialize the pose estimator with the field layout, strategy, and camera transform
-            m_poseEstimator = new PhotonPoseEstimator(m_fieldLayout, PoseStrategy.MULTI_TAG_PNP_ON_COPROCESSOR, m_cameraToRobot);
+            m_poseEstimator = new PhotonPoseEstimator(m_fieldLayout, PoseStrategy.MULTI_TAG_PNP_ON_COPROCESSOR, m_cameraMainToRobot);
+            m_poseEstimatorSecondary = new PhotonPoseEstimator(m_fieldLayout, PoseStrategy.MULTI_TAG_PNP_ON_COPROCESSOR, m_cameraMainToRobot);
             // Indicate successful initialization on the SmartDashboard
             SmartDashboard.putBoolean("PhotonVisionV2 Initialized", true);
         } catch (Exception e) {
@@ -151,20 +161,27 @@ public class PhotonVisionPoseV2 extends SubsystemBase {
      */
     private Pose2d updatePose() {
         // Check if vision updates are enabled and if the camera and field layout are initialized
-        if (!m_visionPoseEnabled || m_camera == null || m_fieldLayout == null) {
+        if (!m_visionPoseEnabled || m_cameraMain == null || m_fieldLayout == null) {
             return null; // Exit if any condition is not met
         }
 
         // Retrieve all unread pipeline results from the camera
-        List<PhotonPipelineResult> results = m_camera.getAllUnreadResults();
+        List<PhotonPipelineResult> results = m_cameraMain.getAllUnreadResults();
+
+        List<PhotonPipelineResult> secondaryResults = m_cameraSecondary.getAllUnreadResults();
+
+        double ambiguity = Double.MAX_VALUE;
+        double ambiguitySecondary;
+
         for (PhotonPipelineResult result : results) {
             // Update the pose estimator with the current result and get the estimated pose
             Optional<EstimatedRobotPose> estimatedPose = m_poseEstimator.update(result);
+
             if (estimatedPose.isPresent()) {
                 // Convert the estimated pose to Pose2d and update the drivetrain's odometry
                 Pose2d robotPose = estimatedPose.get().estimatedPose.toPose2d();
 
-                double ambiguity = result.getBestTarget().getPoseAmbiguity();
+                ambiguity = result.getBestTarget().getPoseAmbiguity();
 
                 // Reject poses with high ambiguity
                 if (ambiguity > 0.2) {
@@ -183,6 +200,24 @@ public class PhotonVisionPoseV2 extends SubsystemBase {
                 return new Pose2d(robotPose.getX(),robotPose.getY(),robotPose.getRotation());
             }
              
+        }
+
+        for (PhotonPipelineResult result : secondaryResults) {
+            // Update the pose estimator with the current result and get the estimated pose
+            ambiguitySecondary = result.getBestTarget().getPoseAmbiguity();
+            // Reject poses with high ambiguity
+            if (ambiguitySecondary > 0.2) {
+                continue; // Skip this measurement
+            }
+            Optional<EstimatedRobotPose> estimatedPoseSecondary = m_poseEstimator.update(result);
+            Pose2d robotPose = estimatedPoseSecondary.get().estimatedPose.toPose2d();
+            if (estimatedPoseSecondary.isPresent()) {
+                if (ambiguitySecondary > ambiguity && result.getBestTarget().getPoseAmbiguity()<0.2){
+                    m_drivetrain.resetOdometry(robotPose);
+                }
+            }
+            
+            
         }
         return null;
     }

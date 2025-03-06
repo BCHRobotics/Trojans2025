@@ -71,7 +71,7 @@ public class AlignTeleopCommand extends Command{
     // DO THIS FIRST
     
 
-    var result = poseEstimator.m_camera.getLatestResult();
+    var result = poseEstimator.m_cameraMain.getLatestResult();
     if (result.hasTargets()) {
         tagId = result.getBestTarget().getFiducialId();
         tagPosition = tagPositions.get(result.getBestTarget().getFiducialId()); // Implement this method in PhotonVisionPoseV2

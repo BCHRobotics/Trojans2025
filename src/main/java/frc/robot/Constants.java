@@ -221,7 +221,7 @@ public final class Constants {
     public static final String[] cameraNames = new String[] {
       //"Front Left", 
     "Center", 
-    //"Front Right"
+    "Secondary"
     };
 
     public static final CameraTransform[] cameraOffsets = 
