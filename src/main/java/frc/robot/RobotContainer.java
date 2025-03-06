@@ -42,6 +42,7 @@ import frc.robot.subsystems.Harpoon;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
+import edu.wpi.first.wpilibj2.command.WaitCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandPS5Controller;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import frc.robot.subsystems.PhotonVisionPoseV2;
@@ -121,10 +122,23 @@ public class RobotContainer {
         // // TODO: get this one ready
         // // autoSelect.addOption("1 Coral, Feeder", "move(Reef4Left)/wait(1)/score(0)/path(Coral2Left)/intake(0)");
 
+//STOW ISSUE MAY BE DUE TO INSTANTCOMMAND. Examine the console output during autonomous to see if your debug messages are appearing.
+//If still not working, there might be an issue with how PathPlanner is handling event markers in your setup. In that case, you might want to consider using the command in the auto sequence directly rather than as an event marker.
+
         NamedCommands.registerCommand("SCORE", new AutoScoreCommand(harpoon, 0.6));
-        NamedCommands.registerCommand("RAISE", new ToggleMechanismCommand(ledRight, ledLeft, elevator, harpoon));
-        NamedCommands.registerCommand("STOW", new InstantCommand(()->harpoon.setRotationMotorPosition(0.98))
-                .andThen(new InstantCommand(()->elevator.setSetpoint(ElevatorPosition.STOWED.getSetpoint()))));
+        NamedCommands.registerCommand("RAISE", new ToggleMechanismCommand(ledLeft, ledRight, elevator, harpoon));
+        NamedCommands.registerCommand("STOW", 
+            new InstantCommand(()->{
+                System.out.println("*** STOW COMMAND STARTING ***");
+                harpoon.setRotationMotorPosition(0.98);
+            })
+            .andThen(new InstantCommand(()->{
+                System.out.println("*** SETTING ELEVATOR TO STOWED ***");
+                elevator.setSetpoint(ElevatorPosition.STOWED.getSetpoint());
+            }))
+            .andThen(new WaitCommand(0.5))  // Add a short wait to ensure the motors have time to respond
+            .andThen(new InstantCommand(()->System.out.println("*** STOW COMMAND COMPLETED ***")))
+        );
 
 
         autoChooser = AutoBuilder.buildAutoChooser();
