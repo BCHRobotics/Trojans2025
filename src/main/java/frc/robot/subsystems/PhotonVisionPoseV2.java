@@ -10,6 +10,8 @@ import org.photonvision.targeting.PhotonPipelineResult;
 
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.path.PathConstraints;
+import com.pathplanner.lib.pathfinding.LocalADStar;
+import com.pathplanner.lib.pathfinding.Pathfinding;
 
 import org.photonvision.EstimatedRobotPose;
 
@@ -136,6 +138,8 @@ public class PhotonVisionPoseV2 extends SubsystemBase {
     return new Pose2d(smoothedX, smoothedY, new Rotation2d(smoothedTheta));
 }
     public Command generatePathToPose2d(Pose2d targetPose){
+        
+
         // Since we are using a holonomic drivetrain, the rotation component of this pose
     // represents the goal holonomic rotation
     
