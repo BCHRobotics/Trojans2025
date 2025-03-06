@@ -73,10 +73,22 @@ public class AlignTeleopCommand extends Command{
         tagPosition = tagPositions.get(result.getBestTarget().getFiducialId()); // Implement this method in PhotonVisionPoseV2
 
         System.out.println("Aligning to Tag: " + tagId);
+        
+        
+            // Generate a trajectory to the tag using PathPlanner
+        Command path = poseEstimator.generatePathToPose2d(new Pose2d(tagPosition.getX(),tagPosition.getY(),tagPosition.getRotation()));
+        if (path != null){
+            path.schedule();
+        }
 
-        // Generate a trajectory to the tag using PathPlanner
-        Command path = poseEstimator.generatePathToPose2d(new Pose2d(tagPosition.getX()-0.2,tagPosition.getY(),tagPosition.getRotation()));
-        path.schedule();
+        else{
+            System.out.println("No valid Path.");
+            isDone = true;
+        }
+        
+
+        
+        
     } else {
         System.out.println("No valid tags detected.");
         isDone = true;
@@ -99,6 +111,11 @@ public class AlignTeleopCommand extends Command{
 
    @Override
    public boolean isFinished() {
-        return path.isFinished() || path == null || joystickInput.getAsBoolean();   
+    System.out.println("Finished Alignment");
+
+    if (path != null){
+        return path.isFinished();
+    }
+        return path == null || joystickInput.getAsBoolean() || isDone;   
     }
 }

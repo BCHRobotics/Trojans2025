@@ -139,7 +139,7 @@ public class Harpoon extends SubsystemBase{
     }
  
     public void setRotationMotorPosition(double HarpoonPosition){ // HarpoonPosition is 0.6-1, (1 is stowed, 0.6 is reaching bumpers)
-        System.out.println("Setting Motor Pos");
+        //System.out.println("Setting Motor Pos");
         setpoint = HarpoonPosition;
     }
 

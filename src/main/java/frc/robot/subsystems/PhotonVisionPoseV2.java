@@ -165,11 +165,12 @@ public class PhotonVisionPoseV2 extends SubsystemBase {
                 Pose2d robotPose = estimatedPose.get().estimatedPose.toPose2d();
 
                 double ambiguity = result.getBestTarget().getPoseAmbiguity();
-
+                /* 
                 // Reject poses with high ambiguity
                 if (ambiguity > 0.2) {
                     continue; // Skip this measurement
                 }
+                    */
 
                 m_drivetrain.resetOdometry(robotPose);
                 // Display the estimated pose on the SmartDashboard
