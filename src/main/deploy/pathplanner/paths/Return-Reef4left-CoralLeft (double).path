@@ -3,37 +3,32 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 3.7413955479452055,
-        "y": 2.7703553082191785
+        "x": 5.753056642113285,
+        "y": 3.8609080518161036
       },
       "prevControl": null,
       "nextControl": {
-        "x": 3.260573630136986,
-        "y": 2.4247645547945216
+        "x": 8.834938524590164,
+        "y": 1.9631147540983616
       },
       "isLocked": false,
       "linkedName": null
     },
     {
       "anchor": {
-        "x": 1.7279537671232876,
-        "y": 0.8170162671232879
+        "x": 1.6423155737704918,
+        "y": 0.776331967213116
       },
       "prevControl": {
-        "x": 2.7497003424657533,
-        "y": 1.7185573630136994
+        "x": 3.3226721311475416,
+        "y": 1.9583196721311467
       },
       "nextControl": null,
       "isLocked": false,
       "linkedName": null
     }
   ],
-  "rotationTargets": [
-    {
-      "waypointRelativePos": 0.34468937875751504,
-      "rotationDegrees": -135.1796100057471
-    }
-  ],
+  "rotationTargets": [],
   "constraintZones": [],
   "pointTowardsZones": [],
   "eventMarkers": [],
@@ -47,13 +42,13 @@
   },
   "goalEndState": {
     "velocity": 0,
-    "rotation": -135.00000000000006
+    "rotation": -126.0
   },
   "reversed": false,
-  "folder": "Blue Coral Scoring",
+  "folder": "Blue Coral Reef 4",
   "idealStartingState": {
     "velocity": 0,
-    "rotation": 63.43494882292198
+    "rotation": 180.0
   },
   "useDefaultConstraints": true
 }

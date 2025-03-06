@@ -19,13 +19,13 @@
         {
           "type": "path",
           "data": {
-            "pathName": "Reef4Left-BlueCoral2Right"
+            "pathName": "Return-Reef4left-CoralLeft"
           }
         },
         {
           "type": "path",
           "data": {
-            "pathName": "BlueCoralLeft-17Left"
+            "pathName": "Score-Reef2Left-CoralLeft"
           }
         },
         {
@@ -37,7 +37,7 @@
         {
           "type": "path",
           "data": {
-            "pathName": "BlueCoralLeft-17Right"
+            "pathName": "Score-Reef2Right-CoralLeft"
           }
         },
         {
