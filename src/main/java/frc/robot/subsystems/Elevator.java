@@ -12,6 +12,7 @@ import com.revrobotics.spark.config.LimitSwitchConfig.Type;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.PIDController;
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.Constants.ElevatorConstants;
 import frc.robot.Constants.ElevatorConstants.ElevatorMode;
@@ -191,19 +192,22 @@ public class Elevator extends SubsystemBase{
 
     @Override 
     public void periodic() {
-        if (currentMode == ElevatorMode.REEF) {
-            // if we're scoring, use the selected position
-            // this allows the operator to switch scoring positions immediately
-            setpoint = selectedPosition;
-        }
-        else if (currentMode == ElevatorMode.FEEDER) {
-            // for intaking, use the constant
-            // this allows the operator to pre-select a mode without the elevator moving
-            setpoint = ElevatorPosition.INTAKE.getSetpoint();
-        }
-        else if (currentMode == ElevatorMode.STOWED) {
-            // ditto with stowed, use the constant for the same reason
-            setpoint = ElevatorPosition.STOWED.getSetpoint();
+        if (DriverStation.isTeleop()){
+            if (currentMode == ElevatorMode.REEF) {
+                // if we're scoring, use the selected position
+                // this allows the operator to switch scoring positions immediately
+                setpoint = selectedPosition;
+            }
+            else if (currentMode == ElevatorMode.FEEDER) {
+                // for intaking, use the constant
+                // this allows the operator to pre-select a mode without the elevator moving
+                setpoint = ElevatorPosition.INTAKE.getSetpoint();
+            }
+            else if (currentMode == ElevatorMode.STOWED) {
+                // ditto with stowed, use the constant for the same reason
+                setpoint = ElevatorPosition.STOWED.getSetpoint();
+            }
+
         }
 
         // SmartDashboard.putString("CURRENT ELEVATOR", currentMode.toString());
