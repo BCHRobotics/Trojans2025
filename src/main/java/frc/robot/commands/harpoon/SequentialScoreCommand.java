@@ -78,7 +78,7 @@ public class SequentialScoreCommand extends Command {
                 // Check if the elevator is within 1 inch of the target
                 // The getEncoderPosition method already converts to the correct units
                 double elevatorPosition = elevatorSubsystem.getEncoderPosition();
-                if (Math.abs(elevatorPosition - elevatorSetpoint) < 1.0) {
+                if (Math.abs(elevatorPosition - elevatorSetpoint) < 2.5) {
                     // Elevator is within tolerance, now move the harpoon
                     System.out.println("SEQUENTIAL SCORE: Elevator in position, moving harpoon to " + harpoonSetpoint);
                     harpoonSubsystem.setRotationMotorPosition(harpoonSetpoint);
@@ -89,7 +89,7 @@ public class SequentialScoreCommand extends Command {
             case MOVING_HARPOON:
                 // Check if the harpoon is in position
                 double harpoonPosition = harpoonSubsystem.kRotationMotor.getAbsoluteEncoder().getPosition();
-                if (Math.abs(harpoonPosition - harpoonSetpoint) < 0.1) {
+                if (Math.abs(harpoonPosition - harpoonSetpoint) < 0.02) {
                     // Harpoon is in position, now score
                     System.out.println("SEQUENTIAL SCORE: Harpoon in position, scoring at speed " + scoreSpeed);
                     harpoonSubsystem.setIntakeMotorVelocity(scoreSpeed);
