@@ -22,14 +22,14 @@ import frc.robot.Constants.HarpoonConstants.HarpoonPosition;
 public class Harpoon extends SubsystemBase{
 
     private final SparkMax kIntakeMotor; // intake motor is the same as the "shooter" motor
-    private final SparkMax kRotationMotor; // rotation motor turns the wrist
+    public final SparkMax kRotationMotor; // rotation motor turns the wrist
 
     private final SparkMaxConfig kIntakeConfig = new SparkMaxConfig();
     private final SparkMaxConfig kRotationConfig = new SparkMaxConfig();
 
     private final PIDController pidController;
 
-    private double setpoint;
+    public double setpoint;
 
     // pre-selected setpoint
     private double selectedSetpoint;

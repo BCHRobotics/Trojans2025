@@ -47,6 +47,7 @@ public class PrepareElevatorCommand extends Command {
     @Override
     public boolean isFinished() {
         // finish immediately, bc the command only has to select the position once
+       
         return true;
     }
 }

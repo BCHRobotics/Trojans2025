@@ -103,6 +103,10 @@ public class Elevator extends SubsystemBase{
         followerMotor.set(0);
     }
 
+    public double getSetpoint(){
+        return setpoint;
+    }
+
     // returns the position 1 HIGHER than the current one
     public double getUpperPosition() {
         if (selectedPosition == ElevatorPosition.L1.getSetpoint()) {
@@ -270,7 +274,7 @@ public class Elevator extends SubsystemBase{
      * @return The position, in rotations (I think)
      */
     public double getEncoderPosition() {
-        return encoder.getPosition();
+        return encoder.getPosition()*1.0*ElevatorConstants.countsPerInch;
     }
 
     /**

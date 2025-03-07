@@ -126,7 +126,7 @@ public class RobotContainer {
 //If still not working, there might be an issue with how PathPlanner is handling event markers in your setup. In that case, you might want to consider using the command in the auto sequence directly rather than as an event marker.
 
         NamedCommands.registerCommand("SCORE", new AutoScoreCommand(harpoon, 0.6));
-        NamedCommands.registerCommand("RAISE", new ToggleMechanismCommand(ledLeft, ledRight, elevator, harpoon));
+        NamedCommands.registerCommand("TOGGLE", new ToggleMechanismCommand(ledLeft, ledRight, elevator, harpoon));
         NamedCommands.registerCommand("STOW", 
             new InstantCommand(()->{
                 System.out.println("*** STOW COMMAND STARTING ***");
@@ -139,6 +139,15 @@ public class RobotContainer {
             .andThen(new WaitCommand(0.5))  // Add a short wait to ensure the motors have time to respond
             .andThen(new InstantCommand(()->System.out.println("*** STOW COMMAND COMPLETED ***")))
         );
+        NamedCommands.registerCommand("INTAKE", new PrepareElevatorCommand(elevator, ElevatorMode.FEEDER,() -> ElevatorPosition.INTAKE.getSetpoint())
+        .andThen(new PrepareHarpoonCommand(harpoon, HarpoonMode.FEEDER,()->HarpoonPosition.INTAKE.getSetpoint())));
+        NamedCommands.registerCommand("L4SCORE", new PrepareElevatorCommand(elevator, ElevatorMode.REEF,() -> ElevatorPosition.L4.getSetpoint())
+        .andThen(new PrepareHarpoonCommand(harpoon, HarpoonMode.REEF,()->HarpoonPosition.L4.getSetpoint())));
+        NamedCommands.registerCommand("STOW", new PrepareElevatorCommand(elevator, ElevatorMode.STOWED,() -> ElevatorPosition.STOWED.getSetpoint())
+        .andThen(new PrepareHarpoonCommand(harpoon, HarpoonMode.STOWED,()->HarpoonPosition.STOWED.getSetpoint())));
+
+
+        
 
 
         autoChooser = AutoBuilder.buildAutoChooser();
@@ -277,7 +286,7 @@ public class RobotContainer {
              .onTrue(new CalibrateElevator(elevator, this.driverController_PS5.povDown()));}
 
              this.driverController_PS5.R2()
-             .onTrue(new AlignTeleopCommand(m_robotDrive, poseEstimator, this.driverController_PS5.povUp()));
+             .onTrue(new AlignTeleopCommand(m_robotDrive, poseEstimator, this.driverController_PS5.povUp(), "Right"));
 
              // automatic vision lineup (taken out for now)
              /* 

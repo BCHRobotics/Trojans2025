@@ -74,7 +74,7 @@ public class PhotonVisionPoseV2 extends SubsystemBase {
             // Load the default field layout for AprilTags
             m_fieldLayout = AprilTagFields.k2025ReefscapeWelded.loadAprilTagLayoutField();
             // Initialize the pose estimator with the field layout, strategy, and camera transform
-            m_poseEstimator = new PhotonPoseEstimator(m_fieldLayout, PoseStrategy.MULTI_TAG_PNP_ON_COPROCESSOR, m_cameraMainToRobot);
+            m_poseEstimator = new PhotonPoseEstimator(m_fieldLayout, PoseStrategy.LOWEST_AMBIGUITY, m_cameraMainToRobot);
             m_poseEstimatorSecondary = new PhotonPoseEstimator(m_fieldLayout, PoseStrategy.MULTI_TAG_PNP_ON_COPROCESSOR, m_cameraMainToRobot);
             // Indicate successful initialization on the SmartDashboard
             SmartDashboard.putBoolean("PhotonVisionV2 Initialized", true);
@@ -146,7 +146,7 @@ public class PhotonVisionPoseV2 extends SubsystemBase {
 
     // Create the constraints to use while pathfinding
     PathConstraints constraints = new PathConstraints(
-            3.0, 4.0,
+            1.0, 2.0,
             Units.degreesToRadians(540), Units.degreesToRadians(720));
 
     // Since AutoBuilder is configured, we can use it to build pathfinding commands
@@ -185,8 +185,8 @@ public class PhotonVisionPoseV2 extends SubsystemBase {
                 // Convert the estimated pose to Pose2d and update the drivetrain's odometry
                 Pose2d robotPose = estimatedPose.get().estimatedPose.toPose2d();
 
-                //double ambiguity = result.getBestTarget().getPoseAmbiguity();
-                /* 
+                double ambiguityToPrint = result.getBestTarget().getPoseAmbiguity();
+                 /* 
                 // Reject poses with high ambiguity
                 if (ambiguity > 0.2) {
                     continue; // Skip this measurement
@@ -201,7 +201,8 @@ public class PhotonVisionPoseV2 extends SubsystemBase {
                 field2d.setRobotPose(robotPose);
                 SmartDashboard.putNumber("Tag Seen", result.getBestTarget().getFiducialId());
                 SmartDashboard.putData("Field",field2d);
-                System.out.println(result.getBestTarget().getFiducialId());
+                SmartDashboard.putNumber("Ambiguity",ambiguityToPrint);
+                //System.out.println(result.getBestTarget().getFiducialId());
                 return new Pose2d(robotPose.getX(),robotPose.getY(),robotPose.getRotation());
             }
              
