@@ -120,7 +120,7 @@ public final class Constants {
       L2(0.6003), // these three have to be different (hence the decimal)
       L3(0.6002),
       L4(0.6001),
-      INTAKE(0.85),
+      INTAKE(0.95),
       STOWED(1.015),
       ALGAE(0.61);
     
