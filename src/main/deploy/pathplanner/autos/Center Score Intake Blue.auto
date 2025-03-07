@@ -19,7 +19,25 @@
         {
           "type": "named",
           "data": {
+            "name": "TOGGLE"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "Back Away 4"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
             "name": "STOW"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "TOGGLE"
           }
         },
         {
@@ -32,6 +50,12 @@
           "type": "named",
           "data": {
             "name": "INTAKE"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "TOGGLE"
           }
         }
       ]
