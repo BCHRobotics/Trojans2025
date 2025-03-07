@@ -36,6 +36,7 @@ import frc.robot.commands.harpoon.ShootCommand;
 import frc.robot.commands.harpoon.StopClawCommand;
 import frc.robot.commands.vision.AlignTeleopCommand;
 import frc.robot.subsystems.Cameras;
+import frc.robot.subsystems.Climber;
 import frc.robot.subsystems.Drivetrain;
 import frc.robot.subsystems.LED;
 import frc.robot.subsystems.Elevator;
@@ -66,6 +67,8 @@ public class RobotContainer {
 
     // the claw subsytem, controls intake/outtake and wrist
     private final Harpoon harpoon = new Harpoon();
+
+    private final Climber climber = new Climber();
 
     // the led subsystems. each strip (left and right) is a separate class
     private final LED ledRight = new LED(0);
@@ -369,6 +372,13 @@ public class RobotContainer {
             this.operatorController_XBOX.leftTrigger().onTrue(
                 new InstantCommand(() -> m_cameras.switchOffset(true))
             );
+
+            // CLIMBER BINDINGS
+            this.operatorController_XBOX.a().onTrue(this.climber.climb()); // climbing
+
+            this.operatorController_XBOX.x().onTrue(this.climber.reset()); // resting climb
+
+            this.operatorController_XBOX.b.onTrue(this.climber.prepareClimb()); // resetting climber to zero
         }
         else {
             this.operatorController_PS5.L1().onTrue(
