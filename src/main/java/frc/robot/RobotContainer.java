@@ -29,11 +29,11 @@ import frc.robot.commands.drive.TeleopDriveCommand;
 import frc.robot.commands.elevator.CalibrateElevator;
 import frc.robot.commands.elevator.MoveElevatorCommand;
 import frc.robot.commands.elevator.PrepareElevatorCommand;
-import frc.robot.commands.elevator.ToggleMechanismCommand;
 import frc.robot.commands.harpoon.AutoScoreCommand;
 import frc.robot.commands.harpoon.IntakeCommand;
 import frc.robot.commands.harpoon.PrepareHarpoonCommand;
 import frc.robot.commands.harpoon.ShootCommand;
+import frc.robot.commands.harpoon.SequentialScoreCommand;
 import frc.robot.commands.harpoon.StopClawCommand;
 import frc.robot.commands.vision.AlignTeleopCommand;
 import frc.robot.subsystems.Drivetrain;
@@ -47,6 +47,7 @@ import edu.wpi.first.wpilibj2.command.WaitCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandPS5Controller;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import frc.robot.subsystems.PhotonVisionPoseV2;
+import frc.robot.commands.harpoon.EnumeratedIntakeCommand;
 
 
 /*
@@ -127,21 +128,18 @@ public class RobotContainer {
 //If still not working, there might be an issue with how PathPlanner is handling event markers in your setup. In that case, you might want to consider using the command in the auto sequence directly rather than as an event marker.
 
         NamedCommands.registerCommand("SCORE", new AutoScoreCommand(harpoon, 0.6));
-        NamedCommands.registerCommand("TOGGLE", new ToggleMechanismCommand(ledLeft, ledRight, elevator, harpoon));
-        /* 
-        NamedCommands.registerCommand("STOW", 
-            new InstantCommand(()->{
-                System.out.println("*** STOW COMMAND STARTING ***");
-                harpoon.setRotationMotorPosition(0.98);
-            })
-            .andThen(new InstantCommand(()->{
-                System.out.println("*** SETTING ELEVATOR TO STOWED ***");
-                elevator.setSetpoint(ElevatorPosition.STOWED.getSetpoint());
-            }))
-            .andThen(new WaitCommand(0.5))  // Add a short wait to ensure the motors have time to respond
-            .andThen(new InstantCommand(()->System.out.println("*** STOW COMMAND COMPLETED ***")))
-        );
-        */
+        NamedCommands.registerCommand("SEQUENTIAL_SCORE", new SequentialScoreCommand(
+            elevator, 
+            harpoon, 
+            ElevatorPosition.L4.getSetpoint(), 
+            HarpoonPosition.L4.getSetpoint(), 
+            0.6
+        ));
+        NamedCommands.registerCommand("ENUMERATED_INTAKE", new EnumeratedIntakeCommand(
+            elevator,
+            harpoon,
+            0.6
+        ));
         NamedCommands.registerCommand("INTAKE", new MoveElevatorCommand(elevator, ElevatorPosition.INTAKE.getSetpoint())
         .andThen(new PrepareHarpoonCommand(harpoon, HarpoonMode.FEEDER,()->HarpoonPosition.INTAKE.getSetpoint()))
         .andThen(new IntakeCommand(elevator, harpoon, 0.6)));
@@ -225,8 +223,7 @@ public class RobotContainer {
             driverController_XBOX.rightBumper().onFalse(new InstantCommand(() -> m_robotDrive.setFastMode(false)));
 
             // toggling the elevator up and down
-            driverController_XBOX.a().onTrue(
-                new ToggleMechanismCommand(ledLeft, ledRight, elevator, harpoon));
+            driverController_XBOX.a().onTrue(new InstantCommand());
 
             // intake gamepiece
             this.driverController_XBOX.x()
@@ -241,7 +238,7 @@ public class RobotContainer {
              this.driverController_XBOX.povDown()
              .onTrue(new CalibrateElevator(elevator, this.driverController_XBOX.povDown()));
             
-             // automatic vision lineup (taken out for now)
+            // automatic vision lineup (taken out for now)
             //  this.driverController_XBOX.rightTrigger().onTrue(
             //     new InstantCommand(() -> {
             //         if(m_cameras.isVisionActive) {
@@ -255,7 +252,7 @@ public class RobotContainer {
             //                 () -> m_cameras.getOffsetY(),
             //                 () -> areJoysticksPressed()
             //                 )
-            //                 .alongWith( new ToggleMechanismCommand(ledLeft, ledRight, elevator, harpoon))
+            //                 // .alongWith( new ToggleMechanismCommand(ledLeft, ledRight, elevator, harpoon))
             //                 .schedule();
             //         }
             //     })
@@ -265,73 +262,36 @@ public class RobotContainer {
             // Reset Gyro
             driverController_PS5.triangle().onTrue(new InstantCommand(() -> { m_robotDrive.zeroHeading(); }));
 
-            // Slow mode command (Left Bumper)
-            driverController_PS5.L1().onTrue(new InstantCommand(() -> m_robotDrive.setSlowMode(true)));
-            driverController_PS5.L1().onFalse(new InstantCommand(() -> m_robotDrive.setSlowMode(false)));
+            // Left Bumper - Intake
+            driverController_PS5.L1().onTrue(new EnumeratedIntakeCommand(elevator, harpoon, 0.6));
 
-            // Fast mode command (Right Bumper)
-            driverController_PS5.R1().onTrue(new InstantCommand(() -> m_robotDrive.setFastMode(true)));
-            driverController_PS5.R1().onFalse(new InstantCommand(() -> m_robotDrive.setFastMode(false)));
+            // Right Bumper - Score
+            driverController_PS5.R1().onTrue(new SequentialScoreCommand(
+                elevator, 
+                harpoon, 
+                ElevatorPosition.L4.getSetpoint(), 
+                HarpoonPosition.L4.getSetpoint(), 
+                0.6
+            ));
 
             // toggling the elevator up and down
-            driverController_PS5.cross().onTrue(new ToggleMechanismCommand(ledLeft, ledRight, elevator, harpoon));
+            driverController_PS5.cross().onTrue(new InstantCommand());
 
             // intake gamepiece
             this.driverController_PS5.square()
-            .onTrue(new IntakeCommand(elevator, harpoon,0.6)
-            );
+            .onTrue(new IntakeCommand(elevator, harpoon, 0.6));
 
             // spit out gamepiece
-             this.driverController_PS5.circle()
-             .onTrue(new ShootCommand(harpoon,0.7))
-             .onFalse(new StopClawCommand(harpoon));
+            this.driverController_PS5.circle()
+            .onTrue(new ShootCommand(harpoon, 0.7))
+            .onFalse(new StopClawCommand(harpoon));
 
-             this.driverController_PS5.povDown()
-             .onTrue(new CalibrateElevator(elevator, this.driverController_PS5.povDown()));}
+            this.driverController_PS5.povDown()
+            .onTrue(new CalibrateElevator(elevator, this.driverController_PS5.povDown()));
 
-             this.driverController_PS5.R2()
-             .onTrue(new AlignTeleopCommand(m_robotDrive, poseEstimator, this.driverController_PS5.povUp(), "Right"));
-
-             // automatic vision lineup (taken out for now)
-             /* 
-             this.driverController_PS5.R2().onTrue(
-                new InstantCommand(() -> {
-                    if(m_cameras.isVisionActive) {
-                        new AlignTeleopCommand(
-                            m_cameras.getClosestTagId(),
-                            true, 
-                            true, 
-                            m_robotDrive, 
-                            m_cameras, 
-                            () -> m_cameras.getOffsetX(),
-                            () -> m_cameras.getOffsetY(),
-                            () -> areJoysticksPressed()
-                            )
-                            //.alongWith( new ToggleMechanismCommand(ledLeft, ledRight, elevator, harpoon))
-                            .schedule();
-                    }
-                })
-            );
-
-            this.driverController_PS5.L2().onTrue(
-                new InstantCommand(() -> {
-                    if(m_cameras.isVisionActive) {
-                        new AlignTeleopCommand(
-                            m_cameras.getClosestTagId(),
-                            true, 
-                            true, 
-                            m_robotDrive, 
-                            m_cameras, 
-                            () -> m_cameras.getOffsetX(),
-                            () -> m_cameras.getOffsetY(),
-                            () -> areJoysticksPressed()
-                            )
-                            //.alongWith( new ToggleMechanismCommand(ledLeft, ledRight, elevator, harpoon))
-                            .schedule();
-                    }
-                })
-            );
-        }*/
+            this.driverController_PS5.R2()
+            .onTrue(new AlignTeleopCommand(m_robotDrive, poseEstimator, this.driverController_PS5.povUp(), "Right"));
+        }
     }
 
     /**
