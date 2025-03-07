@@ -31,6 +31,11 @@ public class RotateHarpoonCommand extends Command{
 
     @Override
     public boolean isFinished() {
-        return true;
+
+        if (harpoonSubsystem.kRotationMotor.getAbsoluteEncoder().getPosition() - rotation < 0.1){
+            return true;
+        }
+        return false;
+        
     }
 }

@@ -27,11 +27,13 @@ import frc.robot.Constants.DriveConstants.DriveModes;
 import frc.robot.commands.SetLEDCommand;
 import frc.robot.commands.drive.TeleopDriveCommand;
 import frc.robot.commands.elevator.CalibrateElevator;
+import frc.robot.commands.elevator.MoveElevatorCommand;
 import frc.robot.commands.elevator.PrepareElevatorCommand;
 import frc.robot.commands.elevator.ToggleMechanismCommand;
 import frc.robot.commands.harpoon.AutoScoreCommand;
 import frc.robot.commands.harpoon.IntakeCommand;
 import frc.robot.commands.harpoon.PrepareHarpoonCommand;
+import frc.robot.commands.harpoon.RotateHarpoonCommand;
 import frc.robot.commands.harpoon.ShootCommand;
 import frc.robot.commands.harpoon.StopClawCommand;
 import frc.robot.commands.vision.AlignTeleopCommand;
@@ -127,6 +129,7 @@ public class RobotContainer {
 
         NamedCommands.registerCommand("SCORE", new AutoScoreCommand(harpoon, 0.6));
         NamedCommands.registerCommand("TOGGLE", new ToggleMechanismCommand(ledLeft, ledRight, elevator, harpoon));
+        /* 
         NamedCommands.registerCommand("STOW", 
             new InstantCommand(()->{
                 System.out.println("*** STOW COMMAND STARTING ***");
@@ -138,14 +141,14 @@ public class RobotContainer {
             }))
             .andThen(new WaitCommand(0.5))  // Add a short wait to ensure the motors have time to respond
             .andThen(new InstantCommand(()->System.out.println("*** STOW COMMAND COMPLETED ***")))
-        );
-        NamedCommands.registerCommand("INTAKE", new PrepareElevatorCommand(elevator, ElevatorMode.FEEDER,() -> ElevatorPosition.INTAKE.getSetpoint())
-        .andThen(new PrepareHarpoonCommand(harpoon, HarpoonMode.FEEDER,()->HarpoonPosition.INTAKE.getSetpoint())));
-        NamedCommands.registerCommand("L4SCORE", new PrepareElevatorCommand(elevator, ElevatorMode.REEF,() -> ElevatorPosition.L4.getSetpoint())
-        .andThen(new PrepareHarpoonCommand(harpoon, HarpoonMode.REEF,()->HarpoonPosition.L4.getSetpoint())));
-        NamedCommands.registerCommand("STOW", new PrepareElevatorCommand(elevator, ElevatorMode.STOWED,() -> ElevatorPosition.STOWED.getSetpoint())
-        .andThen(new PrepareHarpoonCommand(harpoon, HarpoonMode.STOWED,()->HarpoonPosition.STOWED.getSetpoint())));
-
+        );*/
+        NamedCommands.registerCommand("INTAKE", new MoveElevatorCommand(elevator, ElevatorPosition.INTAKE.getSetpoint())
+        .andThen(new RotateHarpoonCommand(harpoon, HarpoonPosition.INTAKE.getSetpoint()))
+        .andThen(new IntakeCommand(elevator, harpoon, 0.6)));
+        NamedCommands.registerCommand("L4SCORE", new MoveElevatorCommand(elevator, ElevatorPosition.L4.getSetpoint())
+        .andThen(new RotateHarpoonCommand(harpoon, HarpoonPosition.L4.getSetpoint())));
+        NamedCommands.registerCommand("STOW", new MoveElevatorCommand(elevator, ElevatorPosition.STOWED.getSetpoint())
+        .andThen(new RotateHarpoonCommand(harpoon, HarpoonPosition.STOWED.getSetpoint())));
 
         
 
@@ -226,7 +229,7 @@ public class RobotContainer {
 
             // intake gamepiece
             this.driverController_XBOX.x()
-            .onTrue(new IntakeCommand(elevator, harpoon,0.6, driverController_XBOX.x())
+            .onTrue(new IntakeCommand(elevator, harpoon,0.6)
             );
 
             // spit out gamepiece
@@ -274,7 +277,7 @@ public class RobotContainer {
 
             // intake gamepiece
             this.driverController_PS5.square()
-            .onTrue(new IntakeCommand(elevator, harpoon,0.6, driverController_PS5.square())
+            .onTrue(new IntakeCommand(elevator, harpoon,0.6)
             );
 
             // spit out gamepiece

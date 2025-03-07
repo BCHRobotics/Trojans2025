@@ -7,7 +7,31 @@
         {
           "type": "path",
           "data": {
-            "pathName": "BlueCoral2Right-Reef4Right"
+            "pathName": "1"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "L4SCORE"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "STOW"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "BlueReef4Left-BlueCoral2Right"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "INTAKE"
           }
         }
       ]

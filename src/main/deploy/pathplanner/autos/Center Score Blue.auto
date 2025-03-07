@@ -19,31 +19,31 @@
         {
           "type": "path",
           "data": {
-            "pathName": "Return-Reef4Left-CoralLeft"
+            "pathName": "Reef4Left-BlueCoral2Right"
           }
         },
         {
           "type": "path",
           "data": {
-            "pathName": "Score-Reef2Left-CoralLeft"
+            "pathName": "BlueCoralLeft-17Left"
           }
         },
         {
           "type": "path",
           "data": {
-            "pathName": "Return-Reef2Left-CoralLeft"
+            "pathName": "17-BlueCoralLeft"
           }
         },
         {
           "type": "path",
           "data": {
-            "pathName": "Score-Reef2Right-CoralLeft"
+            "pathName": "BlueCoralLeft-17Right"
           }
         },
         {
           "type": "path",
           "data": {
-            "pathName": "Return-Reef2Right-CoralLeft"
+            "pathName": "17-BlueCoralLeft"
           }
         }
       ]

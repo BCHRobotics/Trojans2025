@@ -30,7 +30,7 @@ public class Elevator extends SubsystemBase{
     private final SparkMax followerMotor;
 
     // the encoder of the primary motor
-    private final RelativeEncoder encoder;
+    public final RelativeEncoder encoder;
     // the PID controller used to move the elevator
     private final PIDController pidController;
 

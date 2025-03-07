@@ -21,12 +21,10 @@ public class MoveElevatorCommand extends Command {
 
     private double setpoint;
     
-    public MoveElevatorCommand(LED led1, LED led2, Elevator elevatorSubsystem, Harpoon harpoonSubsystem, double setpoint) {
-        this.elevatorSubsystem = elevatorSubsystem;
-        this.harpoonSubsystem = harpoonSubsystem;
+    public MoveElevatorCommand(Elevator elevatorSubsystem, double setpoint) {
 
-        this.led1 = led1;
-        this.led2 = led2;
+        this.elevatorSubsystem = elevatorSubsystem;
+
         this.setpoint = setpoint;
     }
 
@@ -39,6 +37,9 @@ public class MoveElevatorCommand extends Command {
     @Override
     public boolean isFinished() {
         // finish immediately, bc the command only has to select the position once
-        return true;
+        if (Math.abs(elevatorSubsystem.getEncoderPosition() - setpoint) < 0.5) {
+            return true;
+        }
+        return false;
     }
 }

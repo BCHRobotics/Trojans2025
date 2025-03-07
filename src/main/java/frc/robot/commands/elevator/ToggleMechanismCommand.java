@@ -36,7 +36,7 @@ public class ToggleMechanismCommand extends Command {
             harpoonSubsystem.setMode(harpoonSubsystem.getNextMode());
 
             if (harpoonSubsystem.getNextMode() == HarpoonMode.FEEDER) {
-                new IntakeCommand(elevatorSubsystem, harpoonSubsystem, 0.6, () -> true).
+                new IntakeCommand(elevatorSubsystem, harpoonSubsystem, 0.6).
                 alongWith(new SetLEDCommand(led1, led2, -0.11, 0)).
                 andThen(new SetLEDCommand(led1, led2, -0.05, 1.5))
                 .schedule();
