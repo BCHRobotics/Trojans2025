@@ -13,31 +13,7 @@
         {
           "type": "named",
           "data": {
-            "name": "L4SCORE"
-          }
-        },
-        {
-          "type": "named",
-          "data": {
-            "name": "TOGGLE"
-          }
-        },
-        {
-          "type": "path",
-          "data": {
-            "pathName": "Back Away 4"
-          }
-        },
-        {
-          "type": "named",
-          "data": {
-            "name": "STOW"
-          }
-        },
-        {
-          "type": "named",
-          "data": {
-            "name": "TOGGLE"
+            "name": "SEQUENTIAL_SCORE"
           }
         },
         {
@@ -49,13 +25,7 @@
         {
           "type": "named",
           "data": {
-            "name": "INTAKE"
-          }
-        },
-        {
-          "type": "named",
-          "data": {
-            "name": "TOGGLE"
+            "name": "ENUMERATED_INTAKE"
           }
         }
       ]
