@@ -156,8 +156,10 @@ public class Harpoon extends SubsystemBase{
     public void periodic() {
         SmartDashboard.putNumber("Wrist Position", kRotationMotor.getAbsoluteEncoder().getPosition());
 
+        
         // SmartDashboard.putString("CURRENT HARPOON", currentMode.toString());
         // SmartDashboard.putString("NEXT HARPOON", nextMode.toString());
+        /* 
         SmartDashboard.putNumber("HARPOON SETPOINT", setpoint);
         if (DriverStation.isTeleop()){
             if (currentMode == HarpoonMode.REEF) {
@@ -174,7 +176,7 @@ public class Harpoon extends SubsystemBase{
                 // ditto with stowed, use the constant for the same reason
                 setRotationMotorPosition(HarpoonPosition.STOWED.getSetpoint());
             }
-        }
+        }*/
         
 
         kRotationMotor.set(applyLimits(pidController.calculate(getCorrectedEncoderPosition(), setpoint)));

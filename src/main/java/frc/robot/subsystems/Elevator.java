@@ -196,6 +196,7 @@ public class Elevator extends SubsystemBase{
 
     @Override 
     public void periodic() {
+        /* 
         if (DriverStation.isTeleop()){
             if (currentMode == ElevatorMode.REEF) {
                 // if we're scoring, use the selected position
@@ -214,9 +215,12 @@ public class Elevator extends SubsystemBase{
 
         }
 
+        SmartDashboard.putNumber("NEXT POSITION", selectedPosition);
+            */
+
         // SmartDashboard.putString("CURRENT ELEVATOR", currentMode.toString());
         // SmartDashboard.putString("NEXT ELEVATOR", nextMode.toString());
-        SmartDashboard.putNumber("NEXT POSITION", selectedPosition);
+        
 
         // moving the elevator to the desired setpoint
         
