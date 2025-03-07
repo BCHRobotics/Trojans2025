@@ -9,6 +9,7 @@ import java.io.IOException;
 import org.json.simple.parser.ParseException;
 
 import com.pathplanner.lib.auto.AutoBuilder;
+import com.pathplanner.lib.commands.PathPlannerAuto;
 import com.pathplanner.lib.util.FileVersionException;
 
 import edu.wpi.first.math.MathUtil;
@@ -44,11 +45,14 @@ public class RobotContainer {
     CommandXboxController m_operatorController = new CommandXboxController(OIConstants.kBackupControllerPort);
 
     SendableChooser<String> controllerOptions;
+    SendableChooser<String> autoChooser = new SendableChooser<>();
+    
 
     /**
      * The container for the robot, initializing everything and setting up the controller chooser
      */
     public RobotContainer() {
+        controllerOptions = new SendableChooser<>();
         m_cameras.setDriveSubsystem(m_robotDrive);
         
         configureNamedCommands();
@@ -58,7 +62,13 @@ public class RobotContainer {
         controllerOptions.addOption("Xbox Controller", "XBOX");
         controllerOptions.addOption("Playstation Controller", "PS");
         SmartDashboard.putData("Controller Select", controllerOptions);
+
+        autoChooser.addOption("Test Auto", "Test Auto");
+        autoChooser.addOption("Path1", "Path1");
+        autoChooser.addOption("Path 2", "Path 2");
+        SmartDashboard.putData("Autonomous Path", autoChooser);
     }
+
 
     /**
      * Set up the joystick controls for the main and backup controller, called on teleopInit()
@@ -190,10 +200,17 @@ public class RobotContainer {
      * @throws FileVersionException 
      */ 
     public Command getAutonomousCommand() throws FileVersionException, IOException, ParseException {
-        //using the string provided by the user to build and run an auto
-        return AutoBuilder.buildAuto("Test Auto");
-    }
+        // Get the selected autonomous path
+        String selectedPath = autoChooser.getSelected();
+        autoChooser.addOption("Path 1", "New New New Path.path"); // Add the full path to the file if it's not in the default directory
+    autoChooser.addOption("Path 2", "Path2.json");
+    autoChooser.addOption("Path 3", "Path3.json");
+    SmartDashboard.putData("Autonomous Path", autoChooser);
 
+        
+        // Dynamically load the selected path from a file
+        return AutoBuilder.buildAuto(selectedPath);  // This assumes paths are files with matching names
+    }
     /**
      * [UNUSED]
      * Initializes the LEDs

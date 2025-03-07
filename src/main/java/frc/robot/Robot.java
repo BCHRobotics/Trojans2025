@@ -8,12 +8,15 @@ import java.io.IOException;
 
 import org.json.simple.parser.ParseException;
 
+import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.util.FileVersionException;
 
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.TimedRobot;
+import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 /**
  * The VM is configured to automatically run this class, and to call the functions corresponding to
@@ -27,6 +30,12 @@ public class Robot extends TimedRobot {
   private RobotContainer m_robotContainer;
 
   public static boolean isRed;
+  private static final String kDefaultAuto = "Default";
+  private static final String kCustomAuto = "My Auto";
+  private String m_autoSelected;
+  private final SendableChooser <String> m_chooser = new SendableChooser<>();
+
+
 
   /**
    * This function is run when the robot is first started up and should be used for any
@@ -38,6 +47,11 @@ public class Robot extends TimedRobot {
     // autonomous chooser on the dashboard.
     m_robotContainer = new RobotContainer();
     m_robotContainer.initLEDs();
+    m_chooser.setDefaultOption("Default Auto", kDefaultAuto);
+    m_chooser.addOption("My Auto ", kCustomAuto);
+    SmartDashboard.putData("Auto Modes", m_chooser);
+
+    
   }
 
   /**
@@ -70,13 +84,10 @@ public class Robot extends TimedRobot {
   @Override
   public void autonomousInit() {
 
-    m_robotContainer.initializeElevator();
+    m_autoSelected = m_chooser.getSelected();
+    System.out.println("Auto Selected: " + m_autoSelected);
 
-    try {
-      m_autonomousCommand = m_robotContainer.getAutonomousCommand();
-    } catch (FileVersionException | IOException | ParseException e) {
-      e.printStackTrace();
-    }
+    m_robotContainer.initializeElevator();
 
     // schedule the autonomous command (example)
     if (m_autonomousCommand != null) {
@@ -91,7 +102,18 @@ public class Robot extends TimedRobot {
 
   /** This function is called periodically during autonomous. */
   @Override
-  public void autonomousPeriodic() {}
+  public void autonomousPeriodic() {
+
+    switch (m_autoSelected){
+      case kCustomAuto:
+
+        break;
+
+      case kDefaultAuto:
+      default:
+        break;
+    }
+  }
 
   @Override
   public void teleopInit() {
