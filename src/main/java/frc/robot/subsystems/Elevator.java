@@ -91,6 +91,8 @@ public class Elevator extends SubsystemBase{
         // apply the motor config to BOTH motors
         primaryMotor.configure(motorConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
         followerMotor.configure(motorConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
+
+        this.setpoint = ElevatorPosition.STOWED.getSetpoint();  
     } 
 
     public void driveMotorSlow(){
@@ -193,6 +195,8 @@ public class Elevator extends SubsystemBase{
     public boolean isBottomPressed(){
         return primaryMotor.getForwardLimitSwitch().isPressed();
     }
+
+
 
     @Override 
     public void periodic() {

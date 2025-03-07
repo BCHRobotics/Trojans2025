@@ -71,6 +71,8 @@ public class Harpoon extends SubsystemBase{
         // finally, configure the motors
         this.kRotationMotor.configure(this.kRotationConfig, null, PersistMode.kPersistParameters);
         this.kIntakeMotor.configure(this.kIntakeConfig, null, PersistMode.kPersistParameters);
+
+        this.setRotationMotorPosition(HarpoonPosition.STOWED.getSetpoint());
     }
 
     // reset the harpoon back to its default state
@@ -151,6 +153,7 @@ public class Harpoon extends SubsystemBase{
     public boolean isCoralDetected() {
         return !this.kIntakeMotor.getReverseLimitSwitch().isPressed();  // Returns true if sensor is triggered
     }
+    
     
     @Override
     public void periodic() {
