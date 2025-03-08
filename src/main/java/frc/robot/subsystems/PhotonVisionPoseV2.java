@@ -213,7 +213,7 @@ public class PhotonVisionPoseV2 extends SubsystemBase {
                 // Convert the estimated pose to Pose2d and update the drivetrain's odometry
                 Pose2d robotPose = estimatedPose.get().estimatedPose.toPose2d();
 
-                double ambiguityToPrint = result.getBestTarget().getPoseAmbiguity();
+                ambiguity = result.getBestTarget().getPoseAmbiguity();
                  
                 // Reject poses with high ambiguity
                 if (ambiguity > 0.2) {
@@ -229,7 +229,7 @@ public class PhotonVisionPoseV2 extends SubsystemBase {
                 field2d.setRobotPose(robotPose);
                 SmartDashboard.putNumber("Tag Seen", result.getBestTarget().getFiducialId());
                 SmartDashboard.putData("Field",field2d);
-                SmartDashboard.putNumber("Ambiguity",ambiguityToPrint);
+                SmartDashboard.putNumber("Ambiguity",ambiguity);
                 //System.out.println(result.getBestTarget().getFiducialId());
                 return new Pose2d(robotPose.getX(),robotPose.getY(),robotPose.getRotation());
             }
