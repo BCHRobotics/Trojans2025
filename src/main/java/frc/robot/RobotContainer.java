@@ -138,6 +138,8 @@ public class RobotContainer {
             0.6
         ));
         NamedCommands.registerCommand("ENUMERATED_INTAKE", new EnumeratedIntakeCommand(
+            ledLeft,
+            ledRight,
             elevator,
             harpoon,
             0.6
@@ -178,7 +180,7 @@ public class RobotContainer {
     public void configureDriveMode() {
         isRedAlliance = DriverStation.getAlliance().get() == DriverStation.Alliance.Red;
         // 0.87 is blue, 0.67 is gold
-        new SetLEDCommand(ledLeft, ledRight, 0.67, 0).schedule();
+        new SetLEDCommand(ledLeft, ledRight, 0.67).schedule();
 
         // this double is used as a multiplier to invert the joysticks for red alliance
         final double invert = isRedAlliance ? -1 : 1;
@@ -265,7 +267,7 @@ public class RobotContainer {
             driverController_PS5.triangle().onTrue(new InstantCommand(() -> { m_robotDrive.zeroHeading(); }));
 
             // Left Bumper - Intake
-            driverController_PS5.L1().onTrue(new EnumeratedIntakeCommand(elevator, harpoon, 0.6));
+            driverController_PS5.L1().onTrue(new EnumeratedIntakeCommand(ledLeft,ledRight,elevator, harpoon, 0.6));
 
             // Right Bumper - Score
             driverController_PS5.R1().onTrue(new SequentialScoreCommand(
@@ -292,7 +294,7 @@ public class RobotContainer {
             .onTrue(new CalibrateElevator(elevator, this.driverController_PS5.povDown()));
 
             this.driverController_PS5.R2()
-            .onTrue(new AlignTeleopCommand(m_robotDrive, poseEstimator, this.driverController_PS5.povUp(), "Right"));
+            .onTrue(new AlignTeleopCommand(m_robotDrive, poseEstimator, this.driverController_PS5.povUp(), "Right",ledLeft,ledRight));
         }
     }
 

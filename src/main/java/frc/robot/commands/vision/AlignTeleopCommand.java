@@ -2,6 +2,7 @@ package frc.robot.commands.vision;
 
 
 import frc.robot.subsystems.Drivetrain;
+import frc.robot.subsystems.LED;
 import frc.robot.subsystems.PhotonVisionPoseV2;
 
 import java.util.HashMap;
@@ -19,10 +20,13 @@ import edu.wpi.first.wpilibj2.command.Command;
 
 
 import frc.robot.Constants.VisionConstants;
+import frc.robot.commands.SetLEDCommand;
 
 
 public class AlignTeleopCommand extends Command{
    private PhotonVisionPoseV2 poseEstimator;
+   private LED led1;
+private LED led2;
    
    PIDController pid = new PIDController(VisionConstants.kAlignP,VisionConstants.kAlignI,VisionConstants.kAlignD);
    PIDController pidRot = new PIDController(VisionConstants.kRotP,VisionConstants.kRotI,VisionConstants.kRotD);
@@ -55,14 +59,13 @@ public class AlignTeleopCommand extends Command{
 
 
 
-   public AlignTeleopCommand( Drivetrain driveSubsystem, PhotonVisionPoseV2 poseEstimator, BooleanSupplier joystickInput, String tagSide) {
+   public AlignTeleopCommand(Drivetrain driveSubsystem, PhotonVisionPoseV2 poseEstimator, BooleanSupplier joystickInput, String tagSide, LED led1, LED led2) {
     this.tagSide = tagSide;
     this.poseEstimator = poseEstimator;
     this.joystickInput = joystickInput;
 
     this.addRequirements(driveSubsystem);
 
-    lockedIn = false;
     isDone = false;
     
 }
@@ -70,6 +73,8 @@ public class AlignTeleopCommand extends Command{
 
    @Override
    public void initialize() {
+    new SetLEDCommand(led1, led2, -0.65);
+    
     // DO THIS FIRST
     if (tagSide == "LEFT") {
         offsetSide = -0.125; // Negative is to the right
@@ -78,6 +83,10 @@ public class AlignTeleopCommand extends Command{
         offsetSide = 0.125; // Positive is to the left
         
     } 
+
+    else if (tagSide == "ALGAE"){
+        offsetSide = 0.165;
+    }
 
     var result = poseEstimator.m_cameraMain.getLatestResult();
     if (result.hasTargets()) {
@@ -98,6 +107,7 @@ public class AlignTeleopCommand extends Command{
         isDone = true;
         
     }
+
 }
 
    @Override
@@ -107,9 +117,13 @@ public class AlignTeleopCommand extends Command{
 
    @Override
    public void end(boolean interrupted) {
+    
+    new SetLEDCommand(led1,led2,0.67).schedule();
+
     if (interrupted) {
         System.out.println("ALIGN INTERRUPT!");
     }
+
 
    }
 

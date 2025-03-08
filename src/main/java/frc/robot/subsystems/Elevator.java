@@ -200,7 +200,7 @@ public class Elevator extends SubsystemBase{
 
     @Override 
     public void periodic() {
-        
+        /* 
         if (DriverStation.isTeleop()){
             if (currentMode == ElevatorMode.REEF) {
                 // if we're scoring, use the selected position
@@ -217,7 +217,7 @@ public class Elevator extends SubsystemBase{
                 setpoint = ElevatorPosition.STOWED.getSetpoint();
             }
 
-        }
+        }*/
 
         SmartDashboard.putNumber("NEXT POSITION", selectedPosition);
             

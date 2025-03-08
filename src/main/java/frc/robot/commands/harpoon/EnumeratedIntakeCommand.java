@@ -5,8 +5,10 @@ import frc.robot.Constants.ElevatorConstants.ElevatorMode;
 import frc.robot.Constants.ElevatorConstants.ElevatorPosition;
 import frc.robot.Constants.HarpoonConstants.HarpoonMode;
 import frc.robot.Constants.HarpoonConstants.HarpoonPosition;
+import frc.robot.commands.SetLEDCommand;
 import frc.robot.subsystems.Elevator;
 import frc.robot.subsystems.Harpoon;
+import frc.robot.subsystems.LED;
 
 /**
  * An intake command that uses enumerated constants to:
@@ -17,6 +19,8 @@ import frc.robot.subsystems.Harpoon;
 public class EnumeratedIntakeCommand extends Command {
     private Elevator elevatorSubsystem;
     private Harpoon harpoonSubsystem;
+    private LED led1;
+    private LED led2;
     private double intakeSpeed;
 
     private enum IntakeState {
@@ -35,7 +39,7 @@ public class EnumeratedIntakeCommand extends Command {
      * @param harpoonSubsystem The harpoon subsystem
      * @param intakeSpeed The speed at which to run the intake motor
      */
-    public EnumeratedIntakeCommand(Elevator elevatorSubsystem, Harpoon harpoonSubsystem, double intakeSpeed) {
+    public EnumeratedIntakeCommand(LED led1, LED led2, Elevator elevatorSubsystem, Harpoon harpoonSubsystem, double intakeSpeed) {
         this.elevatorSubsystem = elevatorSubsystem;
         this.harpoonSubsystem = harpoonSubsystem;
         this.intakeSpeed = intakeSpeed;
@@ -63,6 +67,7 @@ public class EnumeratedIntakeCommand extends Command {
 
     @Override
     public void execute() {
+        new SetLEDCommand(led1, led2, intakeSpeed).schedule();
         switch (currentState) {
             case MOVING_MECHANISMS:
                 // Check if both mechanisms are in position
@@ -133,6 +138,7 @@ public class EnumeratedIntakeCommand extends Command {
         }
 
         System.out.println("ENUMERATED INTAKE: Command ended, interrupted: " + interrupted);
+        new SetLEDCommand(led2, led1, 0.67).schedule();
     }
 
     @Override
