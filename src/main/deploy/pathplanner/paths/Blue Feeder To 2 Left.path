@@ -3,25 +3,25 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 1.635927036830357,
-        "y": 7.300577654157365
+        "x": 1.364513724190848,
+        "y": 1.007012503487723
       },
       "prevControl": null,
       "nextControl": {
-        "x": 2.6359270368303562,
-        "y": 7.300577654157365
+        "x": 2.4348645891462053,
+        "y": 1.6629747663225443
       },
       "isLocked": false,
       "linkedName": null
     },
     {
       "anchor": {
-        "x": 3.9690817696707588,
-        "y": 5.279336547851562
+        "x": 3.611899928042763,
+        "y": 2.8124765496504938
       },
       "prevControl": {
-        "x": 2.9690817696707588,
-        "y": 5.279336547851562
+        "x": 3.0025079253920928,
+        "y": 2.2964801071281724
       },
       "nextControl": null,
       "isLocked": false,
@@ -42,13 +42,13 @@
   },
   "goalEndState": {
     "velocity": 0,
-    "rotation": -60.91007837722086
+    "rotation": 63.93275463602685
   },
   "reversed": false,
-  "folder": null,
+  "folder": "Blue Feeder To Reef",
   "idealStartingState": {
     "velocity": 0,
-    "rotation": 126.95272397413633
+    "rotation": -126.82026636799765
   },
   "useDefaultConstraints": true
 }

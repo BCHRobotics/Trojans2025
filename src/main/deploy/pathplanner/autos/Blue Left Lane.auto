@@ -1,0 +1,85 @@
+{
+  "version": "2025.0",
+  "command": {
+    "type": "sequential",
+    "data": {
+      "commands": [
+        {
+          "type": "path",
+          "data": {
+            "pathName": "Blue Left Start"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "SEQUENTIAL_SCORE"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "Blue 3 To Feeder"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "ENUMERATED_INTAKE"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "Blue Feeder To 2 Left"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "SEQUENTIAL_SCORE"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "Blue 2 To Feeder"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "ENUMERATED_INTAKE"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "Blue Feeder To 2 Right"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "SEQUENTIAL_SCORE"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "Blue 2 To Feeder"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "ENUMERATED_INTAKE"
+          }
+        }
+      ]
+    }
+  },
+  "resetOdom": true,
+  "folder": "Blue Autos",
+  "choreoAuto": false
+}

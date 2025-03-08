@@ -44,9 +44,8 @@ public class AlignTeleopCommand extends Command{
 
    private Command path;
 
-    // Offset values (meters)
-    double offsetBack = -0.65; // Negative is behind the tag
-    double offsetSide = -0.125; // Negative is to the right
+   double offsetBack = -0.65; // Negative is behind the tag
+   double offsetSide; // Negative is to the right
 
     private String tagSide;
 
@@ -72,7 +71,13 @@ public class AlignTeleopCommand extends Command{
    @Override
    public void initialize() {
     // DO THIS FIRST
-    
+    if (tagSide == "LEFT") {
+        offsetSide = -0.125; // Negative is to the right
+       
+    } else if (tagSide == "RIGHT") {
+        offsetSide = 0.125; // Positive is to the left
+        
+    } 
 
     var result = poseEstimator.m_cameraMain.getLatestResult();
     if (result.hasTargets()) {

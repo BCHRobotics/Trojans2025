@@ -2,7 +2,9 @@ package frc.robot.subsystems;
 
 import java.util.Optional;
 import java.util.function.Supplier;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.photonvision.PhotonCamera;
 import org.photonvision.PhotonPoseEstimator;
@@ -103,6 +105,30 @@ public class PhotonVisionPoseV2 extends SubsystemBase {
         return m_visionPoseEnabled;
     }
 
+    public int getClosestTagID(){
+        Pose2d robotPose = m_drivetrain.getPose();
+        HashMap<Integer, Pose2d> tagPositions = VisionConstants.getTagPositions();
+
+        int closestTagID = -1; // Default value if no tags are found
+        double minDistance = Double.MAX_VALUE;
+
+        for (Map.Entry<Integer, Pose2d> entry : tagPositions.entrySet()) {
+            int tagID = entry.getKey();
+            Pose2d tagPose = entry.getValue();
+
+            // Calculate the Euclidean distance between the robot and the tag
+            double distance = robotPose.getTranslation().getDistance(tagPose.getTranslation());
+
+        // Update the closest tag if this one is closer
+        if (distance < minDistance) {
+            minDistance = distance;
+            closestTagID = tagID;
+        }
+    }
+
+    return closestTagID; // Return the closest tag's ID
+    }
+
     /**
      * Periodic method that runs every scheduler cycle.
      * This method updates the robot's pose using PhotonPoseEstimator.
@@ -177,21 +203,23 @@ public class PhotonVisionPoseV2 extends SubsystemBase {
         double ambiguity = Double.MAX_VALUE;
         double ambiguitySecondary;
 
+        Optional<EstimatedRobotPose> estimatedPose;
+
         for (PhotonPipelineResult result : results) {
             // Update the pose estimator with the current result and get the estimated pose
-            Optional<EstimatedRobotPose> estimatedPose = m_poseEstimator.update(result);
+            estimatedPose = m_poseEstimator.update(result);
 
             if (estimatedPose.isPresent()) {
                 // Convert the estimated pose to Pose2d and update the drivetrain's odometry
                 Pose2d robotPose = estimatedPose.get().estimatedPose.toPose2d();
 
                 double ambiguityToPrint = result.getBestTarget().getPoseAmbiguity();
-                 /* 
+                 
                 // Reject poses with high ambiguity
                 if (ambiguity > 0.2) {
                     continue; // Skip this measurement
                 }
-                    */
+                    
 
                 m_drivetrain.resetOdometry(robotPose);
                 // Display the estimated pose on the SmartDashboard
@@ -207,6 +235,10 @@ public class PhotonVisionPoseV2 extends SubsystemBase {
             }
              
         }
+
+        if (m_cameraSecondary == null){
+            return null;
+        }
         /* 
 
         for (PhotonPipelineResult result : secondaryResults) {
@@ -218,7 +250,7 @@ public class PhotonVisionPoseV2 extends SubsystemBase {
             }
             Optional<EstimatedRobotPose> estimatedPoseSecondary = m_poseEstimator.update(result);
             Pose2d robotPose = estimatedPoseSecondary.get().estimatedPose.toPose2d();
-            if (estimatedPoseSecondary.isPresent()) {
+            if (estimatedPoseSecondary.isPresent() || !estimatedPose.isPresent()) {
                 if (ambiguitySecondary > ambiguity && result.getBestTarget().getPoseAmbiguity()<0.2){
                     m_drivetrain.resetOdometry(robotPose);
                 }

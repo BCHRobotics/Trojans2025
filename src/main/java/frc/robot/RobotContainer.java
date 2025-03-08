@@ -10,6 +10,8 @@ import org.json.simple.parser.ParseException;
 
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.auto.NamedCommands;
+import com.pathplanner.lib.commands.PathPlannerAuto;
+import com.pathplanner.lib.trajectory.PathPlannerTrajectory;
 import com.pathplanner.lib.util.FileVersionException;
 
 import edu.wpi.first.math.MathUtil;
@@ -385,6 +387,7 @@ public class RobotContainer {
      */ 
     public Command getAutonomousCommand() {
         if (autoChooser.getSelected() != null) {
+            //PathPlannerAuto auto = autoChooser.getSelected();
             return autoChooser.getSelected();
         }
         else {
