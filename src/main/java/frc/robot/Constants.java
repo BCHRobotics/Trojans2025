@@ -11,7 +11,10 @@ import com.pathplanner.lib.path.PathConstraints;
 
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Rotation3d;
+import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.geometry.Translation2d;
+import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.math.util.Units;
@@ -223,6 +226,13 @@ public final class Constants {
       //"Front Left", 
     "Center", 
     "Secondary"
+    };
+
+    public static final Transform3d[] camera_transforms = new Transform3d[] {
+      //new Transform3d(new Translation3d(Units.inchesToMeters(7.5), Units.inchesToMeters(12.5), 0), new Rotation3d(0, 0, 30 / (180 * Math.PI))),
+      new Transform3d(new Translation3d(Units.inchesToMeters(12.5), VisionConstants.cameraOffsets[0].yOffset, 0.0),
+                new Rotation3d(0, 0, 0)),
+      new Transform3d(new Translation3d(Units.inchesToMeters(0), Units.inchesToMeters(0), 0), new Rotation3d(0, 0, -30 / (180 * Math.PI))),
     };
 
     public static final CameraTransform[] cameraOffsets = 

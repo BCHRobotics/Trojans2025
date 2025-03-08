@@ -66,15 +66,11 @@ public class PhotonVisionPoseV2 extends SubsystemBase {
             m_cameraMain = new PhotonCamera(VisionConstants.cameraNames[0]);
             // m_cameraSecondary = new PhotonCamera(VisionConstants.cameraNames[1]); // Uncomment for secondary camera
             // Create the camera to robot transform using offsets from constants
-            m_cameraMainToRobot = new Transform3d(
-                new Translation3d(VisionConstants.cameraOffsets[0].xOffset, VisionConstants.cameraOffsets[0].yOffset, 0.0),
-                new Rotation3d(0, 0, VisionConstants.cameraOffsets[0].angleOffset));
+            m_cameraMainToRobot = VisionConstants.camera_transforms[0];
 
-            m_cameraSecondaryToRobot = new Transform3d(
-                new Translation3d(VisionConstants.cameraOffsets[0].xOffset, VisionConstants.cameraOffsets[0].yOffset, 0.0),
-                new Rotation3d(0, 0, VisionConstants.cameraOffsets[0].angleOffset));
+            m_cameraSecondaryToRobot = VisionConstants.camera_transforms[1];
             // Load the default field layout for AprilTags
-            m_fieldLayout = AprilTagFields.k2025ReefscapeWelded.loadAprilTagLayoutField();
+            m_fieldLayout = AprilTagFieldLayout.loadField(AprilTagFields.k2025ReefscapeWelded); // AprilTagFields.k2025ReefscapeWelded.loadAprilTagLayoutField(); <- this will be deprecated
             // Initialize the pose estimator with the field layout, strategy, and camera transform
             m_poseEstimator = new PhotonPoseEstimator(m_fieldLayout, PoseStrategy.LOWEST_AMBIGUITY, m_cameraMainToRobot);
             m_poseEstimatorSecondary = new PhotonPoseEstimator(m_fieldLayout, PoseStrategy.MULTI_TAG_PNP_ON_COPROCESSOR, m_cameraMainToRobot);
@@ -155,14 +151,21 @@ public class PhotonVisionPoseV2 extends SubsystemBase {
     ///WARNING!!! ANGLE WRAPPING IS NOT IMPLEMENTED IN THIS FUNCTION- ndykstra
     /// 
     private Pose2d smoothPose(Pose2d newPose, Pose2d currentPose) {
-    double alpha = 0.7; // 0.0 = trust old pose, 1.0 = trust new pose
-    double smoothedX = alpha * newPose.getX() + (1 - alpha) * currentPose.getX();
-    double smoothedY = alpha * newPose.getY() + (1 - alpha) * currentPose.getY();
-    double smoothedTheta = alpha * newPose.getRotation().getRadians() + 
-                           (1 - alpha) * currentPose.getRotation().getRadians();
-
-    return new Pose2d(smoothedX, smoothedY, new Rotation2d(smoothedTheta));
-}
+        double alpha = 0.7; // 0.0 = trust old pose, 1.0 = trust new pose
+        double smoothedX = alpha * newPose.getX() + (1 - alpha) * currentPose.getX();
+        double smoothedY = alpha * newPose.getY() + (1 - alpha) * currentPose.getY();
+        // Get the current and new angles
+        double newTheta = newPose.getRotation().getRadians();
+        double currentTheta = currentPose.getRotation().getRadians();
+    
+        // Compute shortest angular difference
+        double deltaTheta = Math.IEEEremainder(newTheta - currentTheta, 2 * Math.PI);
+    
+        // Smooth the angle and wrap it to [-π, π]
+        double smoothedTheta = currentTheta + alpha * deltaTheta;
+        
+        return new Pose2d(smoothedX, smoothedY, new Rotation2d(smoothedTheta));
+    }
     public Command generatePathToPose2d(Pose2d targetPose){
         
 
