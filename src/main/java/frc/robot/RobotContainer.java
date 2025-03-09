@@ -128,8 +128,7 @@ public class RobotContainer {
 
 //STOW ISSUE MAY BE DUE TO INSTANTCOMMAND. Examine the console output during autonomous to see if your debug messages are appearing.
 //If still not working, there might be an issue with how PathPlanner is handling event markers in your setup. In that case, you might want to consider using the command in the auto sequence directly rather than as an event marker.
-
-        NamedCommands.registerCommand("SCORE", new AutoScoreCommand(harpoon, 0.6));
+        
         NamedCommands.registerCommand("SEQUENTIAL_SCORE", new SequentialScoreCommand(
             elevator, 
             harpoon, 
@@ -137,23 +136,14 @@ public class RobotContainer {
             HarpoonPosition.L4.getSetpoint(), 
             0.6
         ));
+
         NamedCommands.registerCommand("ENUMERATED_INTAKE", new EnumeratedIntakeCommand(
-            ledLeft,
-            ledRight,
             elevator,
             harpoon,
-            0.6
+            0.6,
+            ledLeft,
+            ledRight
         ));
-        NamedCommands.registerCommand("INTAKE", new MoveElevatorCommand(elevator, ElevatorPosition.INTAKE.getSetpoint())
-        .andThen(new PrepareHarpoonCommand(harpoon, HarpoonMode.FEEDER,()->HarpoonPosition.INTAKE.getSetpoint()))
-        .andThen(new IntakeCommand(elevator, harpoon, 0.6)));
-        NamedCommands.registerCommand("L4SCORE", new PrepareElevatorCommand(elevator, ElevatorMode.REEF,() -> ElevatorPosition.L4.getSetpoint())
-        .andThen(new PrepareHarpoonCommand(harpoon, HarpoonMode.REEF,()->HarpoonPosition.L4.getSetpoint())));
-        NamedCommands.registerCommand("STOW", new PrepareElevatorCommand(elevator, ElevatorMode.STOWED,() -> ElevatorPosition.STOWED.getSetpoint())
-        .andThen(new PrepareHarpoonCommand(harpoon, HarpoonMode.STOWED,()->HarpoonPosition.STOWED.getSetpoint())));
-
-
-        
 
 
         autoChooser = AutoBuilder.buildAutoChooser();
@@ -264,13 +254,16 @@ public class RobotContainer {
         }
         else {
             // Reset Gyro
-            driverController_PS5.triangle().onTrue(new InstantCommand(() -> { m_robotDrive.zeroHeading(); }));
+            driverController_PS5.L1().onTrue(new InstantCommand(() -> { m_robotDrive.zeroHeading(); }));
 
-            // Left Bumper - Intake
-            driverController_PS5.L1().onTrue(new EnumeratedIntakeCommand(ledLeft,ledRight,elevator, harpoon, 0.6));
+            // Fast mode
+            driverController_PS5.R1().onTrue(new InstantCommand(() -> m_robotDrive.setFastMode(true)));
 
-            // Right Bumper - Score
-            driverController_PS5.R1().onTrue(new SequentialScoreCommand(
+            // Fast mode
+            driverController_PS5.R1().onFalse(new InstantCommand(() -> m_robotDrive.setFastMode(false)));
+
+            // Up Dpad - Score L4
+            driverController_PS5.povUp().onTrue(new SequentialScoreCommand(
                 elevator, 
                 harpoon, 
                 ElevatorPosition.L4.getSetpoint(), 
@@ -278,23 +271,50 @@ public class RobotContainer {
                 0.6
             ));
 
-            // toggling the elevator up and down
-            driverController_PS5.cross().onTrue(new InstantCommand());
+            // Right Dpad - Score L1 
+            driverController_PS5.povRight().onTrue(new SequentialScoreCommand(
+                elevator, 
+                harpoon, 
+                ElevatorPosition.L1.getSetpoint(), 
+                HarpoonPosition.L1.getSetpoint(), 
+                0.6
+            ));
+
+            // Down Dpad - Score L2 
+            driverController_PS5.povDown().onTrue(new SequentialScoreCommand(
+                elevator, 
+                harpoon, 
+                ElevatorPosition.L2.getSetpoint(), 
+                HarpoonPosition.L2.getSetpoint(), 
+                0.6
+            ));
+
+            // Left Dpad - Score L3 
+            driverController_PS5.povDown().onTrue(new SequentialScoreCommand(
+                elevator, 
+                harpoon, 
+                ElevatorPosition.L3.getSetpoint(), 
+                HarpoonPosition.L3.getSetpoint(), 
+                0.6
+            ));
 
             // intake gamepiece
             this.driverController_PS5.square()
-            .onTrue(new IntakeCommand(elevator, harpoon, 0.6));
+            .onTrue(new EnumeratedIntakeCommand(elevator, harpoon, 0.6, ledLeft, ledRight));
 
             // spit out gamepiece
             this.driverController_PS5.circle()
             .onTrue(new ShootCommand(harpoon, 0.7))
             .onFalse(new StopClawCommand(harpoon));
 
-            this.driverController_PS5.povDown()
+            this.driverController_PS5.triangle()
             .onTrue(new CalibrateElevator(elevator, this.driverController_PS5.povDown()));
 
-            this.driverController_PS5.R2()
+            this.driverController_PS5.R2()// Right Side
             .onTrue(new AlignTeleopCommand(m_robotDrive, poseEstimator, this.driverController_PS5.povUp(), "Right",ledLeft,ledRight));
+
+            this.driverController_PS5.L2() // Left Side
+            .onTrue(new AlignTeleopCommand(m_robotDrive, poseEstimator, this.driverController_PS5.povUp(), "Left",ledLeft,ledRight));
         }
     }
 

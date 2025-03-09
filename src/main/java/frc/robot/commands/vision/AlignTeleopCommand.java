@@ -75,7 +75,7 @@ public class AlignTeleopCommand extends Command{
 
    @Override
    public void initialize() {
-    new SetLEDCommand(led1, led2, -0.65);
+    new SetLEDCommand(led1, led2, -0.65).schedule();
     
     // DO THIS FIRST
     if (tagSide == "LEFT") {

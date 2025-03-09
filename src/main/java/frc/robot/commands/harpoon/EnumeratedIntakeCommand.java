@@ -39,7 +39,7 @@ public class EnumeratedIntakeCommand extends Command {
      * @param harpoonSubsystem The harpoon subsystem
      * @param intakeSpeed The speed at which to run the intake motor
      */
-    public EnumeratedIntakeCommand(LED led1, LED led2, Elevator elevatorSubsystem, Harpoon harpoonSubsystem, double intakeSpeed) {
+    public EnumeratedIntakeCommand( Elevator elevatorSubsystem, Harpoon harpoonSubsystem, double intakeSpeed, LED led1, LED led2) {
         this.elevatorSubsystem = elevatorSubsystem;
         this.harpoonSubsystem = harpoonSubsystem;
         this.intakeSpeed = intakeSpeed;
