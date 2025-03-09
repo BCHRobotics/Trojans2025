@@ -9,6 +9,8 @@ import java.util.HashMap;
 import java.util.function.BooleanSupplier;
 import java.util.function.DoubleSupplier;
 
+import org.photonvision.targeting.PhotonPipelineResult;
+
 import com.pathplanner.lib.path.PathConstraints;
 import com.pathplanner.lib.pathfinding.Pathfinding;
 
@@ -26,7 +28,8 @@ import frc.robot.commands.SetLEDCommand;
 public class AlignTeleopCommand extends Command{
    private PhotonVisionPoseV2 poseEstimator;
    private LED led1;
-private LED led2;
+    private LED led2;
+    private PhotonPipelineResult result;
    
    PIDController pid = new PIDController(VisionConstants.kAlignP,VisionConstants.kAlignI,VisionConstants.kAlignD);
    PIDController pidRot = new PIDController(VisionConstants.kRotP,VisionConstants.kRotI,VisionConstants.kRotD);
@@ -87,9 +90,16 @@ private LED led2;
     else if (tagSide == "ALGAE"){
         offsetSide = 0.165;
     }
-
-    var result = poseEstimator.m_cameraMain.getLatestResult();
-    if (result.hasTargets()) {
+    if (!poseEstimator.m_cameraMain.getAllUnreadResults().isEmpty()){
+        result = poseEstimator.m_cameraMain.getAllUnreadResults().get(0); // FIFO so the first index is the latest result
+    }
+    else{
+        result = null;
+        System.out.println("No valid tags detected.");
+        isDone = true;
+    }
+    
+    if (result != null && result.hasTargets()) {
         tagId = result.getBestTarget().getFiducialId();
         tagPosition = tagPositions.get(result.getBestTarget().getFiducialId()); // Implement this method in PhotonVisionPoseV2
 
