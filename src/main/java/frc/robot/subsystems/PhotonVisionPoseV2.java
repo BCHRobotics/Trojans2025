@@ -52,6 +52,7 @@ public class PhotonVisionPoseV2 extends SubsystemBase {
     private PhotonPoseEstimator m_poseEstimatorSecondary; // Estimator for calculating robot pose
     private boolean m_visionPoseEnabled = true; // Flag to enable/disable vision-based updates
     private final Field2d field2d = new Field2d();
+    private Optional<EstimatedRobotPose> estimatedPose;
     
 
     /**
@@ -200,13 +201,14 @@ public class PhotonVisionPoseV2 extends SubsystemBase {
 
         // Retrieve all unread pipeline results from the camera
         List<PhotonPipelineResult> results = m_cameraMain.getAllUnreadResults();
+        List<PhotonPipelineResult> secondaryResults = m_cameraSecondary.getAllUnreadResults();
 
         // List<PhotonPipelineResult> secondaryResults = m_cameraSecondary.getAllUnreadResults();
 
         double ambiguity = Double.MAX_VALUE;
         double ambiguitySecondary;
 
-        Optional<EstimatedRobotPose> estimatedPose;
+        
 
         for (PhotonPipelineResult result : results) {
             // Update the pose estimator with the current result and get the estimated pose
@@ -242,7 +244,7 @@ public class PhotonVisionPoseV2 extends SubsystemBase {
         if (m_cameraSecondary == null){
             return null;
         }
-        /* 
+        
 
         for (PhotonPipelineResult result : secondaryResults) {
             // Update the pose estimator with the current result and get the estimated pose
@@ -261,7 +263,7 @@ public class PhotonVisionPoseV2 extends SubsystemBase {
             
             
         }
-            */
+            
         return null;
     }
 } 
