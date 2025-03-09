@@ -73,7 +73,6 @@ public class AlignTeleopCommand extends Command{
     
 }
 
-
    @Override
    public void initialize() {
     new SetLEDCommand(led1, led2, -0.65);
@@ -90,6 +89,8 @@ public class AlignTeleopCommand extends Command{
     else if (tagSide == "ALGAE"){
         offsetSide = 0.165;
     }
+
+    /* 
     if (!poseEstimator.m_cameraMain.getAllUnreadResults().isEmpty()){
         result = poseEstimator.m_cameraMain.getAllUnreadResults().get(0); // FIFO so the first index is the latest result
     }
@@ -101,6 +102,7 @@ public class AlignTeleopCommand extends Command{
     
     if (result != null && result.hasTargets()) {
         tagId = result.getBestTarget().getFiducialId();
+
         tagPosition = tagPositions.get(result.getBestTarget().getFiducialId()); // Implement this method in PhotonVisionPoseV2
 
         System.out.println("Aligning to Tag: " + tagId);
@@ -116,7 +118,14 @@ public class AlignTeleopCommand extends Command{
         System.out.println("No valid tags detected.");
         isDone = true;
         
-    }
+    }*/
+    tagId = poseEstimator.getClosestTagID();
+    tagPosition = tagPositions.get(tagId);
+    double newX = tagPosition.getX() - (offsetBack * Math.cos(tagPosition.getRotation().getRadians())) + (offsetSide * Math.sin(tagPosition.getRotation().getRadians()));
+    double newY = tagPosition.getY() - (offsetBack * Math.sin(tagPosition.getRotation().getRadians())) - (offsetSide * Math.cos(tagPosition.getRotation().getRadians()));
+
+    Command path = poseEstimator.generatePathToPose2d(new Pose2d(newX,newY,new Rotation2d(Units.degreesToRadians(tagPosition.getRotation().getDegrees()-180))));
+        path.schedule();
 
 }
 
