@@ -255,7 +255,7 @@ public class PhotonVisionPoseV2 extends SubsystemBase {
             }
             Optional<EstimatedRobotPose> estimatedPoseSecondary = m_poseEstimator.update(result);
             Pose2d robotPose = estimatedPoseSecondary.get().estimatedPose.toPose2d();
-            if (estimatedPoseSecondary.isPresent() || !estimatedPose.isPresent()) {
+            if (estimatedPoseSecondary.isPresent()) {
                 if (ambiguitySecondary > ambiguity && result.getBestTarget().getPoseAmbiguity()<0.2){
                     m_drivetrain.resetOdometry(robotPose);
                 }

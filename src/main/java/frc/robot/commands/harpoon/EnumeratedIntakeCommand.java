@@ -1,6 +1,7 @@
 package frc.robot.commands.harpoon;
 
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.WaitCommand;
 import frc.robot.Constants.ElevatorConstants.ElevatorMode;
 import frc.robot.Constants.ElevatorConstants.ElevatorPosition;
 import frc.robot.Constants.HarpoonConstants.HarpoonMode;
@@ -138,7 +139,11 @@ public class EnumeratedIntakeCommand extends Command {
         }
 
         System.out.println("ENUMERATED INTAKE: Command ended, interrupted: " + interrupted);
+         
+        new SetLEDCommand(led2, led1, -0.65).schedule();
+        new WaitCommand(2).schedule();
         new SetLEDCommand(led2, led1, 0.67).schedule();
+        
     }
 
     @Override
