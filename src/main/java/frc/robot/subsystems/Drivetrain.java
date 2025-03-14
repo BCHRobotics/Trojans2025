@@ -11,15 +11,19 @@ import com.pathplanner.lib.config.RobotConfig;
 import com.pathplanner.lib.controllers.PPHolonomicDriveController;
 import com.pathplanner.lib.util.DriveFeedforwards;
 
+import edu.wpi.first.math.Matrix;
+import edu.wpi.first.math.VecBuilder;
+import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
 import edu.wpi.first.math.filter.SlewRateLimiter;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
-import edu.wpi.first.math.kinematics.SwerveDriveOdometry;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
+import edu.wpi.first.math.numbers.N1;
+import edu.wpi.first.math.numbers.N3;
 import edu.wpi.first.util.WPIUtilJNI;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Timer;
@@ -81,12 +85,17 @@ public class Drivetrain extends SubsystemBase {
   // this can be used to easily check what mode the robot is in
   private DriveModes driveMode = DriveModes.MANUAL;
 
-  // TODO: please please please fix pose estimation
-
+  // Transform for manual odometry offset (kept for backwards compatibility)
   private Transform2d odometryOffset = new Transform2d(0, 0, Rotation2d.fromRadians(0));
 
-  // Odometry class for tracking robot pose
-  SwerveDriveOdometry m_odometry = new SwerveDriveOdometry(
+  // Standard deviations for pose estimator
+  // Increase these numbers to trust your model's state estimates less
+  // Decrease them to trust the measurements from vision more
+  private static final Matrix<N3, N1> stateStdDevs = VecBuilder.fill(0.1, 0.1, 0.1); // x, y, theta
+  private static final Matrix<N3, N1> visionMeasurementStdDevs = VecBuilder.fill(0.9, 0.9, 0.9); // x, y, theta
+
+  // Pose estimator for tracking robot pose
+  private final SwerveDrivePoseEstimator m_poseEstimator = new SwerveDrivePoseEstimator(
       DriveConstants.kDriveKinematics,
       Rotation2d.fromDegrees(m_gyro.getAngle() * (DriveConstants.kGyroReversed ? -1.0 : 1.0)),
       new SwerveModulePosition[] {
@@ -94,7 +103,10 @@ public class Drivetrain extends SubsystemBase {
           m_frontRight.getPosition(),
           m_rearLeft.getPosition(),
           m_rearRight.getPosition()
-      });
+      },
+      new Pose2d(),
+      stateStdDevs,
+      visionMeasurementStdDevs);
 
   /** Creates a new DriveSubsystem. */
   public Drivetrain() {
@@ -106,8 +118,8 @@ public class Drivetrain extends SubsystemBase {
     // Set the max speed of the bot
     setSpeedPercent();
 
-    // Update the odometry in the periodic block
-    m_odometry.update(
+    // Update the pose estimator in the periodic block
+    m_poseEstimator.update(
         Rotation2d.fromDegrees(m_gyro.getAngle() * (DriveConstants.kGyroReversed ? -1.0 : 1.0)),
         new SwerveModulePosition[] {
             m_frontLeft.getPosition(),
@@ -139,35 +151,28 @@ public class Drivetrain extends SubsystemBase {
   }
 
   /**
-   * Adding an offset vector to the odometry, 
-   * this is used to correct thing with pose estimation
-   * @param offset
+   * Add a vision measurement to the pose estimator
+   * @param visionRobotPose The pose of the robot as measured by the vision system
+   * @param timestampSeconds The timestamp of the vision measurement in seconds
    */
-  public void setOdometryOffset(Transform2d offset) {
-    SmartDashboard.putNumber("correction x", offset.getX());
-    SmartDashboard.putNumber("correction y", offset.getY());
-
-    if (Math.abs(offset.getX()) > 0.3 || Math.abs(offset.getY()) > 0.3) {return;}
-
-    odometryOffset = offset;
-  }
-
-  public void clearOdometryOffset() {
-    odometryOffset = new Transform2d(0, 0, Rotation2d.fromDegrees(0));
+  public void addVisionMeasurement(Pose2d visionRobotPose, double timestampSeconds) {
+    // Check if the vision measurement is reasonable before adding it
+    Pose2d currentPose = getPose();
+    double poseDifference = currentPose.getTranslation().getDistance(visionRobotPose.getTranslation());
+    
+    if (poseDifference < 1.0) { // Only accept vision measurements within 1 meter of current estimate
+      m_poseEstimator.addVisionMeasurement(visionRobotPose, timestampSeconds);
+    } else {
+      SmartDashboard.putNumber("rejected_vision_distance", poseDifference);
+    }
   }
 
   /**
-   * the same as the below function, but with LYING
-   * @return
+   * Set custom standard deviations for vision measurements
+   * @param visionStdDevs Standard deviations for vision measurements (x, y, theta)
    */
-  public Pose2d getOffsetedPose() {
-    Pose2d rawPose = getPose();
-
-    return new Pose2d(
-      rawPose.getX() + odometryOffset.getX(),
-      rawPose.getY() + odometryOffset.getY(),
-      rawPose.getRotation()
-    );
+  public void setVisionMeasurementStdDevs(Matrix<N3, N1> visionStdDevs) {
+    m_poseEstimator.setVisionMeasurementStdDevs(visionStdDevs);
   }
 
   /**
@@ -175,17 +180,17 @@ public class Drivetrain extends SubsystemBase {
    * @return The pose
    */
   public Pose2d getPose() {
-    return m_odometry.getPoseMeters();
+    return m_poseEstimator.getEstimatedPosition();
   }
 
   /**
-   * Resets the odometry to the specified pose
+   * Resets the pose estimator to the specified pose
    * KEEP IN MIND this doesn't actually set the gyro,
-   *  the odometry just works with the current heading as an offset
-   * @param pose The pose to which to set the odometry
+   * the pose estimator just works with the current heading as an offset
+   * @param pose The pose to which to set the pose estimator
    */
   public void resetOdometry(Pose2d pose) {
-    m_odometry.resetPosition(
+    m_poseEstimator.resetPosition(
         Rotation2d.fromDegrees(getHeading()),
         new SwerveModulePosition[] {
             m_frontLeft.getPosition(),
@@ -284,7 +289,7 @@ public class Drivetrain extends SubsystemBase {
     SwerveModuleState[] swerveModuleStates = DriveConstants.kDriveKinematics.toSwerveModuleStates(
         fieldRelative
             ? ChassisSpeeds.fromFieldRelativeSpeeds(xSpeedDelivered, ySpeedDelivered, rotDelivered,
-                Rotation2d.fromDegrees(-this.m_odometry.getPoseMeters().getRotation().getDegrees() * (DriveConstants.kGyroReversed ? -1.0 : 1.0)))
+                Rotation2d.fromDegrees(-this.getPose().getRotation().getDegrees() * (DriveConstants.kGyroReversed ? -1.0 : 1.0)))
             : new ChassisSpeeds(xSpeedDelivered, ySpeedDelivered, rotDelivered));
  
     this.setModuleStates(swerveModuleStates);
@@ -437,6 +442,39 @@ public class Drivetrain extends SubsystemBase {
    */
   public ChassisSpeeds getChassisSpeeds() {
     return DriveConstants.kDriveKinematics.toChassisSpeeds(this.getModuleStates());
+  }
+
+  /**
+   * Returns the current estimated pose with the manual offset applied
+   * This function is used for compatibility with existing code
+   * @return The offsetted pose
+   */
+  public Pose2d getOffsetedPose() {
+    Pose2d rawPose = getPose();
+
+    return new Pose2d(
+      rawPose.getX() + odometryOffset.getX(),
+      rawPose.getY() + odometryOffset.getY(),
+      rawPose.getRotation()
+    );
+  }
+
+  /**
+   * Adding an offset vector to the pose estimation
+   * This is maintained for compatibility with existing code
+   * @param offset
+   */
+  public void setOdometryOffset(Transform2d offset) {
+    SmartDashboard.putNumber("correction x", offset.getX());
+    SmartDashboard.putNumber("correction y", offset.getY());
+
+    if (Math.abs(offset.getX()) > 0.3 || Math.abs(offset.getY()) > 0.3) {return;}
+
+    odometryOffset = offset;
+  }
+
+  public void clearOdometryOffset() {
+    odometryOffset = new Transform2d(0, 0, Rotation2d.fromDegrees(0));
   }
 
   /**

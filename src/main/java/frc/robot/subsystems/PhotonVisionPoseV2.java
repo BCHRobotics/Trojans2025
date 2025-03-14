@@ -191,7 +191,8 @@ public class PhotonVisionPoseV2 extends SubsystemBase {
     /**
      * Updates the robot's pose using PhotonPoseEstimator.
      * This method processes all unread results from the camera, estimates the robot's pose
-     * using the PhotonPoseEstimator, and updates the drivetrain's odometry if a valid pose is found.
+     * using the PhotonPoseEstimator, and adds vision measurements to the drivetrain's 
+     * SwerveDrivePoseEstimator if a valid pose is found.
      */
     private Pose2d updatePose() {
         // Check if vision updates are enabled and if the camera and field layout are initialized
@@ -201,22 +202,30 @@ public class PhotonVisionPoseV2 extends SubsystemBase {
 
         // Retrieve all unread pipeline results from the camera
         List<PhotonPipelineResult> results = m_cameraMain.getAllUnreadResults();
-        List<PhotonPipelineResult> secondaryResults = m_cameraSecondary.getAllUnreadResults();
-
-        // List<PhotonPipelineResult> secondaryResults = m_cameraSecondary.getAllUnreadResults();
+        
+        // Check if secondary camera exists before trying to get results
+        List<PhotonPipelineResult> secondaryResults = null;
+        if (m_cameraSecondary != null) {
+            secondaryResults = m_cameraSecondary.getAllUnreadResults();
+        }
 
         double ambiguity = Double.MAX_VALUE;
         double ambiguitySecondary;
-
-        
+        Pose2d latestAcceptedPose = null;
 
         for (PhotonPipelineResult result : results) {
+            // Skip results with no targets
+            if (!result.hasTargets()) {
+                continue;
+            }
+            
             // Update the pose estimator with the current result and get the estimated pose
             estimatedPose = m_poseEstimator.update(result);
 
             if (estimatedPose.isPresent()) {
-                // Convert the estimated pose to Pose2d and update the drivetrain's odometry
+                // Convert the estimated pose to Pose2d
                 Pose2d robotPose = estimatedPose.get().estimatedPose.toPose2d();
+                double timestamp = result.getTimestampSeconds(); // Get timestamp in seconds
 
                 ambiguity = result.getBestTarget().getPoseAmbiguity();
                  
@@ -224,9 +233,11 @@ public class PhotonVisionPoseV2 extends SubsystemBase {
                 if (ambiguity > 0.2) {
                     continue; // Skip this measurement
                 }
-                    
-
-                m_drivetrain.resetOdometry(robotPose);
+                
+                // Add the vision measurement to the drivetrain's pose estimator
+                m_drivetrain.addVisionMeasurement(robotPose, timestamp);
+                latestAcceptedPose = robotPose;
+                
                 // Display the estimated pose on the SmartDashboard
                 SmartDashboard.putNumber("Estimated X", robotPose.getX());
                 SmartDashboard.putNumber("Estimated Y", robotPose.getY());
@@ -236,34 +247,46 @@ public class PhotonVisionPoseV2 extends SubsystemBase {
                 SmartDashboard.putData("Field",field2d);
                 SmartDashboard.putNumber("Ambiguity",ambiguity);
                 //System.out.println(result.getBestTarget().getFiducialId());
-                return new Pose2d(robotPose.getX(),robotPose.getY(),robotPose.getRotation());
             }
-             
-        }
-
-        if (m_cameraSecondary == null){
-            return null;
         }
         
-
-        for (PhotonPipelineResult result : secondaryResults) {
-            // Update the pose estimator with the current result and get the estimated pose
-            ambiguitySecondary = result.getBestTarget().getPoseAmbiguity();
-            // Reject poses with high ambiguity
-            if (ambiguitySecondary > 0.2) {
-                continue; // Skip this measurement
-            }
-            Optional<EstimatedRobotPose> estimatedPoseSecondary = m_poseEstimator.update(result);
-            Pose2d robotPose = estimatedPoseSecondary.get().estimatedPose.toPose2d();
-            if (estimatedPoseSecondary.isPresent()) {
-                if (ambiguitySecondary > ambiguity && result.getBestTarget().getPoseAmbiguity()<0.2){
-                    m_drivetrain.resetOdometry(robotPose);
+        // Process secondary camera results if available
+        if (m_cameraSecondary != null && secondaryResults != null) {
+            for (PhotonPipelineResult result : secondaryResults) {
+                // Skip results with no targets
+                if (!result.hasTargets()) {
+                    continue;
+                }
+                
+                ambiguitySecondary = result.getBestTarget().getPoseAmbiguity();
+                // Reject poses with high ambiguity
+                if (ambiguitySecondary > 0.2) {
+                    continue; // Skip this measurement
+                }
+                
+                Optional<EstimatedRobotPose> estimatedPoseSecondary = m_poseEstimatorSecondary.update(result);
+                
+                if (estimatedPoseSecondary.isPresent()) {
+                    Pose2d robotPose = estimatedPoseSecondary.get().estimatedPose.toPose2d();
+                    double timestamp = result.getTimestampSeconds(); // Get timestamp in seconds
+                    
+                    // If the secondary camera ambiguity is better than the primary camera's ambiguity
+                    // and it has acceptable ambiguity, use it
+                    if (ambiguitySecondary < ambiguity && ambiguitySecondary < 0.2) {
+                        m_drivetrain.addVisionMeasurement(robotPose, timestamp);
+                        latestAcceptedPose = robotPose;
+                        
+                        // Display the estimated pose from secondary camera
+                        SmartDashboard.putNumber("Secondary Estimated X", robotPose.getX());
+                        SmartDashboard.putNumber("Secondary Estimated Y", robotPose.getY());
+                        SmartDashboard.putNumber("Secondary Estimated Rotation", robotPose.getRotation().getDegrees());
+                        SmartDashboard.putNumber("Secondary Tag Seen", result.getBestTarget().getFiducialId());
+                        SmartDashboard.putNumber("Secondary Ambiguity", ambiguitySecondary);
+                    }
                 }
             }
-            
-            
         }
-            
-        return null;
+        
+        return latestAcceptedPose;
     }
 } 
