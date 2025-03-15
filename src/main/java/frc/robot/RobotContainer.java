@@ -23,13 +23,12 @@ import frc.robot.Constants.HarpoonConstants.HarpoonMode;
 import frc.robot.Constants.HarpoonConstants.HarpoonPosition;
 import frc.robot.Constants.OIConstants;
 import frc.robot.Constants.DriveConstants.DriveModes;
+import frc.robot.commands.PrepareMechanismCommand;
 import frc.robot.commands.SetLEDCommand;
+import frc.robot.commands.ToggleMechanismCommand;
 import frc.robot.commands.drive.TeleopDriveCommand;
 import frc.robot.commands.elevator.CalibrateElevator;
-import frc.robot.commands.elevator.PrepareElevatorCommand;
-import frc.robot.commands.elevator.ToggleMechanismCommand;
 import frc.robot.commands.harpoon.IntakeCommand;
-import frc.robot.commands.harpoon.PrepareHarpoonCommand;
 import frc.robot.commands.harpoon.ShootCommand;
 import frc.robot.commands.harpoon.StopClawCommand;
 import frc.robot.subsystems.Drivetrain;
@@ -57,6 +56,7 @@ public class RobotContainer {
     private final Drivetrain m_robotDrive = new Drivetrain();
 
     //pose Estimator 
+    @SuppressWarnings("unused")
     private final PhotonVisionPoseV2 poseEstimator = new PhotonVisionPoseV2(m_robotDrive);
 
     // the elevator subsystem, controls intake and scoring positions
@@ -104,7 +104,6 @@ public class RobotContainer {
         controllerOptions_operator.addOption("Playstation", "PS");
         SmartDashboard.putData("Operator Select", controllerOptions_operator);
 
-
         autoChooser = AutoBuilder.buildAutoChooser();
         SmartDashboard.putData("Auto Name", autoChooser);
         
@@ -128,8 +127,9 @@ public class RobotContainer {
      */
     public void configureDriveMode() {
         isRedAlliance = DriverStation.getAlliance().get() == DriverStation.Alliance.Red;
-        // 0.87 is blue, 0.67 is gold
-        new SetLEDCommand(ledLeft, ledRight, 0.67, 0).schedule();
+
+        // set LEDs to blue
+        new SetLEDCommand(ledLeft, ledRight, 0.87, 0).schedule();
 
         // this double is used as a multiplier to invert the joysticks for red alliance
         final double invert = isRedAlliance ? -1 : 1;
@@ -165,7 +165,7 @@ public class RobotContainer {
     private void configureButtonBindingsDriver(boolean isXbox) {
         if (isXbox) {
             // Reset Gyro
-            driverController_XBOX.y().onTrue(new InstantCommand(() -> { m_robotDrive.zeroHeading(); })); //  m_robotDrive.resetOdometry(m_cameras.estimateRobotPoseManual(false));
+            driverController_XBOX.y().onTrue(new InstantCommand(() -> { m_robotDrive.zeroHeading(); }));
 
             // Slow mode command (Left Bumper)
             driverController_XBOX.leftBumper().onTrue(new InstantCommand(() -> m_robotDrive.setSlowMode(true)));
@@ -211,12 +211,20 @@ public class RobotContainer {
             this.driverController_PS5.cross()
             .onTrue(new ToggleMechanismCommand(ledRight, ledLeft, elevator, harpoon));
 
+            // intake gamepiece
+            this.driverController_PS5.square()
+            .onTrue(new IntakeCommand(elevator, harpoon,0.6, this.driverController_PS5.square())
+            );
+
             // spit out gamepiece
             this.driverController_PS5.circle()
             .onTrue(new ShootCommand(harpoon, 0.7))
             .onFalse(new StopClawCommand(harpoon));
 
             this.driverController_PS5.povDown().onTrue(new CalibrateElevator(elevator, this.driverController_PS5.povDown()));
+
+            // vision alignment
+            // R2
         }
     }
 
@@ -233,34 +241,34 @@ public class RobotContainer {
             // These commands don't have requirements else they interrupt the drive command (TeleopDriveCommand)
 
             this.operatorController_XBOX.leftBumper().onTrue(
-                new PrepareElevatorCommand(elevator, ElevatorMode.REEF, () -> elevator.getLowerPosition()).
-                andThen(new PrepareHarpoonCommand(harpoon, HarpoonMode.REEF, () -> harpoon.getLowerSetpoint()))
+                new PrepareMechanismCommand(elevator, ElevatorMode.REEF, () -> elevator.getLowerPosition(),
+                harpoon, HarpoonMode.REEF, () -> harpoon.getLowerSetpoint())
             );
 
             this.operatorController_XBOX.rightBumper().onTrue(
-                new PrepareElevatorCommand(elevator, ElevatorMode.REEF, () -> elevator.getUpperPosition()).
-                andThen(new PrepareHarpoonCommand(harpoon, HarpoonMode.REEF, () -> harpoon.getUpperSetpoint()))
+                new PrepareMechanismCommand(elevator, ElevatorMode.REEF, () -> elevator.getUpperPosition(),
+                harpoon, HarpoonMode.REEF, () -> harpoon.getUpperSetpoint())
             );
 
             this.operatorController_XBOX.y().onTrue(
-                new PrepareElevatorCommand(elevator, ElevatorMode.FEEDER, () -> ElevatorPosition.INTAKE.getSetpoint()).
-                andThen(new PrepareHarpoonCommand(harpoon, HarpoonMode.FEEDER, () -> HarpoonPosition.INTAKE.getSetpoint()))
+                new PrepareMechanismCommand(elevator, ElevatorMode.FEEDER, () -> ElevatorPosition.INTAKE.getSetpoint(),
+                harpoon, HarpoonMode.FEEDER, () -> HarpoonPosition.INTAKE.getSetpoint())
             );
         }
         else {
             this.operatorController_PS5.L1().onTrue(
-                new PrepareElevatorCommand(elevator, ElevatorMode.REEF, () -> elevator.getLowerPosition()).
-                andThen(new PrepareHarpoonCommand(harpoon, HarpoonMode.REEF, () -> harpoon.getLowerSetpoint()))
+                new PrepareMechanismCommand(elevator, ElevatorMode.REEF, () -> elevator.getLowerPosition(),
+                harpoon, HarpoonMode.REEF, () -> harpoon.getLowerSetpoint())
             );
 
             this.operatorController_PS5.R1().onTrue(
-                new PrepareElevatorCommand(elevator, ElevatorMode.REEF, () -> elevator.getUpperPosition()).
-                andThen(new PrepareHarpoonCommand(harpoon, HarpoonMode.REEF, () -> harpoon.getUpperSetpoint()))
+                new PrepareMechanismCommand(elevator, ElevatorMode.REEF, () -> elevator.getUpperPosition(), 
+                harpoon, HarpoonMode.REEF, () -> harpoon.getUpperSetpoint())
             );
 
             this.operatorController_PS5.triangle().onTrue(
-                new PrepareElevatorCommand(elevator, ElevatorMode.FEEDER, () -> ElevatorPosition.INTAKE.getSetpoint()).
-                andThen(new PrepareHarpoonCommand(harpoon, HarpoonMode.FEEDER, () -> HarpoonPosition.INTAKE.getSetpoint()))
+                new PrepareMechanismCommand(elevator, ElevatorMode.FEEDER, () -> ElevatorPosition.INTAKE.getSetpoint(),
+                harpoon, HarpoonMode.FEEDER, () -> HarpoonPosition.INTAKE.getSetpoint())
             );
         }
     }

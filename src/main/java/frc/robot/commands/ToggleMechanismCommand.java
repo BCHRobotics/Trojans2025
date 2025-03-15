@@ -1,9 +1,8 @@
-package frc.robot.commands.elevator;
+package frc.robot.commands;
 
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.Constants.ElevatorConstants.ElevatorMode;
 import frc.robot.Constants.HarpoonConstants.HarpoonMode;
-import frc.robot.commands.SetLEDCommand;
 import frc.robot.commands.harpoon.IntakeCommand;
 import frc.robot.commands.harpoon.StopClawCommand;
 import frc.robot.subsystems.Elevator;
@@ -47,7 +46,7 @@ public class ToggleMechanismCommand extends Command {
             harpoonSubsystem.setMode(HarpoonMode.STOWED);
 
             new StopClawCommand(harpoonSubsystem).schedule();
-            new SetLEDCommand(led2, led1, 0.67, 0).schedule();
+            new SetLEDCommand(led2, led1, 0.87, 0).schedule();
         }
     }
 
