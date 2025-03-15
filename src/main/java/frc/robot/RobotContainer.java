@@ -9,9 +9,6 @@ import java.io.IOException;
 import org.json.simple.parser.ParseException;
 
 import com.pathplanner.lib.auto.AutoBuilder;
-import com.pathplanner.lib.auto.NamedCommands;
-import com.pathplanner.lib.commands.PathPlannerAuto;
-import com.pathplanner.lib.trajectory.PathPlannerTrajectory;
 import com.pathplanner.lib.util.FileVersionException;
 
 import edu.wpi.first.math.MathUtil;
@@ -29,15 +26,12 @@ import frc.robot.Constants.DriveConstants.DriveModes;
 import frc.robot.commands.SetLEDCommand;
 import frc.robot.commands.drive.TeleopDriveCommand;
 import frc.robot.commands.elevator.CalibrateElevator;
-import frc.robot.commands.elevator.MoveElevatorCommand;
 import frc.robot.commands.elevator.PrepareElevatorCommand;
-import frc.robot.commands.harpoon.AutoScoreCommand;
+import frc.robot.commands.elevator.ToggleMechanismCommand;
 import frc.robot.commands.harpoon.IntakeCommand;
 import frc.robot.commands.harpoon.PrepareHarpoonCommand;
 import frc.robot.commands.harpoon.ShootCommand;
-import frc.robot.commands.harpoon.SequentialScoreCommand;
 import frc.robot.commands.harpoon.StopClawCommand;
-import frc.robot.commands.vision.AlignTeleopCommand;
 import frc.robot.subsystems.Drivetrain;
 import frc.robot.subsystems.LED;
 import frc.robot.subsystems.Elevator;
@@ -45,11 +39,9 @@ import frc.robot.subsystems.Harpoon;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
-import edu.wpi.first.wpilibj2.command.WaitCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandPS5Controller;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import frc.robot.subsystems.PhotonVisionPoseV2;
-import frc.robot.commands.harpoon.EnumeratedIntakeCommand;
 
 
 /*
@@ -112,39 +104,6 @@ public class RobotContainer {
         controllerOptions_operator.addOption("Playstation", "PS");
         SmartDashboard.putData("Operator Select", controllerOptions_operator);
 
-        // // defining the auto selection dropdown
-        // autoSelect = new SendableChooser<String>();
-        // autoSelect.addOption("None", "none");
-        // autoSelect.addOption("Move (blue)", "shift(-1.5,0)/wait(1)/score(0)");
-        // autoSelect.addOption("Move (red)", "shift(1.5,0)");
-        // autoSelect.addOption("1 Coral (10)", "move(Reef3Right)/wait(1)/score(0)");
-        // autoSelect.addOption("1 Coral (11)", "move(Reef3Left)/wait(1)/score(0)");
-        // autoSelect.addOption("1 Coral (12)", "move(Reef4Right)/wait(1)/score(0)");
-        // autoSelect.addOption("1 Coral (1)", "move(Reef4Left)/wait(1)/score(0)");
-        // autoSelect.addOption("1 Coral (2)", "move(Reef5Right)/wait(1)/score(0)");
-        // autoSelect.addOption("1 Coral (3)", "move(Reef5Left)/wait(1)/score(0)");
-        // // TODO: get this one ready
-        // // autoSelect.addOption("1 Coral, Feeder", "move(Reef4Left)/wait(1)/score(0)/path(Coral2Left)/intake(0)");
-
-//STOW ISSUE MAY BE DUE TO INSTANTCOMMAND. Examine the console output during autonomous to see if your debug messages are appearing.
-//If still not working, there might be an issue with how PathPlanner is handling event markers in your setup. In that case, you might want to consider using the command in the auto sequence directly rather than as an event marker.
-        
-        NamedCommands.registerCommand("SEQUENTIAL_SCORE", new SequentialScoreCommand(
-            elevator, 
-            harpoon, 
-            ElevatorPosition.L4.getSetpoint(), 
-            HarpoonPosition.L4.getSetpoint(), 
-            0.6
-        ));
-
-        NamedCommands.registerCommand("ENUMERATED_INTAKE", new EnumeratedIntakeCommand(
-            elevator,
-            harpoon,
-            0.6,
-            ledLeft,
-            ledRight
-        ));
-
 
         autoChooser = AutoBuilder.buildAutoChooser();
         SmartDashboard.putData("Auto Name", autoChooser);
@@ -170,7 +129,7 @@ public class RobotContainer {
     public void configureDriveMode() {
         isRedAlliance = DriverStation.getAlliance().get() == DriverStation.Alliance.Red;
         // 0.87 is blue, 0.67 is gold
-        new SetLEDCommand(ledLeft, ledRight, 0.67).schedule();
+        new SetLEDCommand(ledLeft, ledRight, 0.67, 0).schedule();
 
         // this double is used as a multiplier to invert the joysticks for red alliance
         final double invert = isRedAlliance ? -1 : 1;
@@ -221,7 +180,7 @@ public class RobotContainer {
 
             // intake gamepiece
             this.driverController_XBOX.x()
-            .onTrue(new IntakeCommand(elevator, harpoon,0.6)
+            .onTrue(new IntakeCommand(elevator, harpoon,0.6, this.driverController_XBOX.x())
             );
 
             // spit out gamepiece
@@ -231,30 +190,16 @@ public class RobotContainer {
 
              this.driverController_XBOX.povDown()
              .onTrue(new CalibrateElevator(elevator, this.driverController_XBOX.povDown()));
-            
-            // automatic vision lineup (taken out for now)
-            //  this.driverController_XBOX.rightTrigger().onTrue(
-            //     new InstantCommand(() -> {
-            //         if(m_cameras.isVisionActive) {
-            //             new AlignTeleopCommand(
-            //                 m_cameras.getClosestTagId(),
-            //                 true, 
-            //                 true, 
-            //                 m_robotDrive, 
-            //                 m_cameras, 
-            //                 () -> m_cameras.getOffsetX(),
-            //                 () -> m_cameras.getOffsetY(),
-            //                 () -> areJoysticksPressed()
-            //                 )
-            //                 // .alongWith( new ToggleMechanismCommand(ledLeft, ledRight, elevator, harpoon))
-            //                 .schedule();
-            //         }
-            //     })
-            // );
         }
         else {
             // Reset Gyro
-            driverController_PS5.L1().onTrue(new InstantCommand(() -> { m_robotDrive.zeroHeading(); }));
+            driverController_PS5.triangle().onTrue(new InstantCommand(() -> { m_robotDrive.zeroHeading(); }));
+
+            // Fast mode
+            driverController_PS5.L1().onTrue(new InstantCommand(() -> m_robotDrive.setSlowMode(true)));
+
+            // Fast mode
+            driverController_PS5.L1().onFalse(new InstantCommand(() -> m_robotDrive.setSlowMode(false)));
 
             // Fast mode
             driverController_PS5.R1().onTrue(new InstantCommand(() -> m_robotDrive.setFastMode(true)));
@@ -262,59 +207,16 @@ public class RobotContainer {
             // Fast mode
             driverController_PS5.R1().onFalse(new InstantCommand(() -> m_robotDrive.setFastMode(false)));
 
-            // Up Dpad - Score L4
-            driverController_PS5.povUp().onTrue(new SequentialScoreCommand(
-                elevator, 
-                harpoon, 
-                ElevatorPosition.L4.getSetpoint(), 
-                HarpoonPosition.L4.getSetpoint(), 
-                0.6
-            ));
-
-            // Right Dpad - Score L1 
-            driverController_PS5.povRight().onTrue(new SequentialScoreCommand(
-                elevator, 
-                harpoon, 
-                ElevatorPosition.L1.getSetpoint(), 
-                HarpoonPosition.L1.getSetpoint(), 
-                0.6
-            ));
-
-            // Down Dpad - Score L2 
-            driverController_PS5.povDown().onTrue(new SequentialScoreCommand(
-                elevator, 
-                harpoon, 
-                ElevatorPosition.L2.getSetpoint(), 
-                HarpoonPosition.L2.getSetpoint(), 
-                0.6
-            ));
-
-            // Left Dpad - Score L3 
-            driverController_PS5.povDown().onTrue(new SequentialScoreCommand(
-                elevator, 
-                harpoon, 
-                ElevatorPosition.L3.getSetpoint(), 
-                HarpoonPosition.L3.getSetpoint(), 
-                0.6
-            ));
-
             // intake gamepiece
-            this.driverController_PS5.square()
-            .onTrue(new EnumeratedIntakeCommand(elevator, harpoon, 0.6, ledLeft, ledRight));
+            this.driverController_PS5.cross()
+            .onTrue(new ToggleMechanismCommand(ledRight, ledLeft, elevator, harpoon));
 
             // spit out gamepiece
             this.driverController_PS5.circle()
             .onTrue(new ShootCommand(harpoon, 0.7))
             .onFalse(new StopClawCommand(harpoon));
 
-            this.driverController_PS5.triangle()
-            .onTrue(new CalibrateElevator(elevator, this.driverController_PS5.povDown()));
-
-            this.driverController_PS5.R2()// Right Side
-            .onTrue(new AlignTeleopCommand(m_robotDrive, poseEstimator, this.driverController_PS5.povUp(), "Right",ledLeft,ledRight));
-
-            this.driverController_PS5.L2() // Left Side
-            .onTrue(new AlignTeleopCommand(m_robotDrive, poseEstimator, this.driverController_PS5.povUp(), "Left",ledLeft,ledRight));
+            this.driverController_PS5.povDown().onTrue(new CalibrateElevator(elevator, this.driverController_PS5.povDown()));
         }
     }
 
@@ -382,22 +284,6 @@ public class RobotContainer {
 
         harpoon.resetHarpoon();
         elevator.resetElevator();
-    }
-
-    public void checkAuto() {
-        // // defining what alliance we are on
-        // isRedAlliance = DriverStation.getAlliance().get() == DriverStation.Alliance.Red;
-
-        // if(autoSelect.getSelected() == null || autoFallback.getSelected() == null) {return;}
-
-        // if (autoCommandString != autoSelect.getSelected()) {
-        //     autoCommand = AutoUtils.actuallyBuildAutoFromCommands(autoSelect.getSelected(), ledLeft, ledRight, elevator, harpoon, m_robotDrive, m_cameras, autoFallback.getSelected(), isRedAlliance);
-        //     autoCommandString = autoSelect.getSelected();
-
-        //     SmartDashboard.putString("LOADED AUTO", autoCommandString);
-        // }
-
-        // SmartDashboard.putBoolean("i", isRedAlliance);
     }
 
     /**

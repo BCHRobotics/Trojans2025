@@ -4,13 +4,9 @@
 
 package frc.robot;
 
-import java.util.HashMap;
-
 import com.pathplanner.lib.config.PIDConstants;
 import com.pathplanner.lib.path.PathConstraints;
 
-import edu.wpi.first.math.geometry.Pose2d;
-import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.geometry.Translation2d;
@@ -18,7 +14,6 @@ import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.math.util.Units;
-import frc.utils.CameraTransform;
 
 /**
  * The Constants class provides a convenient place for teams to hold robot-wide
@@ -95,7 +90,7 @@ public final class Constants {
     public static final int rightElevatorID = 20;
 
     // PID terms for elevator up/down motion
-    public static final double ElevatorkP = 0.065;
+    public static final double ElevatorkP = 0.04;
     public static final double ElevatorkI = 0.01;
     public static final double ElevatorkD = 0.000;
 
@@ -221,63 +216,10 @@ public final class Constants {
     public static final double allowedXError = 0.13;
     public static final double allowedYError = 0.07; 
 
-    // camera names, transforms, etc.
-    public static final String[] cameraNames = new String[] {
-      //"Front Left", 
-    "Center", 
-    "Secondary"
-    };
-
-    public static final Transform3d[] camera_transforms = new Transform3d[] {
-      //new Transform3d(new Translation3d(Units.inchesToMeters(7.5), Units.inchesToMeters(12.5), 0), new Rotation3d(0, 0, 30 / (180 * Math.PI))),
-      new Transform3d(new Translation3d(Units.inchesToMeters(12.5), VisionConstants.cameraOffsets[0].yOffset, 0.0),
+    public static final Transform3d[] cameraOffsets = new Transform3d[] {
+      new Transform3d(new Translation3d(Units.inchesToMeters(12.5), 0, 0.0),
                 new Rotation3d(0, 0, 0)),
-      new Transform3d(new Translation3d(Units.inchesToMeters(0), Units.inchesToMeters(0), 0), new Rotation3d(0, 0, -30 / (180 * Math.PI))),
     };
-
-    public static final CameraTransform[] cameraOffsets = 
-    new CameraTransform[] {
-      //new CameraTransform(Units.inchesToMeters(7.5), Units.inchesToMeters(12.5), 30 / (180 * Math.PI)),
-      new CameraTransform(Units.inchesToMeters(12.5), 0, 0),
-      //new CameraTransform(Units.inchesToMeters(7.5), Units.inchesToMeters(12.5), -30 / (180 * Math.PI)),
-    };
-
-    // these are the actual ones for 2025
-    // TagTransform class for holding position, heading, y-rot, etc.
-
-    // METERS, DIVIDE BY 39.37!
-
-    public static HashMap<Integer, Pose2d> getTagPositions() {
-      
-        HashMap<Integer, Pose2d> tagPositions = new HashMap<>();
-
-        // Extracting the TagTransform parameters and creating Pose2d objects
-        tagPositions.put(0, new Pose2d(new Translation2d(0, 0), new Rotation2d(0))); // null tag
-        tagPositions.put(1, new Pose2d(new Translation2d(Units.inchesToMeters(657.37), Units.inchesToMeters(25.80)), new Rotation2d(Math.toRadians(126))));
-        tagPositions.put(2, new Pose2d(new Translation2d(Units.inchesToMeters(657.37), Units.inchesToMeters(291.20)), new Rotation2d(Math.toRadians(234))));
-        tagPositions.put(3, new Pose2d(new Translation2d(Units.inchesToMeters(455.15), Units.inchesToMeters(317.15)), new Rotation2d(Math.toRadians(270))));
-        tagPositions.put(4, new Pose2d(new Translation2d(Units.inchesToMeters(365.20), Units.inchesToMeters(241.64)), new Rotation2d(Math.toRadians(0))));
-        tagPositions.put(5, new Pose2d(new Translation2d(Units.inchesToMeters(365.20), Units.inchesToMeters(75.39)), new Rotation2d(Math.toRadians(0))));
-        tagPositions.put(6, new Pose2d(new Translation2d(Units.inchesToMeters(530.49), Units.inchesToMeters(130.17)), new Rotation2d(Math.toRadians(300))));
-        tagPositions.put(7, new Pose2d(new Translation2d(Units.inchesToMeters(546.87), Units.inchesToMeters(158.50)), new Rotation2d(Math.toRadians(0))));
-        tagPositions.put(8, new Pose2d(new Translation2d(Units.inchesToMeters(530.49), Units.inchesToMeters(186.83)), new Rotation2d(Math.toRadians(60))));
-        tagPositions.put(9, new Pose2d(new Translation2d(Units.inchesToMeters(497.77), Units.inchesToMeters(186.83)), new Rotation2d(Math.toRadians(120))));
-        tagPositions.put(10, new Pose2d(new Translation2d(Units.inchesToMeters(481.39), Units.inchesToMeters(158.50)), new Rotation2d(Math.toRadians(180))));
-        tagPositions.put(11, new Pose2d(new Translation2d(Units.inchesToMeters(497.77), Units.inchesToMeters(130.17)), new Rotation2d(Math.toRadians(240))));
-        tagPositions.put(12, new Pose2d(new Translation2d(Units.inchesToMeters(33.51), Units.inchesToMeters(25.80)), new Rotation2d(Math.toRadians(54))));
-        tagPositions.put(13, new Pose2d(new Translation2d(Units.inchesToMeters(33.51), Units.inchesToMeters(291.20)), new Rotation2d(Math.toRadians(306))));
-        tagPositions.put(14, new Pose2d(new Translation2d(Units.inchesToMeters(325.68), Units.inchesToMeters(241.64)), new Rotation2d(Math.toRadians(180))));
-        tagPositions.put(15, new Pose2d(new Translation2d(Units.inchesToMeters(325.68), Units.inchesToMeters(75.39)), new Rotation2d(Math.toRadians(180))));
-        tagPositions.put(16, new Pose2d(new Translation2d(Units.inchesToMeters(235.73), Units.inchesToMeters(-0.15)), new Rotation2d(Math.toRadians(90))));
-        tagPositions.put(17, new Pose2d(new Translation2d(Units.inchesToMeters(160.39), Units.inchesToMeters(130.17)), new Rotation2d(Math.toRadians(240))));
-        tagPositions.put(18, new Pose2d(new Translation2d(Units.inchesToMeters(144.00), Units.inchesToMeters(158.50)), new Rotation2d(Math.toRadians(180))));
-        tagPositions.put(19, new Pose2d(new Translation2d(Units.inchesToMeters(160.39), Units.inchesToMeters(186.83)), new Rotation2d(Math.toRadians(120))));
-        tagPositions.put(20, new Pose2d(new Translation2d(Units.inchesToMeters(193.10), Units.inchesToMeters(186.83)), new Rotation2d(Math.toRadians(60))));
-        tagPositions.put(21, new Pose2d(new Translation2d(Units.inchesToMeters(209.49), Units.inchesToMeters(158.50)), new Rotation2d(Math.toRadians(0))));
-        tagPositions.put(22, new Pose2d(new Translation2d(Units.inchesToMeters(193.10), Units.inchesToMeters(130.17)), new Rotation2d(Math.toRadians(300))));
-
-        return tagPositions;
-    }
 
     // the constants used for moving the bot towards the apriltag during vision alignment
     // NOTE - y axis doesn't go through PID, this is only for x
@@ -365,16 +307,5 @@ public final class Constants {
     // Constraint for the motion profiled robot angle controller
     public static final TrapezoidProfile.Constraints kThetaControllerConstraints = new TrapezoidProfile.Constraints(
         kMaxAngularSpeedRadiansPerSecond, kMaxAngularSpeedRadiansPerSecondSquared);
-  }
-
-  // these are not gonna be used, because of the drop down menu
-  // but they're a useful reference
-  public static final class AutoStrings {
-    public String auto1 = "Path(Reef5Left-Coral1Right)/Path(Coral1Right-Reef5Right)/Path(Reef5Left-Coral1Right)/Path(BlueCoral1Right-BlueReef4Left)";
-    public String auto2 = "Path(Reef5Right-Coral1Right)/Path(Coral1Right-Reef5Left)/Path(Reef5Left-Coral1Right)/Path(BlueCoral1Right-BlueReef4Left)";
-    public String auto3 = "Path(BlueReef4Right-BlueCoral1Right)/Path(BlueCoral1Right-BlueReef4Left)/Path(BlueReef4Left-BlueCoral1Right)/Path(Coral1Right-Reef5Left)";
-    public String auto4 = "Path(BlueReef4Right-BlueCoral1Right)/Path(BlueCoral1Right-BlueReef4Left)/Path(BlueReef4Left-BlueCoral1Right)/Path(Coral1Right-Reef5Left)";
-    public String auto5 = "Path(Reef1Left-Coral1Left)/Path(Coral1Right-Reef6Left)/Path(Reef6Left-Coral1Right)/Path(BlueCoral1Right-BlueReef4Left)";
-    
   }
 }

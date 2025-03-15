@@ -200,7 +200,6 @@ public class Elevator extends SubsystemBase{
 
     @Override 
     public void periodic() {
-        /* 
         if (DriverStation.isTeleop()){
             if (currentMode == ElevatorMode.REEF) {
                 // if we're scoring, use the selected position
@@ -217,14 +216,7 @@ public class Elevator extends SubsystemBase{
                 setpoint = ElevatorPosition.STOWED.getSetpoint();
             }
 
-        }*/
-
-        SmartDashboard.putNumber("NEXT POSITION", selectedPosition);
-            
-
-        // SmartDashboard.putString("CURRENT ELEVATOR", currentMode.toString());
-        // SmartDashboard.putString("NEXT ELEVATOR", nextMode.toString());
-        
+        }
 
         // moving the elevator to the desired setpoint
         
@@ -299,11 +291,7 @@ public class Elevator extends SubsystemBase{
      * This is called in periodic()
      */
     public void printToDashboard() {
-        SmartDashboard.putNumber("Encoder Position", encoder.getPosition());
-        SmartDashboard.putNumber("velocity", getEncoderVelocity());
-        SmartDashboard.putNumber("Elevator Error", (setpoint-getEncoderPosition()));
-
-        SmartDashboard.putBoolean("Top Limit", primaryMotor.getReverseLimitSwitch().isPressed());
-        SmartDashboard.putBoolean("Bottom Limit", primaryMotor.getForwardLimitSwitch().isPressed());
+        SmartDashboard.putNumber("nPos", setpoint == 0 ? selectedPosition : 0);
+        SmartDashboard.putNumber("cPos", setpoint);
     }
 }

@@ -12,13 +12,15 @@ public class SetLEDCommand extends Command{
     private LED LEDSubsystem2;
     private double colour;
 
-    public SetLEDCommand(LED LEDSubsystem1, LED LEDSubsystem2, double colour) {
+    private double timer;
+
+    public SetLEDCommand(LED LEDSubsystem1, LED LEDSubsystem2, double colour, double timer) {
         this.LEDSubsystem1 = LEDSubsystem1;
         this.LEDSubsystem2 = LEDSubsystem2;
 
         this.colour = colour;
 
-        
+        this.timer = timer;
     }
 
     @Override
@@ -30,6 +32,9 @@ public class SetLEDCommand extends Command{
 
     @Override
     public void end(boolean interrupt) {
+        if (timer != 0) {
+            new WaitCommand(timer).andThen(new SetLEDCommand(LEDSubsystem1, LEDSubsystem2, 0.87, 0)).schedule();
+        }
     }
 
     @Override

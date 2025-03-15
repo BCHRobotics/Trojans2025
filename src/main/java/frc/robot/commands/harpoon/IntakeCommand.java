@@ -15,12 +15,13 @@ public class IntakeCommand extends Command {
     private double speed;
    
 
-    public IntakeCommand(Elevator elevatorSubsystem, Harpoon harpoonSubsystem, double speed) {
+    public IntakeCommand(Elevator elevatorSubsystem, Harpoon harpoonSubsystem, double speed, BooleanSupplier buttonPressed) {
         // creating subsystem, adding the subsystem as a requirement so it is not used elsewhere which could cause problems. 
         this.harpoonSubsystem = harpoonSubsystem;
         this.addRequirements(harpoonSubsystem);
         
         this.speed = speed;
+        this.buttonPressed = buttonPressed;
         this.elevatorSubsystem = elevatorSubsystem;
     }
 

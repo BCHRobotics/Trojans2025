@@ -13,7 +13,6 @@ import com.revrobotics.spark.config.SparkMaxConfig;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.PIDController;
-import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.Constants;
 import frc.robot.Constants.HarpoonConstants;
@@ -164,25 +163,21 @@ public class Harpoon extends SubsystemBase{
         // SmartDashboard.putString("NEXT HARPOON", nextMode.toString());
         
         SmartDashboard.putNumber("HARPOON SETPOINT", setpoint);
-        /* 
-        if (DriverStation.isTeleop()){
-            if (currentMode == HarpoonMode.REEF) {
-                // if we're scoring, use the selected position
-                // this allows the operator to switch scoring positions immediately
-                setRotationMotorPosition(selectedSetpoint);
-            }
-            else if (currentMode == HarpoonMode.FEEDER) {
-                // for intaking, use the constant
-                // this allows the operator to pre-select a mode without the elevator moving
-                setRotationMotorPosition(HarpoonPosition.INTAKE.getSetpoint());
-            }
-            else if (currentMode == HarpoonMode.STOWED) {
-                // ditto with stowed, use the constant for the same reason
-                setRotationMotorPosition(HarpoonPosition.STOWED.getSetpoint());
-            }
-        }
-        */
         
+        if (currentMode == HarpoonMode.REEF) {
+            // if we're scoring, use the selected position
+            // this allows the operator to switch scoring positions immediately
+            setRotationMotorPosition(selectedSetpoint);
+        }
+        else if (currentMode == HarpoonMode.FEEDER) {
+            // for intaking, use the constant
+            // this allows the operator to pre-select a mode without the elevator moving
+            setRotationMotorPosition(HarpoonPosition.INTAKE.getSetpoint());
+        }
+        else if (currentMode == HarpoonMode.STOWED) {
+            // ditto with stowed, use the constant for the same reason
+            setRotationMotorPosition(HarpoonPosition.STOWED.getSetpoint());
+        }
 
         kRotationMotor.set(applyLimits(pidController.calculate(getCorrectedEncoderPosition(), setpoint)));
     }
