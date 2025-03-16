@@ -63,7 +63,7 @@ public final class Constants {
       STOWED(0), // FINAL
       L1(4),
       L2(8.85),  // FINAL
-      L3(12.95),  // FINAL
+      L3(13.35),  // FINAL
       L4(20.3), // UNTESTED
       INTAKE(2.65), // FINAL
       ALGAE(8.55);
@@ -90,7 +90,7 @@ public final class Constants {
     public static final int rightElevatorID = 20;
 
     // PID terms for elevator up/down motion
-    public static final double ElevatorkP = 0.04;
+    public static final double ElevatorkP = 0.055;
     public static final double ElevatorkI = 0.01;
     public static final double ElevatorkD = 0.000;
 
@@ -155,8 +155,6 @@ public final class Constants {
     public enum DriveModes {
       MANUAL,
       ALIGNTELE,
-      HEADINGLOCK,
-      AUTO
     }
 
     // Driving Parameters - Note that these are not the maximum and minimum capable speeds of
@@ -207,14 +205,10 @@ public final class Constants {
   }
 
   public static final class VisionConstants{
-    public static final double speedLimitX = 0.05;
-    public static final double speedLimitY = 0.05;
-    public static final double speedLimitRot = 0.1;
-
     // how far the robot can be from the setpoint during vision alignment
     // these CANNOT be zero, because then commands won't cancel because the robot cannot be perfect
-    public static final double allowedXError = 0.13;
-    public static final double allowedYError = 0.07; 
+    public static final double allowedXError = 0.05;
+    public static final double allowedYError = 0.05; 
 
     public static final Transform3d[] cameraOffsets = new Transform3d[] {
       new Transform3d(new Translation3d(Units.inchesToMeters(12.5), 0, 0.0),
@@ -223,8 +217,8 @@ public final class Constants {
 
     // the constants used for moving the bot towards the apriltag during vision alignment
     // NOTE - y axis doesn't go through PID, this is only for x
-    public static double kAlignP = 1;
-    public static double kAlignI = 0.05;
+    public static double kAlignP = 0.6;
+    public static double kAlignI = 0;
     public static double kAlignD = 0;
 
     // the constants used for rotation alignment (heading lock and vision alignment)

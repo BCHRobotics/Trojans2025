@@ -1,12 +1,13 @@
 package frc.utils;
 
+import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Translation2d;
 
 /*
  * This script is for helper functions related to vision and related math
  * There should only be public static functions in here
  */
-public class VisionUtils {
+public class MathUtils {
     /**
      * A function that, given a transform2d as a vector, rotates it by an angle
      * TODO: make this use a translation2d because the rotation component just isn't used
@@ -27,5 +28,12 @@ public class VisionUtils {
         Translation2d rotatedVector = new Translation2d(fieldX, fieldY);
 
         return rotatedVector;
+    }
+
+    public static double getDistance(Pose2d a, Pose2d b) {
+        double difX = b.getX() - a.getX();
+        double difY = b.getY() - a.getY();
+
+        return Math.sqrt(difX * difX + difY * difY);
     }
 }

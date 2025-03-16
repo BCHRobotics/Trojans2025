@@ -31,6 +31,7 @@ import frc.robot.commands.elevator.CalibrateElevator;
 import frc.robot.commands.harpoon.IntakeCommand;
 import frc.robot.commands.harpoon.ShootCommand;
 import frc.robot.commands.harpoon.StopClawCommand;
+import frc.robot.commands.vision.AlignTeleopCommand;
 import frc.robot.subsystems.Drivetrain;
 import frc.robot.subsystems.LED;
 import frc.robot.subsystems.Elevator;
@@ -78,9 +79,9 @@ public class RobotContainer {
     CommandXboxController operatorController_XBOX = new CommandXboxController(OIConstants.kBackupControllerPort);
 
     // drop down menu for selecting xbox/ps5 for the driver controller
-    SendableChooser<String> controllerOptions_driver;
+    SendableChooser<Integer> controllerOptions_driver;
     // drop down menu for selecting xbox/ps5 for the operator controller
-    SendableChooser<String> controllerOptions_operator;
+    SendableChooser<Integer> controllerOptions_operator;
 
     SendableChooser<Command> autoChooser;
 
@@ -92,16 +93,18 @@ public class RobotContainer {
     public RobotContainer() {
         // setting up a dropdown for switching between xbox and playstation
         // FOR DRIVER
-        controllerOptions_driver = new SendableChooser<String>();
-        controllerOptions_driver.addOption("Xbox", "XBOX");
-        controllerOptions_driver.addOption("Playstation", "PS");
+        controllerOptions_driver = new SendableChooser<Integer>();
+        controllerOptions_driver.addOption("Xbox", 0);
+        controllerOptions_driver.addOption("Playstation", 1);
+        controllerOptions_driver.setDefaultOption("default", 1);
         SmartDashboard.putData("Driver Select", controllerOptions_driver);
 
         // setting up a dropdown for switching between xbox and playstation
         // FOR OPERATOR
-        controllerOptions_operator = new SendableChooser<String>();
-        controllerOptions_operator.addOption("Xbox", "XBOX");
-        controllerOptions_operator.addOption("Playstation", "PS");
+        controllerOptions_operator = new SendableChooser<Integer>();
+        controllerOptions_operator.addOption("Xbox", 0);
+        controllerOptions_operator.addOption("Playstation", 1);
+        controllerOptions_operator.setDefaultOption("default", 0);
         SmartDashboard.putData("Operator Select", controllerOptions_operator);
 
         autoChooser = AutoBuilder.buildAutoChooser();
@@ -116,9 +119,9 @@ public class RobotContainer {
 
         // Setup the commands associated with all buttons on the controller
         // driver
-        configureButtonBindingsDriver(controllerOptions_driver.getSelected() == "XBOX");
+        configureButtonBindingsDriver(controllerOptions_driver.getSelected() == 0);
         // operator
-        configureButtonBindingsOperator(controllerOptions_operator.getSelected() == "XBOX");
+        configureButtonBindingsOperator(controllerOptions_operator.getSelected() == 0);
     }
 
     /**
@@ -135,10 +138,10 @@ public class RobotContainer {
         final double invert = isRedAlliance ? -1 : 1;
 
         // making sure the controller variables are set properly
-        String driverController = controllerOptions_driver.getSelected();
+        Integer driverController = controllerOptions_driver.getSelected();
         
         // If no other command is running on the drivetrain, then this manual driving command (driving via controller) is used
-        if (driverController == "XBOX") {
+        if (driverController == 0) {
             // for if we're using the xbox controller
             m_robotDrive.setDefaultCommand(new TeleopDriveCommand(
             () -> -MathUtil.applyDeadband(driverController_XBOX.getLeftY() * invert, 0.05),
@@ -224,7 +227,10 @@ public class RobotContainer {
             this.driverController_PS5.povDown().onTrue(new CalibrateElevator(elevator, this.driverController_PS5.povDown()));
 
             // vision alignment
-            // R2
+            this.driverController_PS5.R2().onTrue(
+                // for now the tag id actually does nothing
+                new AlignTeleopCommand(ledLeft, ledRight, elevator, harpoon, m_robotDrive, () -> areJoysticksPressed(), 0, poseEstimator)
+            );
         }
     }
 
@@ -254,6 +260,14 @@ public class RobotContainer {
                 new PrepareMechanismCommand(elevator, ElevatorMode.FEEDER, () -> ElevatorPosition.INTAKE.getSetpoint(),
                 harpoon, HarpoonMode.FEEDER, () -> HarpoonPosition.INTAKE.getSetpoint())
             );
+
+            this.operatorController_XBOX.rightTrigger().onTrue(
+                new InstantCommand(() -> poseEstimator.targetSide(false))
+            );
+
+            this.operatorController_XBOX.leftTrigger().onTrue(
+                new InstantCommand(() -> poseEstimator.targetSide(true))
+            );
         }
         else {
             this.operatorController_PS5.L1().onTrue(
@@ -270,11 +284,19 @@ public class RobotContainer {
                 new PrepareMechanismCommand(elevator, ElevatorMode.FEEDER, () -> ElevatorPosition.INTAKE.getSetpoint(),
                 harpoon, HarpoonMode.FEEDER, () -> HarpoonPosition.INTAKE.getSetpoint())
             );
+
+            this.operatorController_PS5.R2().onTrue(
+                new InstantCommand(() -> poseEstimator.targetSide(false))
+            );
+
+            this.operatorController_PS5.R2().onTrue(
+                new InstantCommand(() -> poseEstimator.targetSide(true))
+            );
         }
     }
 
     public boolean areJoysticksPressed() {
-        if (controllerOptions_driver.getSelected() == "XBOX") {
+        if (controllerOptions_driver.getSelected() == 0) {
             return Math.abs(driverController_XBOX.getLeftX()) > 0.05 ||
             Math.abs(driverController_XBOX.getLeftY()) > 0.05 || 
             Math.abs(driverController_XBOX.getRightX()) > 0.05;

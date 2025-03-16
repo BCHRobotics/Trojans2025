@@ -11,6 +11,7 @@ import edu.wpi.first.apriltag.AprilTagFields;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Transform3d;
+import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -34,9 +35,11 @@ public class PhotonVisionPoseV2 extends SubsystemBase {
     private AprilTagFieldLayout m_fieldLayout; // Layout of AprilTags on the field
     private PhotonPoseEstimator m_poseEstimator; // Estimator for calculating robot pose
 
-    private boolean useVisionPose = true; // Flag to enable/disable vision-based updates
+    private boolean useVisionPose = false; // Flag to enable/disable vision-based updates
     
     private PhotonPipelineResult latestResult;
+
+    private boolean isTargetingLeft;
 
     /**
      * Creates a new PhotonVisionPoseV2 subsystem.
@@ -79,6 +82,10 @@ public class PhotonVisionPoseV2 extends SubsystemBase {
         return useVisionPose;
     }
 
+    public Pose2d getTagPoseOfId(int tagId) {
+        return m_fieldLayout.getTagPose(tagId).get().toPose2d();
+    }
+
     public Pose2d getClosestTagPose() {
         if (getClosestTagID() == -1) {return null;}
         if (m_fieldLayout.getTagPose(getClosestTagID()).isEmpty()) {return null;}
@@ -115,6 +122,27 @@ public class PhotonVisionPoseV2 extends SubsystemBase {
         updatePose();
 
         printToDashboard();
+        
+        // if (!m_camera.isConnected()) {
+        //     System.out.println("NO CAMERA!");
+        //     tryGetCamera();
+        // }
+    }
+
+    void tryGetCamera() {
+        m_camera = new PhotonCamera(NetworkTableInstance.getDefault(), "Cam");
+    }
+
+    public double getXOffset() {
+        return 0.45;
+    }
+
+    public double getYOffset() {
+        return isTargetingLeft ? -0.15 : 0.15;
+    }
+
+    public void targetSide(boolean isLeft) {
+        isTargetingLeft = isLeft;
     }
 
     void printToDashboard() {

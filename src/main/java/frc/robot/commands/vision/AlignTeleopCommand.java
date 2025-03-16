@@ -1,158 +1,137 @@
-// package frc.robot.commands.vision;
+package frc.robot.commands.vision;
 
+import java.util.function.BooleanSupplier;
 
-// import frc.robot.subsystems.Drivetrain;
-// import frc.robot.subsystems.LED;
-// import frc.robot.subsystems.PhotonVisionPoseV2;
+import edu.wpi.first.math.MathUtil;
+import edu.wpi.first.math.controller.PIDController;
+import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Translation2d;
+import edu.wpi.first.wpilibj2.command.Command;
+import frc.robot.Constants.VisionConstants;
+import frc.robot.Constants.DriveConstants.DriveModes;
+import frc.robot.commands.ToggleMechanismCommand;
+import frc.robot.subsystems.Drivetrain;
+import frc.robot.subsystems.Elevator;
+import frc.robot.subsystems.Harpoon;
+import frc.robot.subsystems.LED;
+import frc.robot.subsystems.PhotonVisionPoseV2;
+import frc.utils.MathUtils;
 
-// import java.util.HashMap;
-// import java.util.function.BooleanSupplier;
-// import java.util.function.DoubleSupplier;
+public class AlignTeleopCommand extends Command {
+    Drivetrain driveSubsystem;
+    PhotonVisionPoseV2 visionSubsystem;
+    Elevator elevatorSubsystem;
+    Harpoon harpoonSubsystem;
+    LED led1;
+    LED led2;
 
-// import org.photonvision.targeting.PhotonPipelineResult;
+    PIDController pid = new PIDController(VisionConstants.kAlignP,VisionConstants.kAlignI,VisionConstants.kAlignD);
+    PIDController pidRot = new PIDController(VisionConstants.kRotP,VisionConstants.kRotI,VisionConstants.kRotD);
 
-// import com.pathplanner.lib.path.PathConstraints;
-// import com.pathplanner.lib.pathfinding.Pathfinding;
-
-// import edu.wpi.first.math.controller.PIDController;
-// import edu.wpi.first.math.geometry.Pose2d;
-// import edu.wpi.first.math.geometry.Rotation2d;
-// import edu.wpi.first.math.util.Units;
-// import edu.wpi.first.wpilibj2.command.Command;
-
-
-// import frc.robot.Constants.VisionConstants;
-// import frc.robot.commands.SetLEDCommand;
-
-
-// public class AlignTeleopCommand extends Command{
-//    private PhotonVisionPoseV2 poseEstimator;
-//    private LED led1;
-//     private LED led2;
-//     private PhotonPipelineResult result;
+    Boolean isFieldRelative;
+    Boolean isRateLimited;
    
-//    PIDController pid = new PIDController(VisionConstants.kAlignP,VisionConstants.kAlignI,VisionConstants.kAlignD);
-//    PIDController pidRot = new PIDController(VisionConstants.kRotP,VisionConstants.kRotI,VisionConstants.kRotD);
+    int tagId;
 
-//    Boolean isFieldRelative;
-//    Boolean isRateLimited;
-   
-//    int tagId;
-   
-//    DoubleSupplier offsetX;
-//    DoubleSupplier offsetY;
+    // if this is true, cancel the vision command
+    BooleanSupplier joystickInput;
 
-//    Pose2d tagPosition;
+    private Pose2d fieldRelativeTagPose;
+    private int desiredTagId;
+    private boolean mechActive;
 
-//    boolean lockedIn;
-//    boolean isDone;
+    public AlignTeleopCommand(LED led1, LED led2, Elevator elevatorSubsystem, Harpoon harpoonSubsystem, Drivetrain driveSubsystem, BooleanSupplier joystickInput, int tagId, PhotonVisionPoseV2 visionSubsystem) {
+        this.driveSubsystem = driveSubsystem;
+        this.visionSubsystem = visionSubsystem;
+        this.elevatorSubsystem = elevatorSubsystem;
+        this.harpoonSubsystem = harpoonSubsystem;
+        this.led1 = led1;
+        this.led2 = led2;
 
-//    BooleanSupplier joystickInput;
+        this.joystickInput = joystickInput;
+        this.tagId = tagId;
 
-//    private Command path;
-
-//    double offsetBack = -0.65; // Negative is behind the tag
-//    double offsetSide; // Negative is to the right
-
-//     private String tagSide;
-
-//    PathConstraints constraints = new PathConstraints(1.0, 0.5, 2 * Math.PI, 4 * Math.PI); // The constraints for this path.
-// // PathConstraints constraints = PathConstraints.unlimitedConstraints(12.0); // You can also use unlimited constraints, only limited by motor torque and nominal battery voltage
-//     HashMap<Integer, Pose2d> tagPositions = VisionConstants.getTagPositions();
-
-
-
-//    public AlignTeleopCommand(Drivetrain driveSubsystem, PhotonVisionPoseV2 poseEstimator, BooleanSupplier joystickInput, String tagSide, LED led1, LED led2) {
-//     this.tagSide = tagSide;
-//     this.poseEstimator = poseEstimator;
-//     this.joystickInput = joystickInput;
-
-//     this.addRequirements(driveSubsystem);
-
-//     isDone = false;
-    
-// }
-
-//    @Override
-//    public void initialize() {
-//     new SetLEDCommand(led1, led2, -0.65).schedule();
-    
-//     // DO THIS FIRST
-//     if (tagSide == "LEFT") {
-//         offsetSide = -0.125; // Negative is to the right
-       
-//     } else if (tagSide == "RIGHT") {
-//         offsetSide = 0.125; // Positive is to the left
+        this.addRequirements(driveSubsystem);
         
-//     } 
+        // defining these values here, for now, not in the constructor
+        isFieldRelative = true;
+        isRateLimited = true;
+    }
 
-//     else if (tagSide == "ALGAE"){
-//         offsetSide = 0.165;
-//     }
+    @Override
+    public void initialize() {
+        driveSubsystem.setDriveMode(DriveModes.ALIGNTELE);
 
-//     /* 
-//     if (!poseEstimator.m_cameraMain.getAllUnreadResults().isEmpty()){
-//         result = poseEstimator.m_cameraMain.getAllUnreadResults().get(0); // FIFO so the first index is the latest result
-//     }
-//     else{
-//         result = null;
-//         System.out.println("No valid tags detected.");
-//         isDone = true;
-//     }
-    
-//     if (result != null && result.hasTargets()) {
-//         tagId = result.getBestTarget().getFiducialId();
+        fieldRelativeTagPose = null;
 
-//         tagPosition = tagPositions.get(result.getBestTarget().getFiducialId()); // Implement this method in PhotonVisionPoseV2
+        desiredTagId = visionSubsystem.getClosestTagID();
 
-//         System.out.println("Aligning to Tag: " + tagId);
+        mechActive = false;
+    }
 
-//         double newX = tagPosition.getX() - (offsetBack * Math.cos(tagPosition.getRotation().getRadians())) + (offsetSide * Math.sin(tagPosition.getRotation().getRadians()));
-//         double newY = tagPosition.getY() - (offsetBack * Math.sin(tagPosition.getRotation().getRadians())) - (offsetSide * Math.cos(tagPosition.getRotation().getRadians()));
-
-//         // Generate a trajectory to the tag using PathPlanner
-//         // we want the robot facing the tag so we just flip the rotation
-//         Command path = poseEstimator.generatePathToPose2d(new Pose2d(newX,newY,new Rotation2d(Units.degreesToRadians(tagPosition.getRotation().getDegrees()-180))));
-//         path.schedule();
-//     } else {
-//         System.out.println("No valid tags detected.");
-//         isDone = true;
+    @Override
+    public void execute() {
+        if (desiredTagId == -1) {
+            desiredTagId = visionSubsystem.getClosestTagID();
+            return;
+        }
         
-//     }*/
-//     tagId = poseEstimator.getClosestTagID();
-//     tagPosition = tagPositions.get(tagId);
-//     double newX = tagPosition.getX() - (offsetBack * Math.cos(tagPosition.getRotation().getRadians())) + (offsetSide * Math.sin(tagPosition.getRotation().getRadians()));
-//     double newY = tagPosition.getY() - (offsetBack * Math.sin(tagPosition.getRotation().getRadians())) - (offsetSide * Math.cos(tagPosition.getRotation().getRadians()));
+        // first, we define the desired position
+        // we do this periodically because the desired left/right offset might change
+        fieldRelativeTagPose = visionSubsystem.getTagPoseOfId(desiredTagId);
 
-//     Command path = poseEstimator.generatePathToPose2d(new Pose2d(newX,newY,new Rotation2d(Units.degreesToRadians(tagPosition.getRotation().getDegrees()-180))));
-//         path.schedule();
+        Translation2d tagRelativeDesiredOffset = new Translation2d(visionSubsystem.getXOffset(), visionSubsystem.getYOffset());
+        Translation2d fieldRelativeDesiredOffset = MathUtils.applyRotationMatrix(tagRelativeDesiredOffset, fieldRelativeTagPose.getRotation().getRadians());
 
-// }
+        // here is the position on the field where we want to drive to
+        fieldRelativeTagPose = new Pose2d(
+            fieldRelativeTagPose.getX() + fieldRelativeDesiredOffset.getX(),
+            fieldRelativeTagPose.getY() + fieldRelativeDesiredOffset.getY(),
+            fieldRelativeTagPose.getRotation());
 
-//    @Override
-//    public void execute() {
+        if (fieldRelativeTagPose == null) {
+            return;
+        }
 
-//    }
+        // where the robot currently is on the field
+        Pose2d fieldRelativeRobotPose = driveSubsystem.getPose();
 
-//    @Override
-//    public void end(boolean interrupted) {
-    
-//     new SetLEDCommand(led1,led2,0.67).schedule();
+        // now we actually command the drive subsystem to drive to the pose
+        double commandedX = pid.calculate(fieldRelativeTagPose.getX() - fieldRelativeRobotPose.getX(), 0);
+        double commandedY = fieldRelativeTagPose.getY() - fieldRelativeRobotPose.getY();
+        
+        // for now
+        double commandedRot = pidRot.calculate(
+            fieldRelativeRobotPose.getRotation().getDegrees(), 
+            fieldRelativeTagPose.getRotation().plus(Rotation2d.fromDegrees(180)).getDegrees());
 
-//     if (interrupted) {
-//         System.out.println("ALIGN INTERRUPT!");
-//     }
+        // clamp the values for safety, also multiply them by -1 because the PID controller will be commanding the wrong sign
+        commandedX = MathUtil.clamp(commandedX * -1, -0.5, 0.5);
+        commandedY = MathUtil.clamp(commandedY * 1, -0.5, 0.5);
 
+        if (Math.abs(commandedX) < VisionConstants.allowedXError) {
+            commandedX = 0;
+        }
+        if (Math.abs(commandedY) < VisionConstants.allowedYError) {
+            commandedY = 0;
+        }
 
-//    }
+        driveSubsystem.drive(commandedX, commandedY, commandedRot, true, true);
 
-//    @Override
-//    public boolean isFinished() {
-//     System.out.println("Finished Alignment");
+        // moving the mech
+        if (MathUtils.getDistance(fieldRelativeRobotPose, fieldRelativeTagPose) < 0.9 && !mechActive) {
+            new ToggleMechanismCommand(led1, led2, elevatorSubsystem, harpoonSubsystem).schedule();
+            mechActive = true;
+        }
+    }
 
-//     if (path != null){
-//         return path.isFinished();
-//     }
-//         return path == null || joystickInput.getAsBoolean() || isDone;   
-//     }
-// }
+    @Override
+    public void end(boolean interrupted) {
+    }
+
+    @Override
+    public boolean isFinished() {
+        return joystickInput.getAsBoolean();
+    }
+}
