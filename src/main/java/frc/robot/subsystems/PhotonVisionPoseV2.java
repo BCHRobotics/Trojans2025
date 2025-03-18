@@ -13,6 +13,7 @@ import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.VisionConstants;
@@ -35,11 +36,14 @@ public class PhotonVisionPoseV2 extends SubsystemBase {
     private AprilTagFieldLayout m_fieldLayout; // Layout of AprilTags on the field
     private PhotonPoseEstimator m_poseEstimator; // Estimator for calculating robot pose
 
-    private boolean useVisionPose = false; // Flag to enable/disable vision-based updates
+    private boolean useVisionPose = true; // Flag to enable/disable vision-based updates
     
     private PhotonPipelineResult latestResult;
 
     private boolean isTargetingLeft;
+
+    private double lastConnectionLog;
+    private double connectionLogInterval;
 
     /**
      * Creates a new PhotonVisionPoseV2 subsystem.
@@ -47,6 +51,8 @@ public class PhotonVisionPoseV2 extends SubsystemBase {
      * @param drivetrain The drivetrain subsystem to update with vision measurements
      */
     public PhotonVisionPoseV2(Drivetrain drivetrain) {
+        connectionLogInterval = 2;
+
         m_drivetrain = drivetrain;
         try {
             // Initialize the cameras using the camera names from constants
@@ -122,11 +128,6 @@ public class PhotonVisionPoseV2 extends SubsystemBase {
         updatePose();
 
         printToDashboard();
-        
-        // if (!m_camera.isConnected()) {
-        //     System.out.println("NO CAMERA!");
-        //     tryGetCamera();
-        // }
     }
 
     void tryGetCamera() {
@@ -152,6 +153,12 @@ public class PhotonVisionPoseV2 extends SubsystemBase {
             SmartDashboard.putNumber("tagX", closestTagPose.getX());
             SmartDashboard.putNumber("tagY", closestTagPose.getY());
             SmartDashboard.putNumber("tagRot", closestTagPose.getRotation().getDegrees());
+        }
+
+        if (Timer.getFPGATimestamp() > lastConnectionLog + connectionLogInterval) {
+            lastConnectionLog = Timer.getFPGATimestamp();
+            System.out.println("NetworkTables connections: " + NetworkTableInstance.getDefault().getConnections().length);
+            System.out.println("Is camera connected? " + m_camera.isConnected());
         }
     }
 

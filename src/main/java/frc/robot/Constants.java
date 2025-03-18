@@ -63,8 +63,8 @@ public final class Constants {
       STOWED(0), // FINAL
       L1(4),
       L2(8.85),  // FINAL
-      L3(13.35),  // FINAL
-      L4(20.3), // UNTESTED
+      L3(13.5),  // FINAL
+      L4(20.4), // UNTESTED
       INTAKE(2.65), // FINAL
       ALGAE(8.55);
       
