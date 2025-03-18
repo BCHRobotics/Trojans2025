@@ -120,7 +120,7 @@ public class AlignTeleopCommand extends Command {
         driveSubsystem.drive(commandedX, commandedY, commandedRot, true, true);
 
         // moving the mech
-        if (MathUtils.getDistance(fieldRelativeRobotPose, fieldRelativeTagPose) < 0.9 && !mechActive) {
+        if (MathUtils.getDistance(fieldRelativeRobotPose, fieldRelativeTagPose) < 1.25 && !mechActive) {
             new ToggleMechanismCommand(led1, led2, elevatorSubsystem, harpoonSubsystem).schedule();
             mechActive = true;
         }

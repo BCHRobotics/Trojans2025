@@ -169,6 +169,9 @@ public class RobotContainer {
             ledRight, ledLeft, 
             elevator, ElevatorMode.FEEDER, () -> ElevatorPosition.INTAKE.getSetpoint(), 
             harpoon, HarpoonMode.FEEDER, () -> HarpoonPosition.INTAKE.getSetpoint()));
+
+        // move elevator/claw to the intake position, for, well, intaking
+        NamedCommands.registerCommand("SHOOT", new ShootCommand(harpoon, 0.6));
     }
 
     /**
@@ -372,7 +375,7 @@ public class RobotContainer {
      */ 
     public Command getAutonomousCommand() {
         if (autoChooser.getSelected() != null) {
-            //PathPlannerAuto auto = autoChooser.getSelected();
+            // TODO: modify the auto to start at wherever the pose has been estimated
             return autoChooser.getSelected();
         }
         else {

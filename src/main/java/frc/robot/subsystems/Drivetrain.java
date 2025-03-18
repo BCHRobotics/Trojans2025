@@ -14,7 +14,6 @@ import com.pathplanner.lib.util.DriveFeedforwards;
 import edu.wpi.first.math.filter.SlewRateLimiter;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.kinematics.SwerveDriveOdometry;
@@ -81,10 +80,6 @@ public class Drivetrain extends SubsystemBase {
   // this can be used to easily check what mode the robot is in
   private DriveModes driveMode = DriveModes.MANUAL;
 
-  // TODO: please please please fix pose estimation
-
-  private Transform2d odometryOffset = new Transform2d(0, 0, Rotation2d.fromRadians(0));
-
   // Odometry class for tracking robot pose
   SwerveDriveOdometry m_odometry = new SwerveDriveOdometry(
       DriveConstants.kDriveKinematics,
@@ -136,38 +131,6 @@ public class Drivetrain extends SubsystemBase {
    */
   public void setDriveMode(DriveModes modeToSet) {
     driveMode = modeToSet;
-  }
-
-  /**
-   * Adding an offset vector to the odometry, 
-   * this is used to correct thing with pose estimation
-   * @param offset
-   */
-  public void setOdometryOffset(Transform2d offset) {
-    SmartDashboard.putNumber("correction x", offset.getX());
-    SmartDashboard.putNumber("correction y", offset.getY());
-
-    if (Math.abs(offset.getX()) > 0.3 || Math.abs(offset.getY()) > 0.3) {return;}
-
-    odometryOffset = offset;
-  }
-
-  public void clearOdometryOffset() {
-    odometryOffset = new Transform2d(0, 0, Rotation2d.fromDegrees(0));
-  }
-
-  /**
-   * the same as the below function, but with LYING
-   * @return
-   */
-  public Pose2d getOffsetedPose() {
-    Pose2d rawPose = getPose();
-
-    return new Pose2d(
-      rawPose.getX() + odometryOffset.getX(),
-      rawPose.getY() + odometryOffset.getY(),
-      rawPose.getRotation()
-    );
   }
 
   /**
@@ -401,7 +364,7 @@ public class Drivetrain extends SubsystemBase {
 
     // only needs to be called once every deploy (pretty sure)
     AutoBuilder.configure(
-      this::getOffsetedPose, 
+      this::getPose, 
       this::resetOdometry, 
       this::getChassisSpeeds, 
       this::setChassisSpeeds, 

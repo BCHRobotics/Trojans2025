@@ -10,7 +10,6 @@ import edu.wpi.first.math.geometry.Translation2d;
 public class MathUtils {
     /**
      * A function that, given a transform2d as a vector, rotates it by an angle
-     * TODO: make this use a translation2d because the rotation component just isn't used
      * @param inputMatrix The input vector
      * @param angle Angle to rotate by IN RADIANS
      * @return the vector rotated by the angle
