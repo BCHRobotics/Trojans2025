@@ -9,6 +9,7 @@ import java.io.IOException;
 import org.json.simple.parser.ParseException;
 
 import com.pathplanner.lib.auto.AutoBuilder;
+import com.pathplanner.lib.auto.NamedCommands;
 import com.pathplanner.lib.util.FileVersionException;
 
 import edu.wpi.first.math.MathUtil;
@@ -23,6 +24,7 @@ import frc.robot.Constants.HarpoonConstants.HarpoonMode;
 import frc.robot.Constants.HarpoonConstants.HarpoonPosition;
 import frc.robot.Constants.OIConstants;
 import frc.robot.Constants.DriveConstants.DriveModes;
+import frc.robot.commands.ForceMechanismCommand;
 import frc.robot.commands.PrepareMechanismCommand;
 import frc.robot.commands.SetLEDCommand;
 import frc.robot.commands.ToggleMechanismCommand;
@@ -107,6 +109,9 @@ public class RobotContainer {
         controllerOptions_operator.setDefaultOption("default", 0);
         SmartDashboard.putData("Operator Select", controllerOptions_operator);
 
+        // we want to set up the named commands before the auto chooser, to avoid weird errors
+        configureNamedCommands();
+
         autoChooser = AutoBuilder.buildAutoChooser();
         SmartDashboard.putData("Auto Name", autoChooser);
         
@@ -122,6 +127,48 @@ public class RobotContainer {
         configureButtonBindingsDriver(controllerOptions_driver.getSelected() == 0);
         // operator
         configureButtonBindingsOperator(controllerOptions_operator.getSelected() == 0);
+    }
+
+    // setting up the named commands for AutoBuilder
+    void configureNamedCommands() {
+        // these six commands are for positioning the mechanism
+        // the mechanism will be moved directly via event markers
+
+        // move elevator/claw back to stowed
+        NamedCommands.registerCommand("STOW", new ForceMechanismCommand(
+            ledRight, ledLeft, 
+            elevator, ElevatorMode.STOWED, () -> ElevatorPosition.STOWED.getSetpoint(), 
+            harpoon, HarpoonMode.STOWED, () -> HarpoonPosition.STOWED.getSetpoint()));
+
+        // move elevator/claw to L1 for scoring
+        NamedCommands.registerCommand("L1", new ForceMechanismCommand(
+            ledRight, ledLeft, 
+            elevator, ElevatorMode.REEF, () -> ElevatorPosition.L1.getSetpoint(), 
+            harpoon, HarpoonMode.REEF, () -> HarpoonPosition.L1.getSetpoint()));
+
+        // move elevator/claw to L2 for scoring
+        NamedCommands.registerCommand("L2", new ForceMechanismCommand(
+            ledRight, ledLeft, 
+            elevator, ElevatorMode.REEF, () -> ElevatorPosition.L2.getSetpoint(), 
+            harpoon, HarpoonMode.REEF, () -> HarpoonPosition.L2.getSetpoint()));
+
+        // move elevator/claw to L3 for scoring
+        NamedCommands.registerCommand("L3", new ForceMechanismCommand(
+            ledRight, ledLeft, 
+            elevator, ElevatorMode.REEF, () -> ElevatorPosition.L3.getSetpoint(), 
+            harpoon, HarpoonMode.REEF, () -> HarpoonPosition.L3.getSetpoint()));
+
+        // move elevator/claw to L4 for scoring
+        NamedCommands.registerCommand("L4", new ForceMechanismCommand(
+            ledRight, ledLeft, 
+            elevator, ElevatorMode.REEF, () -> ElevatorPosition.L4.getSetpoint(), 
+            harpoon, HarpoonMode.REEF, () -> HarpoonPosition.L4.getSetpoint()));
+
+        // move elevator/claw to the intake position, for, well, intaking
+        NamedCommands.registerCommand("INTAKE", new ForceMechanismCommand(
+            ledRight, ledLeft, 
+            elevator, ElevatorMode.FEEDER, () -> ElevatorPosition.INTAKE.getSetpoint(), 
+            harpoon, HarpoonMode.FEEDER, () -> HarpoonPosition.INTAKE.getSetpoint()));
     }
 
     /**
