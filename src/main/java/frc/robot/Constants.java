@@ -93,7 +93,7 @@ public final class Constants {
 
     // PID terms for elevator up/down motion
     public static final double ElevatorkP = 0.065;
-    public static final double ElevatorkI = 0.01;
+    public static final double ElevatorkI = 0.02;
     public static final double ElevatorkD = 0.000;
 
     // supplied current limit
@@ -120,8 +120,8 @@ public final class Constants {
       L2(0.6003), // these three have to be different (hence the decimal)
       L3(0.6002),
       L4(0.6001),
-      INTAKE(0.85),
-      STOWED(1.015),
+      INTAKE(0.97),
+      STOWED(0.97),
       ALGAE(0.61);
     
       private final double setpoint;

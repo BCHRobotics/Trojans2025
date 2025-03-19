@@ -71,6 +71,8 @@ public class Harpoon extends SubsystemBase{
         // finally, configure the motors
         this.kRotationMotor.configure(this.kRotationConfig, null, PersistMode.kPersistParameters);
         this.kIntakeMotor.configure(this.kIntakeConfig, null, PersistMode.kPersistParameters);
+        this.setRotationMotorPosition(HarpoonPosition.STOWED.getSetpoint());
+        this.setMode(HarpoonMode.STOWED);
     }
 
     // reset the harpoon back to its default state
@@ -161,6 +163,7 @@ public class Harpoon extends SubsystemBase{
         // SmartDashboard.putString("NEXT HARPOON", nextMode.toString());
         
         SmartDashboard.putNumber("HARPOON SETPOINT", setpoint);
+        /* 
         if (DriverStation.isTeleop()){
             if (currentMode == HarpoonMode.REEF) {
                 // if we're scoring, use the selected position
@@ -177,7 +180,7 @@ public class Harpoon extends SubsystemBase{
                 setRotationMotorPosition(HarpoonPosition.STOWED.getSetpoint());
             }
         }
-        
+        */
         
 
         kRotationMotor.set(applyLimits(pidController.calculate(getCorrectedEncoderPosition(), setpoint)));

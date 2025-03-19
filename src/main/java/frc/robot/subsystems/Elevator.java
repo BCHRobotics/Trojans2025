@@ -93,6 +93,7 @@ public class Elevator extends SubsystemBase{
         followerMotor.configure(motorConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
         this.setpoint = ElevatorPosition.STOWED.getSetpoint();
         this.currentMode = ElevatorMode.STOWED;
+        
     } 
 
     public void driveMotorSlow(){
@@ -199,7 +200,7 @@ public class Elevator extends SubsystemBase{
     @Override 
     public void periodic() {
         
-        
+        /* 
             if (currentMode == ElevatorMode.REEF) {
                 // if we're scoring, use the selected position
                 // this allows the operator to switch scoring positions immediately
@@ -215,7 +216,7 @@ public class Elevator extends SubsystemBase{
                 setpoint = ElevatorPosition.STOWED.getSetpoint();
             }
 
-        
+        */
 
         SmartDashboard.putNumber("NEXT POSITION", selectedPosition);
             
