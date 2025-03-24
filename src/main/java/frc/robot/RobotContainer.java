@@ -85,6 +85,7 @@ public class RobotContainer {
     // drop down menu for selecting xbox/ps5 for the operator controller
     SendableChooser<Integer> controllerOptions_operator;
 
+    // drop down menu for selecting the auto
     SendableChooser<Command> autoChooser;
 
     private boolean isRedAlliance;
@@ -113,9 +114,11 @@ public class RobotContainer {
         configureNamedCommands();
 
         autoChooser = AutoBuilder.buildAutoChooser();
-        SmartDashboard.putData("Auto Name", autoChooser);
+        SmartDashboard.putData("Auto Chooser", autoChooser);
         
         // reseting both mechs to their default state (zeroing the elevator is important)
+        // the way this is implemented means that having the elevator up when you deploy code causes problems
+        // dont do this ^^^
         harpoon.resetHarpoon();
         elevator.resetElevator();
         
@@ -170,6 +173,8 @@ public class RobotContainer {
             elevator, ElevatorMode.FEEDER, () -> ElevatorPosition.INTAKE.getSetpoint(), 
             harpoon, HarpoonMode.FEEDER, () -> HarpoonPosition.INTAKE.getSetpoint()));
 
+        // these two are for the claw
+
         // move elevator/claw to the intake position, for, well, intaking
         NamedCommands.registerCommand("SHOOT", new ShootCommand(harpoon, 0.6));
 
@@ -184,7 +189,7 @@ public class RobotContainer {
     public void configureDriveMode() {
         isRedAlliance = DriverStation.getAlliance().get() == DriverStation.Alliance.Red;
 
-        // set LEDs to blue
+        // set LEDs to blue, the idle color
         new SetLEDCommand(ledLeft, ledRight, 0.87, 0).schedule();
 
         // this double is used as a multiplier to invert the joysticks for red alliance

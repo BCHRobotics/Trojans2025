@@ -5,14 +5,12 @@
 package frc.robot;
 
 import com.pathplanner.lib.config.PIDConstants;
-import com.pathplanner.lib.path.PathConstraints;
 
 import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
-import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.math.util.Units;
 
 /**
@@ -113,6 +111,8 @@ public final class Constants {
   // the constants for the claw, both wrist and intake
   public static final class HarpoonConstants {
 
+    // if we were smart, we would make all this one enum (elevator + harpoon)
+    // ... we are not smart
     public enum HarpoonPosition {
       L1(0.725),
       L2(0.6003), // these three have to be different (hence the decimal)
@@ -284,22 +284,8 @@ public final class Constants {
   }
 
   public static final class AutoConstants {
-    public static final PathConstraints defaultGlobalContstraints = new PathConstraints(0.8,0.8, 540, 720);
-
+    // the PID constants that PathPlanner uses to drive the robot
     public static final PIDConstants translationConstants = new PIDConstants(2, 1, 0);
     public static final PIDConstants rotationConstants = new PIDConstants(1, 0, 0);
-
-    public static final double kMaxSpeedMetersPerSecond = 3.0;
-    public static final double kMaxAccelerationMetersPerSecondSquared = 3.0;
-    public static final double kMaxAngularSpeedRadiansPerSecond = Math.PI;
-    public static final double kMaxAngularSpeedRadiansPerSecondSquared = Math.PI;
-
-    //distance from robot center to furthest module
-    public static final double kDriveBase = Units.inchesToMeters((Math.sqrt(Math.pow(DriveConstants.kTrackWidth, 2) 
-        + Math.pow(DriveConstants.kWheelBase, 2))) / 2);
-
-    // Constraint for the motion profiled robot angle controller
-    public static final TrapezoidProfile.Constraints kThetaControllerConstraints = new TrapezoidProfile.Constraints(
-        kMaxAngularSpeedRadiansPerSecond, kMaxAngularSpeedRadiansPerSecondSquared);
   }
 }
