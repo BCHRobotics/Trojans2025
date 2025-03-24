@@ -8,7 +8,6 @@ public class StopClawCommand extends Command {
 
     public StopClawCommand(Harpoon harpoonSubsystem) {
         this.harpoonSubsystem = harpoonSubsystem;
-        this.addRequirements(harpoonSubsystem);
     }
 
     @Override

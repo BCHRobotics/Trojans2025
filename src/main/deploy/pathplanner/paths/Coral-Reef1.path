@@ -3,38 +3,43 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 7.120696721311476,
-        "y": 3.857172131147541
+        "x": 2.074,
+        "y": 6.746
       },
       "prevControl": null,
       "nextControl": {
-        "x": 6.120696721311484,
-        "y": 3.857172131147541
+        "x": 3.0448770491803274,
+        "y": 6.254713114754098
       },
       "isLocked": false,
       "linkedName": null
     },
     {
       "anchor": {
-        "x": 5.9818647540983605,
-        "y": 3.857172131147541
+        "x": 3.8960040983606556,
+        "y": 5.4395491803278695
       },
       "prevControl": {
-        "x": 6.9818647540983605,
-        "y": 3.857172131147541
+        "x": 3.6442622950819668,
+        "y": 5.955020491803278
       },
       "nextControl": null,
       "isLocked": false,
       "linkedName": null
     }
   ],
-  "rotationTargets": [],
+  "rotationTargets": [
+    {
+      "waypointRelativePos": 0.25,
+      "rotationDegrees": -61.86528426176853
+    }
+  ],
   "constraintZones": [],
   "pointTowardsZones": [],
   "eventMarkers": [
     {
       "name": "elevator up",
-      "waypointRelativePos": 0.1,
+      "waypointRelativePos": 0.65,
       "endWaypointRelativePos": null,
       "command": {
         "type": "named",
@@ -45,7 +50,7 @@
     },
     {
       "name": "shoot",
-      "waypointRelativePos": 1.0,
+      "waypointRelativePos": 0.99,
       "endWaypointRelativePos": null,
       "command": {
         "type": "sequential",
@@ -72,13 +77,13 @@
   },
   "goalEndState": {
     "velocity": 0.0,
-    "rotation": 180.0
+    "rotation": -60.80251395393552
   },
   "reversed": false,
   "folder": null,
   "idealStartingState": {
     "velocity": 0,
-    "rotation": 180.0
+    "rotation": 128.23382517744685
   },
   "useDefaultConstraints": false
 }

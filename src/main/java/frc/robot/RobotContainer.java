@@ -172,6 +172,9 @@ public class RobotContainer {
 
         // move elevator/claw to the intake position, for, well, intaking
         NamedCommands.registerCommand("SHOOT", new ShootCommand(harpoon, 0.6));
+
+        // move elevator/claw to the intake position, for, well, intaking
+        NamedCommands.registerCommand("STOP CLAW", new StopClawCommand(harpoon));
     }
 
     /**

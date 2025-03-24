@@ -156,13 +156,7 @@ public class Harpoon extends SubsystemBase{
     
     @Override
     public void periodic() {
-        SmartDashboard.putNumber("Wrist Position", kRotationMotor.getAbsoluteEncoder().getPosition());
-
-        
-        // SmartDashboard.putString("CURRENT HARPOON", currentMode.toString());
-        // SmartDashboard.putString("NEXT HARPOON", nextMode.toString());
-        
-        SmartDashboard.putNumber("HARPOON SETPOINT", setpoint);
+        SmartDashboard.putNumber("wrist", kRotationMotor.getAbsoluteEncoder().getPosition());
         
         if (currentMode == HarpoonMode.REEF) {
             // if we're scoring, use the selected position

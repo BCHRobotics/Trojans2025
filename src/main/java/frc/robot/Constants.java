@@ -119,7 +119,7 @@ public final class Constants {
       L3(0.6002),
       L4(0.6001),
       INTAKE(0.95),
-      STOWED(1.015),
+      STOWED(0.9),
       ALGAE(0.61);
     
       private final double setpoint;
