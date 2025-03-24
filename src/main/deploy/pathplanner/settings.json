@@ -2,16 +2,10 @@
   "robotWidth": 0.864,
   "robotLength": 0.864,
   "holonomicMode": true,
-  "pathFolders": [
-    "Blue Feeder To Reef",
-    "Blue Reef To Feeder",
-    "Blue Start"
-  ],
-  "autoFolders": [
-    "Blue Autos"
-  ],
-  "defaultMaxVel": 5.0,
-  "defaultMaxAccel": 3.0,
+  "pathFolders": [],
+  "autoFolders": [],
+  "defaultMaxVel": 0.75,
+  "defaultMaxAccel": 1.0,
   "defaultMaxAngVel": 720.0,
   "defaultMaxAngAccel": 720.0,
   "defaultNominalVoltage": 12.0,
