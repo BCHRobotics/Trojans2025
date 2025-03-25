@@ -63,7 +63,7 @@ public class PhotonVisionPoseV2 extends SubsystemBase {
             m_fieldLayout = AprilTagFieldLayout.loadField(AprilTagFields.k2025ReefscapeWelded);
 
             // Initialize the pose estimator with the field layout, strategy, and camera transform
-            m_poseEstimator = new PhotonPoseEstimator(m_fieldLayout, PoseStrategy.LOWEST_AMBIGUITY, m_cameraToRobot);
+            m_poseEstimator = new PhotonPoseEstimator(m_fieldLayout, PoseStrategy.MULTI_TAG_PNP_ON_COPROCESSOR, m_cameraToRobot);
 
         } catch (Exception e) {
             // Report initialization error to the DriverStation

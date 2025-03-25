@@ -384,7 +384,7 @@ public class RobotContainer {
             // TODO: modify the auto to start at wherever the pose has been estimated
             
             // this is hardcoded for now to bypass NT/shuffleboard trouble
-            return AutoBuilder.buildAuto("1 Coral");
+            return autoChooser.getSelected();
         }
         else {
             return Commands.none();
