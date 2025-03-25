@@ -16,8 +16,8 @@ import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.Constants;
 import frc.robot.Constants.HarpoonConstants;
-import frc.robot.Constants.HarpoonConstants.HarpoonMode;
-import frc.robot.Constants.HarpoonConstants.HarpoonPosition;
+import frc.robot.Constants.MechanismMode;
+import frc.robot.Constants.MechanismPosition;
 public class Harpoon extends SubsystemBase{
 
     private final SparkMax kIntakeMotor; // intake motor is the same as the "shooter" motor
@@ -34,9 +34,9 @@ public class Harpoon extends SubsystemBase{
     private double selectedSetpoint;
 
     // currently active mode
-    private HarpoonMode currentMode;
+    private MechanismMode currentMode;
     // mode to activate next
-    private HarpoonMode nextMode;
+    private MechanismMode nextMode;
 
     public Harpoon(){
 
@@ -71,64 +71,64 @@ public class Harpoon extends SubsystemBase{
         this.kRotationMotor.configure(this.kRotationConfig, null, PersistMode.kPersistParameters);
         this.kIntakeMotor.configure(this.kIntakeConfig, null, PersistMode.kPersistParameters);
 
-        this.setRotationMotorPosition(HarpoonPosition.STOWED.getSetpoint());
+        this.setRotationMotorPosition(MechanismPosition.STOWED.getClawSetpoint());
     }
 
     // reset the harpoon back to its default state
     public void resetHarpoon() {
-        setSelectedPosition(HarpoonPosition.L4.getSetpoint());
-        setNextMode(HarpoonMode.REEF);
+        setSelectedPosition(MechanismPosition.L4.getClawSetpoint());
+        setNextMode(MechanismMode.REEF);
 
-        setMode(HarpoonMode.STOWED);
+        setMode(MechanismMode.STOWED);
     }
     
     public double getUpperSetpoint() {
-        if (selectedSetpoint == HarpoonPosition.L1.getSetpoint()) {
-            return HarpoonPosition.L2.getSetpoint();
+        if (selectedSetpoint == MechanismPosition.L1.getClawSetpoint()) {
+            return MechanismPosition.L2.getClawSetpoint();
         }
-        else if (selectedSetpoint == HarpoonPosition.L2.getSetpoint()) {
-            return HarpoonPosition.L3.getSetpoint();
+        else if (selectedSetpoint == MechanismPosition.L2.getClawSetpoint()) {
+            return MechanismPosition.L3.getClawSetpoint();
         } 
-        else if (selectedSetpoint == HarpoonPosition.L3.getSetpoint()) {
-            return HarpoonPosition.L4.getSetpoint();
+        else if (selectedSetpoint == MechanismPosition.L3.getClawSetpoint()) {
+            return MechanismPosition.L4.getClawSetpoint();
         } 
-        else if (selectedSetpoint == HarpoonPosition.L4.getSetpoint()) {
-            return HarpoonPosition.L1.getSetpoint();
+        else if (selectedSetpoint == MechanismPosition.L4.getClawSetpoint()) {
+            return MechanismPosition.L1.getClawSetpoint();
         }
 
-        return HarpoonPosition.L1.getSetpoint();
+        return MechanismPosition.L1.getClawSetpoint();
     }
 
     public double getLowerSetpoint() {
-        if (selectedSetpoint == HarpoonPosition.L1.getSetpoint()) {
-            return HarpoonPosition.L4.getSetpoint();
+        if (selectedSetpoint == MechanismPosition.L1.getClawSetpoint()) {
+            return MechanismPosition.L4.getClawSetpoint();
         }
-        else if (selectedSetpoint == HarpoonPosition.L2.getSetpoint()) {
-            return HarpoonPosition.L1.getSetpoint();
+        else if (selectedSetpoint == MechanismPosition.L2.getClawSetpoint()) {
+            return MechanismPosition.L1.getClawSetpoint();
         } 
-        else if (selectedSetpoint == HarpoonPosition.L3.getSetpoint()) {
-            return HarpoonPosition.L2.getSetpoint();
+        else if (selectedSetpoint == MechanismPosition.L3.getClawSetpoint()) {
+            return MechanismPosition.L2.getClawSetpoint();
         } 
-        else if (selectedSetpoint == HarpoonPosition.L4.getSetpoint()) {
-            return HarpoonPosition.L3.getSetpoint();
+        else if (selectedSetpoint == MechanismPosition.L4.getClawSetpoint()) {
+            return MechanismPosition.L3.getClawSetpoint();
         }
 
-        return HarpoonPosition.L1.getSetpoint();
+        return MechanismPosition.L1.getClawSetpoint();
     }
 
-    public void setNextMode(HarpoonMode mode) {
+    public void setNextMode(MechanismMode mode) {
         nextMode = mode;
     }
 
-    public HarpoonMode getNextMode() {
+    public MechanismMode getNextMode() {
         return nextMode;
     }
 
-    public void setMode(HarpoonMode mode) {
+    public void setMode(MechanismMode mode) {
         currentMode = mode;
     }
 
-    public HarpoonMode getMode() {
+    public MechanismMode getMode() {
         return currentMode;
     }
 
@@ -158,19 +158,19 @@ public class Harpoon extends SubsystemBase{
     public void periodic() {
         SmartDashboard.putNumber("wrist", kRotationMotor.getAbsoluteEncoder().getPosition());
         
-        if (currentMode == HarpoonMode.REEF) {
+        if (currentMode == MechanismMode.REEF) {
             // if we're scoring, use the selected position
             // this allows the operator to switch scoring positions immediately
             setRotationMotorPosition(selectedSetpoint);
         }
-        else if (currentMode == HarpoonMode.FEEDER) {
+        else if (currentMode == MechanismMode.FEEDER) {
             // for intaking, use the constant
             // this allows the operator to pre-select a mode without the elevator moving
-            setRotationMotorPosition(HarpoonPosition.INTAKE.getSetpoint());
+            setRotationMotorPosition(MechanismPosition.INTAKE.getClawSetpoint());
         }
-        else if (currentMode == HarpoonMode.STOWED) {
+        else if (currentMode == MechanismMode.STOWED) {
             // ditto with stowed, use the constant for the same reason
-            setRotationMotorPosition(HarpoonPosition.STOWED.getSetpoint());
+            setRotationMotorPosition(MechanismPosition.STOWED.getClawSetpoint());
         }
 
         kRotationMotor.set(applyLimits(pidController.calculate(getCorrectedEncoderPosition(), setpoint)));

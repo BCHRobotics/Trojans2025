@@ -1,6 +1,5 @@
 package frc.robot.commands.harpoon;
-import frc.robot.Constants.ElevatorConstants.ElevatorMode;
-import frc.robot.Constants.HarpoonConstants.HarpoonMode;
+import frc.robot.Constants.MechanismMode;
 import frc.robot.subsystems.Elevator;
 import frc.robot.subsystems.Harpoon;
 
@@ -44,10 +43,10 @@ public class IntakeCommand extends Command {
         // this is called after we have set the setpoint, so we can just end the command once the sensor sees the coral
         if(harpoonSubsystem.isCoralDetected() || !buttonPressed.getAsBoolean()) {
             System.out.println("INTAKE DONE!");
-            if (harpoonSubsystem.isCoralDetected() && elevatorSubsystem.getMode() == ElevatorMode.FEEDER) {
+            if (harpoonSubsystem.isCoralDetected() && elevatorSubsystem.getMode() == MechanismMode.FEEDER) {
                 System.out.println("STOWING...");
-                elevatorSubsystem.setMode(ElevatorMode.STOWED);
-                harpoonSubsystem.setMode(HarpoonMode.STOWED);
+                elevatorSubsystem.setMode(MechanismMode.STOWED);
+                harpoonSubsystem.setMode(MechanismMode.STOWED);
             }
             return true;
         }

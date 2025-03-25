@@ -18,10 +18,8 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-import frc.robot.Constants.ElevatorConstants.ElevatorMode;
-import frc.robot.Constants.ElevatorConstants.ElevatorPosition;
-import frc.robot.Constants.HarpoonConstants.HarpoonMode;
-import frc.robot.Constants.HarpoonConstants.HarpoonPosition;
+import frc.robot.Constants.MechanismMode;
+import frc.robot.Constants.MechanismPosition;
 import frc.robot.Constants.OIConstants;
 import frc.robot.Constants.DriveConstants.DriveModes;
 import frc.robot.commands.ForceMechanismCommand;
@@ -140,38 +138,38 @@ public class RobotContainer {
         // move elevator/claw back to stowed
         NamedCommands.registerCommand("STOW", new ForceMechanismCommand(
             ledRight, ledLeft, 
-            elevator, ElevatorMode.STOWED, () -> ElevatorPosition.STOWED.getSetpoint(), 
-            harpoon, HarpoonMode.STOWED, () -> HarpoonPosition.STOWED.getSetpoint()));
+            elevator, MechanismMode.STOWED, () -> MechanismPosition.STOWED.getElevatorSetpoint(), 
+            harpoon, () -> MechanismPosition.STOWED.getClawSetpoint()));
 
         // move elevator/claw to L1 for scoring
         NamedCommands.registerCommand("L1", new ForceMechanismCommand(
             ledRight, ledLeft, 
-            elevator, ElevatorMode.REEF, () -> ElevatorPosition.L1.getSetpoint(), 
-            harpoon, HarpoonMode.REEF, () -> HarpoonPosition.L1.getSetpoint()));
+            elevator, MechanismMode.REEF, () -> MechanismPosition.L1.getElevatorSetpoint(), 
+            harpoon, () -> MechanismPosition.L1.getClawSetpoint()));
 
         // move elevator/claw to L2 for scoring
         NamedCommands.registerCommand("L2", new ForceMechanismCommand(
             ledRight, ledLeft, 
-            elevator, ElevatorMode.REEF, () -> ElevatorPosition.L2.getSetpoint(), 
-            harpoon, HarpoonMode.REEF, () -> HarpoonPosition.L2.getSetpoint()));
+            elevator, MechanismMode.REEF, () -> MechanismPosition.L2.getElevatorSetpoint(), 
+            harpoon, () -> MechanismPosition.L2.getClawSetpoint()));
 
         // move elevator/claw to L3 for scoring
         NamedCommands.registerCommand("L3", new ForceMechanismCommand(
             ledRight, ledLeft, 
-            elevator, ElevatorMode.REEF, () -> ElevatorPosition.L3.getSetpoint(), 
-            harpoon, HarpoonMode.REEF, () -> HarpoonPosition.L3.getSetpoint()));
+            elevator, MechanismMode.REEF, () -> MechanismPosition.L3.getElevatorSetpoint(), 
+            harpoon, () -> MechanismPosition.L3.getClawSetpoint()));
 
         // move elevator/claw to L4 for scoring
         NamedCommands.registerCommand("L4", new ForceMechanismCommand(
             ledRight, ledLeft, 
-            elevator, ElevatorMode.REEF, () -> ElevatorPosition.L4.getSetpoint(), 
-            harpoon, HarpoonMode.REEF, () -> HarpoonPosition.L4.getSetpoint()));
+            elevator, MechanismMode.REEF, () -> MechanismPosition.L4.getElevatorSetpoint(), 
+            harpoon, () -> MechanismPosition.L4.getClawSetpoint()));
 
         // move elevator/claw to the intake position, for, well, intaking
         NamedCommands.registerCommand("INTAKE", new ForceMechanismCommand(
             ledRight, ledLeft, 
-            elevator, ElevatorMode.FEEDER, () -> ElevatorPosition.INTAKE.getSetpoint(), 
-            harpoon, HarpoonMode.FEEDER, () -> HarpoonPosition.INTAKE.getSetpoint()));
+            elevator, MechanismMode.FEEDER, () -> MechanismPosition.INTAKE.getElevatorSetpoint(), 
+            harpoon, () -> MechanismPosition.INTAKE.getClawSetpoint()));
 
         // these two are for the claw
 
@@ -305,18 +303,18 @@ public class RobotContainer {
             // These commands don't have requirements else they interrupt the drive command (TeleopDriveCommand)
 
             this.operatorController_XBOX.leftBumper().onTrue(
-                new PrepareMechanismCommand(elevator, ElevatorMode.REEF, () -> elevator.getLowerPosition(),
-                harpoon, HarpoonMode.REEF, () -> harpoon.getLowerSetpoint())
+                new PrepareMechanismCommand(elevator, MechanismMode.REEF, () -> elevator.getLowerPosition(),
+                harpoon, () -> harpoon.getLowerSetpoint())
             );
 
             this.operatorController_XBOX.rightBumper().onTrue(
-                new PrepareMechanismCommand(elevator, ElevatorMode.REEF, () -> elevator.getUpperPosition(),
-                harpoon, HarpoonMode.REEF, () -> harpoon.getUpperSetpoint())
+                new PrepareMechanismCommand(elevator, MechanismMode.REEF, () -> elevator.getUpperPosition(),
+                harpoon, () -> harpoon.getUpperSetpoint())
             );
 
             this.operatorController_XBOX.y().onTrue(
-                new PrepareMechanismCommand(elevator, ElevatorMode.FEEDER, () -> ElevatorPosition.INTAKE.getSetpoint(),
-                harpoon, HarpoonMode.FEEDER, () -> HarpoonPosition.INTAKE.getSetpoint())
+                new PrepareMechanismCommand(elevator, MechanismMode.FEEDER, () -> MechanismPosition.INTAKE.getElevatorSetpoint(),
+                harpoon, () -> MechanismPosition.INTAKE.getClawSetpoint())
             );
 
             this.operatorController_XBOX.rightTrigger().onTrue(
@@ -329,18 +327,18 @@ public class RobotContainer {
         }
         else {
             this.operatorController_PS5.L1().onTrue(
-                new PrepareMechanismCommand(elevator, ElevatorMode.REEF, () -> elevator.getLowerPosition(),
-                harpoon, HarpoonMode.REEF, () -> harpoon.getLowerSetpoint())
+                new PrepareMechanismCommand(elevator, MechanismMode.REEF, () -> elevator.getLowerPosition(),
+                harpoon, () -> harpoon.getLowerSetpoint())
             );
 
             this.operatorController_PS5.R1().onTrue(
-                new PrepareMechanismCommand(elevator, ElevatorMode.REEF, () -> elevator.getUpperPosition(), 
-                harpoon, HarpoonMode.REEF, () -> harpoon.getUpperSetpoint())
+                new PrepareMechanismCommand(elevator, MechanismMode.REEF, () -> elevator.getUpperPosition(), 
+                harpoon, () -> harpoon.getUpperSetpoint())
             );
 
             this.operatorController_PS5.triangle().onTrue(
-                new PrepareMechanismCommand(elevator, ElevatorMode.FEEDER, () -> ElevatorPosition.INTAKE.getSetpoint(),
-                harpoon, HarpoonMode.FEEDER, () -> HarpoonPosition.INTAKE.getSetpoint())
+                new PrepareMechanismCommand(elevator, MechanismMode.FEEDER, () -> MechanismPosition.INTAKE.getElevatorSetpoint(),
+                harpoon, () -> MechanismPosition.INTAKE.getClawSetpoint())
             );
 
             this.operatorController_PS5.R2().onTrue(

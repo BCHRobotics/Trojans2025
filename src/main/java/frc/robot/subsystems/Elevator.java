@@ -14,8 +14,8 @@ import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.Constants.ElevatorConstants;
-import frc.robot.Constants.ElevatorConstants.ElevatorMode;
-import frc.robot.Constants.ElevatorConstants.ElevatorPosition;
+import frc.robot.Constants.MechanismMode;
+import frc.robot.Constants.MechanismPosition;
 
 /*
  * Subsystem for managing elevator movement
@@ -39,10 +39,10 @@ public class Elevator extends SubsystemBase{
     // pre-selected position
     private double selectedPosition;
     // pre-selected mode
-    private ElevatorMode nextMode;
+    private MechanismMode nextMode;
 
     // currently running mode
-    private ElevatorMode currentMode;
+    private MechanismMode currentMode;
 
     private boolean runCalibration;
 
@@ -91,7 +91,7 @@ public class Elevator extends SubsystemBase{
         primaryMotor.configure(motorConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
         followerMotor.configure(motorConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
 
-        this.setpoint = ElevatorPosition.STOWED.getSetpoint();  
+        this.setpoint = MechanismPosition.STOWED.getElevatorSetpoint();  
     } 
 
     public void driveMotorSlow(){
@@ -110,36 +110,36 @@ public class Elevator extends SubsystemBase{
 
     // returns the position 1 HIGHER than the current one
     public double getUpperPosition() {
-        if (selectedPosition == ElevatorPosition.L1.getSetpoint()) {
-            return ElevatorPosition.L2.getSetpoint();
+        if (selectedPosition == MechanismPosition.L1.getElevatorSetpoint()) {
+            return MechanismPosition.L2.getElevatorSetpoint();
         }
-        else if (selectedPosition == ElevatorPosition.L2.getSetpoint()) {
-            return ElevatorPosition.L3.getSetpoint();
-        } else if (selectedPosition == ElevatorPosition.L3.getSetpoint()) {
-            return ElevatorPosition.L4.getSetpoint();
-        } else if (selectedPosition == ElevatorPosition.L4.getSetpoint()) {
-            return ElevatorPosition.L1.getSetpoint();
+        else if (selectedPosition == MechanismPosition.L2.getElevatorSetpoint()) {
+            return MechanismPosition.L3.getElevatorSetpoint();
+        } else if (selectedPosition == MechanismPosition.L3.getElevatorSetpoint()) {
+            return MechanismPosition.L4.getElevatorSetpoint();
+        } else if (selectedPosition == MechanismPosition.L4.getElevatorSetpoint()) {
+            return MechanismPosition.L1.getElevatorSetpoint();
         }   
 
         // this should never happen, in theory
-        return ElevatorPosition.L1.getSetpoint();
+        return MechanismPosition.L1.getElevatorSetpoint();
     }
 
     // returns the position 1 LOWER than the current one
     public double getLowerPosition() {
-        if (selectedPosition == ElevatorPosition.L1.getSetpoint()) {
-            return ElevatorPosition.L4.getSetpoint();
+        if (selectedPosition == MechanismPosition.L1.getElevatorSetpoint()) {
+            return MechanismPosition.L4.getElevatorSetpoint();
         }
-        else if (selectedPosition == ElevatorPosition.L2.getSetpoint()) {
-            return ElevatorPosition.L1.getSetpoint();
-        } else if (selectedPosition == ElevatorPosition.L3.getSetpoint()) {
-            return ElevatorPosition.L2.getSetpoint();
-        } else if (selectedPosition == ElevatorPosition.L4.getSetpoint()) {
-            return ElevatorPosition.L3.getSetpoint();
+        else if (selectedPosition == MechanismPosition.L2.getElevatorSetpoint()) {
+            return MechanismPosition.L1.getElevatorSetpoint();
+        } else if (selectedPosition == MechanismPosition.L3.getElevatorSetpoint()) {
+            return MechanismPosition.L2.getElevatorSetpoint();
+        } else if (selectedPosition == MechanismPosition.L4.getElevatorSetpoint()) {
+            return MechanismPosition.L3.getElevatorSetpoint();
         }   
 
         // this should never happen, in theory
-        return ElevatorPosition.L1.getSetpoint();
+        return MechanismPosition.L1.getElevatorSetpoint();
     }
 
     public void activateCalibration() {
@@ -151,19 +151,19 @@ public class Elevator extends SubsystemBase{
         resetElevator();
     }
 
-    public void setNextMode(ElevatorMode mode) {
+    public void setNextMode(MechanismMode mode) {
         nextMode = mode;
     }
 
-    public ElevatorMode getNextMode() {
+    public MechanismMode getNextMode() {
         return nextMode;
     }
 
-    public void setMode(ElevatorMode mode) {
+    public void setMode(MechanismMode mode) {
         currentMode = mode;
     }
 
-    public ElevatorMode getMode() {
+    public MechanismMode getMode() {
         return currentMode;
     }
 
@@ -181,9 +181,9 @@ public class Elevator extends SubsystemBase{
         encoder.setPosition(0);
         setpoint = 0;
 
-        currentMode = ElevatorMode.STOWED;
-        nextMode = ElevatorMode.REEF;
-        selectedPosition = ElevatorPosition.L4.getSetpoint();
+        currentMode = MechanismMode.STOWED;
+        nextMode = MechanismMode.REEF;
+        selectedPosition = MechanismPosition.L4.getElevatorSetpoint();
     }
 
     public void setSetpoint(double setpoint){
@@ -199,19 +199,19 @@ public class Elevator extends SubsystemBase{
 
     @Override 
     public void periodic() {
-        if (currentMode == ElevatorMode.REEF) {
+        if (currentMode == MechanismMode.REEF) {
             // if we're scoring, use the selected position
             // this allows the operator to switch scoring positions immediately
             setpoint = selectedPosition;
         }
-        else if (currentMode == ElevatorMode.FEEDER) {
+        else if (currentMode == MechanismMode.FEEDER) {
             // for intaking, use the constant
             // this allows the operator to pre-select a mode without the elevator moving
-            setpoint = ElevatorPosition.INTAKE.getSetpoint();
+            setpoint = MechanismPosition.INTAKE.getElevatorSetpoint();
         }
-        else if (currentMode == ElevatorMode.STOWED) {
+        else if (currentMode == MechanismMode.STOWED) {
             // ditto with stowed, use the constant for the same reason
-            setpoint = ElevatorPosition.STOWED.getSetpoint();
+            setpoint = MechanismPosition.STOWED.getElevatorSetpoint();
         }
 
         // moving the elevator to the desired setpoint

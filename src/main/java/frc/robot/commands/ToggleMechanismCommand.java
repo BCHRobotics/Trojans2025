@@ -1,8 +1,7 @@
 package frc.robot.commands;
 
 import edu.wpi.first.wpilibj2.command.Command;
-import frc.robot.Constants.ElevatorConstants.ElevatorMode;
-import frc.robot.Constants.HarpoonConstants.HarpoonMode;
+import frc.robot.Constants.MechanismMode;
 import frc.robot.commands.harpoon.IntakeCommand;
 import frc.robot.commands.harpoon.StopClawCommand;
 import frc.robot.subsystems.Elevator;
@@ -30,11 +29,11 @@ public class ToggleMechanismCommand extends Command {
     @Override
     public void initialize() {
         // if we are currently stowed, run the pre-selected mode and the position
-        if (elevatorSubsystem.getMode() == ElevatorMode.STOWED) {
+        if (elevatorSubsystem.getMode() == MechanismMode.STOWED) {
             elevatorSubsystem.setMode(elevatorSubsystem.getNextMode());
             harpoonSubsystem.setMode(harpoonSubsystem.getNextMode());
 
-            if (harpoonSubsystem.getNextMode() == HarpoonMode.FEEDER) {
+            if (harpoonSubsystem.getNextMode() == MechanismMode.FEEDER) {
                 new IntakeCommand(elevatorSubsystem, harpoonSubsystem, 0.6, () -> true).
                 alongWith(new SetLEDCommand(led1, led2, -0.11, 0)).
                 andThen(new SetLEDCommand(led1, led2, -0.05, 1.5))
@@ -42,8 +41,8 @@ public class ToggleMechanismCommand extends Command {
             }
         }
         else {
-            elevatorSubsystem.setMode(ElevatorMode.STOWED);
-            harpoonSubsystem.setMode(HarpoonMode.STOWED);
+            elevatorSubsystem.setMode(MechanismMode.STOWED);
+            harpoonSubsystem.setMode(MechanismMode.STOWED);
 
             new StopClawCommand(harpoonSubsystem).schedule();
             new SetLEDCommand(led2, led1, 0.87, 0).schedule();

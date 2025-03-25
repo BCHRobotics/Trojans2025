@@ -3,8 +3,7 @@ package frc.robot.commands;
 import java.util.function.DoubleSupplier;
 
 import edu.wpi.first.wpilibj2.command.Command;
-import frc.robot.Constants.ElevatorConstants.ElevatorMode;
-import frc.robot.Constants.HarpoonConstants.HarpoonMode;
+import frc.robot.Constants.MechanismMode;
 import frc.robot.subsystems.Elevator;
 import frc.robot.subsystems.Harpoon;
 
@@ -15,21 +14,19 @@ import frc.robot.subsystems.Harpoon;
 public class PrepareMechanismCommand extends Command {
     // elevator stuff
     private Elevator elevatorSubsystem;
-    private ElevatorMode elevatorMode;
+    private MechanismMode newMode;
     private DoubleSupplier position;
 
     // harpoon stuff
     private Harpoon harpoonSubsystem;
-    private HarpoonMode harpoonMode;
     private DoubleSupplier pivotSetpoint;
     
-    public PrepareMechanismCommand(Elevator elevatorSubsystem, ElevatorMode elevatorMode, DoubleSupplier position,
-    Harpoon harpoonSubsystem, HarpoonMode harpoonMode, DoubleSupplier pivotSetpoint) {
+    public PrepareMechanismCommand(Elevator elevatorSubsystem, MechanismMode newMode, DoubleSupplier position,
+    Harpoon harpoonSubsystem, DoubleSupplier pivotSetpoint) {
         this.elevatorSubsystem = elevatorSubsystem;
-        this.elevatorMode = elevatorMode;
+        this.newMode = newMode;
         this.position = position;
 
-        this.harpoonMode = harpoonMode;
         this.harpoonSubsystem = harpoonSubsystem;
         this.pivotSetpoint = pivotSetpoint;
     }
@@ -38,10 +35,10 @@ public class PrepareMechanismCommand extends Command {
     public void initialize() {
         double newPos = position.getAsDouble();
         elevatorSubsystem.setSelectedPosition(newPos);
-        elevatorSubsystem.setNextMode(elevatorMode);
+        elevatorSubsystem.setNextMode(newMode);
 
         harpoonSubsystem.setSelectedPosition(pivotSetpoint.getAsDouble());
-        harpoonSubsystem.setNextMode(harpoonMode);
+        harpoonSubsystem.setNextMode(newMode);
     }
 
     @Override

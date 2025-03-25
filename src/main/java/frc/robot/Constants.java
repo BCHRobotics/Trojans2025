@@ -52,37 +52,42 @@ public final class Constants {
 
     public static final int kClimbMotorCANID = 40;
   }
+
+  // hmmm yes organized implementation
+  // we are smart now
+  public enum MechanismPosition {
+    STOWED(0,0.975), // might want to raise this to make the claw more vertical
+    L1(4,0.725),
+    L2(8.85,0.6003), // claw setpoints for these next 3 HAVE TO BE DIFFERENT, hence the .0001 and such
+    L3(13.5,0.6002),  
+    L4(20.4,0.6001),
+    INTAKE(2.65,0.95), 
+    ALGAE(8.55,0.61);
+
+    private final double elevatorSetpoint;
+    private final double clawSetpoint;
+
+    MechanismPosition(double elevatorSetpoint, double clawSetpoint) {
+        this.elevatorSetpoint = elevatorSetpoint;
+        this.clawSetpoint = clawSetpoint;
+    }
+
+    public double getElevatorSetpoint() {
+        return elevatorSetpoint;
+    }
+    public double getClawSetpoint() {
+      return clawSetpoint;
+    }
+  }
+
+  // different operating modes the mech can be in
+  public enum MechanismMode {
+    STOWED,
+    REEF,
+    FEEDER
+  }
   
   public static class ElevatorConstants {
-
-    // possible positions for the elevator,
-    // an enum is a bit nicer than separate variables
-    public enum ElevatorPosition { // rotations
-      STOWED(0), // FINAL
-      L1(4),
-      L2(8.85),  // FINAL
-      L3(13.5),  // FINAL
-      L4(20.4), // UNTESTED
-      INTAKE(2.65), // FINAL
-      ALGAE(8.55);
-      
-      private final double setpoint;
-      ElevatorPosition(double setpoint) {
-          this.setpoint = setpoint;
-      }
-  
-      public double getSetpoint() {
-          return setpoint;
-      }
-
-    }
-
-    public enum ElevatorMode {
-      STOWED,
-      REEF,
-      FEEDER
-    }
-
     // elevator CAN IDs
     public static final int leftElevatorID = 21;
     public static final int rightElevatorID = 20;
@@ -110,35 +115,6 @@ public final class Constants {
 
   // the constants for the claw, both wrist and intake
   public static final class HarpoonConstants {
-
-    // if we were smart, we would make all this one enum (elevator + harpoon)
-    // ... we are not smart
-    public enum HarpoonPosition {
-      L1(0.725),
-      L2(0.6003), // these three have to be different (hence the decimal)
-      L3(0.6002),
-      L4(0.6001),
-      INTAKE(0.95),
-      STOWED(0.9),
-      ALGAE(0.61);
-    
-      private final double setpoint;
-      HarpoonPosition(double setpoint) {
-          this.setpoint = setpoint;
-      }
-  
-      public double getSetpoint() {
-          return setpoint;
-      }
-    }
-
-    // different scenarios in which the harpoon
-    public enum HarpoonMode {
-      STOWED,
-      REEF,
-      FEEDER
-    }
-
     // CAN ids for claw motors
     public static final int kIntakeMotorCANID = 30; // TO be changed to the actual intake motor ID
     public static final int kRotationMotorCANID = 31; // TO be changed to the actual rotation motor ID
