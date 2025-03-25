@@ -363,7 +363,7 @@ public class RobotContainer {
             Math.abs(driverController_PS5.getRightX()) > 0.05;
         }
     }
-
+    
     public void resetAuto() {
         m_robotDrive.setDriveMode(DriveModes.MANUAL);
         m_robotDrive.resetOdometry(new Pose2d(0, 0, Rotation2d.fromDegrees(0)));
@@ -382,6 +382,8 @@ public class RobotContainer {
     public Command getAutonomousCommand() {
         if (autoChooser.getSelected() != null) {
             // TODO: modify the auto to start at wherever the pose has been estimated
+            
+            // this is hardcoded for now to bypass NT/shuffleboard trouble
             return AutoBuilder.buildAuto("1 Coral");
         }
         else {
