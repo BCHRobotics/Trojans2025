@@ -27,6 +27,18 @@
           "data": {
             "name": "ENUMERATED_INTAKE"
           }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "FeederLeftTo1"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "SEQUENTIAL_SCORE"
+          }
         }
       ]
     }

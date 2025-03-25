@@ -67,7 +67,7 @@ public final class Constants {
       L2(8.85),  // FINAL
       L3(12.95),  // FINAL
       L4(20.3), // UNTESTED
-      INTAKE(2.65), // FINAL
+      INTAKE(4.1), // FINAL
       ALGAE(8.55);
       
       private final double setpoint;
@@ -93,7 +93,7 @@ public final class Constants {
 
     // PID terms for elevator up/down motion
     public static final double ElevatorkP = 0.065;
-    public static final double ElevatorkI = 0.02;
+    public static final double ElevatorkI = 0.06;
     public static final double ElevatorkD = 0.000;
 
     // supplied current limit
@@ -120,7 +120,7 @@ public final class Constants {
       L2(0.6003), // these three have to be different (hence the decimal)
       L3(0.6002),
       L4(0.6001),
-      INTAKE(0.97),
+      INTAKE(0.80389),
       STOWED(0.97),
       ALGAE(0.61);
     
@@ -222,7 +222,7 @@ public final class Constants {
     public static final String[] cameraNames = new String[] {
       //"Front Left", 
     "Center", 
-    "Secondary"
+    //"Secondary"
     };
 
     public static final CameraTransform[] cameraOffsets = 

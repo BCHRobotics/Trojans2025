@@ -54,7 +54,7 @@ public class EnumeratedIntakeCommand extends Command {
         elevatorSubsystem.setSetpoint(ElevatorPosition.INTAKE.getSetpoint());
 
         // Set the harpoon to the INTAKE position
-        harpoonSubsystem.setRotationMotorPosition(HarpoonPosition.INTAKE.getSetpoint());
+        // harpoonSubsystem.setRotationMotorPosition(HarpoonPosition.INTAKE.getSetpoint());
 
         System.out.println("ENUMERATED INTAKE: Moving mechanisms to intake positions");
         
@@ -68,16 +68,24 @@ public class EnumeratedIntakeCommand extends Command {
                 // Check if both mechanisms are in position
                 boolean elevatorInPosition = Math.abs(
                     elevatorSubsystem.getEncoderPosition() - ElevatorPosition.INTAKE.getSetpoint()
-                ) < 1.0; // Within 1 inch tolerance
+                ) < 0.3; // Within 1 inch tolerance
 
                 boolean harpoonInPosition = Math.abs(
                     harpoonSubsystem.kRotationMotor.getAbsoluteEncoder().getPosition() - 
                     HarpoonPosition.INTAKE.getSetpoint()
                 ) < 0.1; // Within 0.1 rotation tolerance
-
+                /* 
                 if (elevatorInPosition && harpoonInPosition) {
                     // Both mechanisms are in position, start intaking
                     System.out.println("ENUMERATED INTAKE: Mechanisms in position, starting intake");
+                    harpoonSubsystem.setIntakeMotorVelocity(-intakeSpeed);
+                    currentState = IntakeState.INTAKING;
+                }
+                */
+                if (elevatorInPosition) {
+                    // Both mechanisms are in position, start intaking
+                    System.out.println("ENUMERATED INTAKE: Mechanisms in position, starting intake");
+                    harpoonSubsystem.setRotationMotorPosition(HarpoonPosition.INTAKE.getSetpoint());
                     harpoonSubsystem.setIntakeMotorVelocity(-intakeSpeed);
                     currentState = IntakeState.INTAKING;
                 }
@@ -98,11 +106,13 @@ public class EnumeratedIntakeCommand extends Command {
                 System.out.println("ENUMERATED INTAKE: Stowing elevator and harpoon");
                 
                 // Set the modes to STOWED
-                elevatorSubsystem.setMode(ElevatorMode.STOWED);
-                harpoonSubsystem.setMode(HarpoonMode.STOWED);
                 
-                // Set the positions to STOWED
+                harpoonSubsystem.setMode(HarpoonMode.STOWED);
+                //elevatorSubsystem.setMode(ElevatorMode.STOWED);
+                elevatorSubsystem.setMode(ElevatorMode.STOWED);
                 elevatorSubsystem.setSetpoint(ElevatorPosition.STOWED.getSetpoint());
+                // Set the positions to STOWED
+                //elevatorSubsystem.setSetpoint(ElevatorPosition.STOWED.getSetpoint());
                 harpoonSubsystem.setRotationMotorPosition(HarpoonPosition.STOWED.getSetpoint());
                 
                 // Move to DONE state
@@ -110,6 +120,7 @@ public class EnumeratedIntakeCommand extends Command {
                 break;
 
             case DONE:
+                
                 // Do nothing, waiting for isFinished to return true
                 break;
         }

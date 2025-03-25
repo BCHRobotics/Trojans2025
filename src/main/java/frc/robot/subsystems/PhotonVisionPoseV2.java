@@ -65,7 +65,7 @@ public class PhotonVisionPoseV2 extends SubsystemBase {
             // m_cameraSecondary = new PhotonCamera(VisionConstants.cameraNames[1]); // Uncomment for secondary camera
             // Create the camera to robot transform using offsets from constants
             m_cameraMainToRobot = new Transform3d(
-                new Translation3d(VisionConstants.cameraOffsets[0].xOffset, VisionConstants.cameraOffsets[0].yOffset,0 ), // Units.inchesToMeters(10)
+                new Translation3d(VisionConstants.cameraOffsets[0].xOffset, VisionConstants.cameraOffsets[0].yOffset,Units.inchesToMeters(10)), // 
                 new Rotation3d(0, 0, VisionConstants.cameraOffsets[0].angleOffset));
 
             m_cameraSecondaryToRobot = new Transform3d(
@@ -191,7 +191,7 @@ public class PhotonVisionPoseV2 extends SubsystemBase {
                 if (ambiguityToPrint > 0.2) {
                     continue; // Skip this measurement
                 }
-                    
+                
 
                 m_drivetrain.resetOdometry(robotPose);
                 // Display the estimated pose on the SmartDashboard

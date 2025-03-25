@@ -219,6 +219,7 @@ public class Elevator extends SubsystemBase{
         */
 
         SmartDashboard.putNumber("NEXT POSITION", selectedPosition);
+        SmartDashboard.putNumber("Elevator Current Pos", this.encoder.getPosition());
             
 
         // SmartDashboard.putString("CURRENT ELEVATOR", currentMode.toString());
