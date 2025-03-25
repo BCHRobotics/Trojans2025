@@ -128,6 +128,7 @@ public class RobotContainer {
 //If still not working, there might be an issue with how PathPlanner is handling event markers in your setup. In that case, you might want to consider using the command in the auto sequence directly rather than as an event marker.
 
         NamedCommands.registerCommand("SCORE", new AutoScoreCommand(harpoon, 0.6));
+        NamedCommands.registerCommand("ALIGN_TAG", new AlignTeleopCommand(m_robotDrive, poseEstimator, null, "RIGHT"));
         NamedCommands.registerCommand("SEQUENTIAL_SCORE", new SequentialScoreCommand(
             elevator, 
             harpoon, 
