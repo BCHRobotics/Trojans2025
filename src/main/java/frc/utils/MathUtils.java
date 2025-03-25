@@ -29,6 +29,21 @@ public class MathUtils {
         return rotatedVector;
     }
 
+    public static double fixAngle(double a) {
+        double remainder = a % 360;
+
+        double clampedValue = remainder;
+
+        if (remainder > 180) {
+            clampedValue = remainder - 360;
+        }
+        else if (remainder < -180) {
+            clampedValue = remainder + 360;
+        }
+
+        return clampedValue;
+    }
+
     public static double getDistance(Pose2d a, Pose2d b) {
         double difX = b.getX() - a.getX();
         double difY = b.getY() - a.getY();

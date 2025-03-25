@@ -103,12 +103,13 @@ public class AlignTeleopCommand extends Command {
         
         // for now
         double commandedRot = pidRot.calculate(
-            fieldRelativeRobotPose.getRotation().getDegrees(), 
-            fieldRelativeTagPose.getRotation().plus(Rotation2d.fromDegrees(180)).getDegrees());
+            MathUtils.fixAngle(fieldRelativeRobotPose.getRotation().getDegrees()), 
+            MathUtils.fixAngle(fieldRelativeTagPose.getRotation().plus(Rotation2d.fromDegrees(180)).getDegrees()));
 
         // clamp the values for safety, also multiply them by -1 because the PID controller will be commanding the wrong sign
         commandedX = MathUtil.clamp(commandedX * -1, -0.5, 0.5);
         commandedY = MathUtil.clamp(commandedY * 1, -0.5, 0.5);
+        commandedRot = MathUtil.clamp(commandedRot * 1, -0.3, 0.3);
 
         if (Math.abs(commandedX) < VisionConstants.allowedXError) {
             commandedX = 0;
@@ -117,7 +118,8 @@ public class AlignTeleopCommand extends Command {
             commandedY = 0;
         }
 
-        driveSubsystem.drive(commandedX, commandedY, commandedRot, true, true);
+        // set the 2 zeros back to commandedX and commandedY when finished testing
+        driveSubsystem.drive(0, 0, commandedRot, true, true);
 
         // moving the mech
         if (MathUtils.getDistance(fieldRelativeRobotPose, fieldRelativeTagPose) < 1.25 && !mechActive) {
