@@ -112,7 +112,7 @@ public class RobotContainer {
         configureNamedCommands();
 
         autoChooser = AutoBuilder.buildAutoChooser();
-        SmartDashboard.putData("Auto Chooser", autoChooser);
+        SmartDashboard.putData("Auto Name", autoChooser);
         
         // reseting both mechs to their default state (zeroing the elevator is important)
         // the way this is implemented means that having the elevator up when you deploy code causes problems
@@ -382,7 +382,7 @@ public class RobotContainer {
     public Command getAutonomousCommand() {
         if (autoChooser.getSelected() != null) {
             // TODO: modify the auto to start at wherever the pose has been estimated
-            return autoChooser.getSelected();
+            return AutoBuilder.buildAuto("1 Coral");
         }
         else {
             return Commands.none();

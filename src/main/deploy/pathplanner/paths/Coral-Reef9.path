@@ -47,28 +47,10 @@
           "name": "L4"
         }
       }
-    },
-    {
-      "name": "shoot",
-      "waypointRelativePos": 0.99,
-      "endWaypointRelativePos": null,
-      "command": {
-        "type": "sequential",
-        "data": {
-          "commands": [
-            {
-              "type": "named",
-              "data": {
-                "name": "SHOOT"
-              }
-            }
-          ]
-        }
-      }
     }
   ],
   "globalConstraints": {
-    "maxVelocity": 0.75,
+    "maxVelocity": 1.25,
     "maxAcceleration": 1.0,
     "maxAngularVelocity": 720.0,
     "maxAngularAcceleration": 720.0,

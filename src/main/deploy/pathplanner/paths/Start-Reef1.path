@@ -45,7 +45,7 @@
     },
     {
       "name": "shoot",
-      "waypointRelativePos": 1.0,
+      "waypointRelativePos": 0.98,
       "endWaypointRelativePos": null,
       "command": {
         "type": "sequential",
@@ -63,7 +63,7 @@
     }
   ],
   "globalConstraints": {
-    "maxVelocity": 0.75,
+    "maxVelocity": 1.25,
     "maxAcceleration": 1.0,
     "maxAngularVelocity": 720.0,
     "maxAngularAcceleration": 720.0,
