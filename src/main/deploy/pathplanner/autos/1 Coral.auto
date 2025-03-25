@@ -7,13 +7,25 @@
         {
           "type": "path",
           "data": {
-            "pathName": "Start-Reef1"
+            "pathName": "Start-Reef1Lineup"
           }
         },
         {
           "type": "wait",
           "data": {
-            "waitTime": 0.4
+            "waitTime": 0.0
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "Reef1Align"
+          }
+        },
+        {
+          "type": "wait",
+          "data": {
+            "waitTime": 0.1
           }
         },
         {
@@ -29,21 +41,39 @@
           }
         },
         {
+          "type": "named",
+          "data": {
+            "name": "INTAKE"
+          }
+        },
+        {
           "type": "wait",
           "data": {
-            "waitTime": 2.0
+            "waitTime": 1.5
           }
         },
         {
           "type": "path",
           "data": {
-            "pathName": "Coral-Reef9"
+            "pathName": "Coral-Reef9Lineup"
           }
         },
         {
           "type": "wait",
           "data": {
-            "waitTime": 0.4
+            "waitTime": 0.0
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "Reef9Align"
+          }
+        },
+        {
+          "type": "wait",
+          "data": {
+            "waitTime": 0.1
           }
         },
         {
