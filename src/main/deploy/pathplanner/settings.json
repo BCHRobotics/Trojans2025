@@ -3,11 +3,13 @@
   "robotLength": 0.864,
   "holonomicMode": true,
   "pathFolders": [
-    "Align",
-    "Lineup",
-    "Coral"
+    "Opening Paths"
   ],
-  "autoFolders": [],
+  "autoFolders": [
+    "C",
+    "L",
+    "R"
+  ],
   "defaultMaxVel": 2.5,
   "defaultMaxAccel": 2.0,
   "defaultMaxAngVel": 720.0,

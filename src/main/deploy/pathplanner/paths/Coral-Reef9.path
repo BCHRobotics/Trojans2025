@@ -3,25 +3,25 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 5.307630208333332,
-        "y": 5.276348741319444
+        "x": 2.0139344262295085,
+        "y": 7.03391393442623
       },
       "prevControl": null,
       "nextControl": {
-        "x": 4.628527922453703,
-        "y": 5.88510669849537
+        "x": 2.9249999999999994,
+        "y": 6.8061475409836065
       },
       "isLocked": false,
       "linkedName": null
     },
     {
       "anchor": {
-        "x": 1.891562861689814,
-        "y": 7.135873119212963
+        "x": 3.632,
+        "y": 5.859118852459017
       },
       "prevControl": {
-        "x": 3.0623766637731453,
-        "y": 6.68853443287037
+        "x": 3.3442950819672137,
+        "y": 6.566393442622951
       },
       "nextControl": null,
       "isLocked": false,
@@ -33,13 +33,13 @@
   "pointTowardsZones": [],
   "eventMarkers": [
     {
-      "name": "elevator down",
-      "waypointRelativePos": 0,
+      "name": "elevator up",
+      "waypointRelativePos": 0.75,
       "endWaypointRelativePos": null,
       "command": {
         "type": "named",
         "data": {
-          "name": "STOW"
+          "name": "L4"
         }
       }
     }
@@ -53,14 +53,14 @@
     "unlimited": false
   },
   "goalEndState": {
-    "velocity": 0,
-    "rotation": 124.9469074506833
+    "velocity": 0.0,
+    "rotation": -59.47029410006592
   },
   "reversed": false,
-  "folder": "Coral",
+  "folder": null,
   "idealStartingState": {
     "velocity": 0,
-    "rotation": -126.39740820288972
+    "rotation": 130.0302592718897
   },
   "useDefaultConstraints": true
 }

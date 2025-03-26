@@ -7,13 +7,19 @@
         {
           "type": "path",
           "data": {
-            "pathName": "LeftSideLineup"
+            "pathName": "C-Reef1"
+          }
+        },
+        {
+          "type": "wait",
+          "data": {
+            "waitTime": 0.0
           }
         },
         {
           "type": "path",
           "data": {
-            "pathName": "Reef5Align"
+            "pathName": "Reef1Score"
           }
         },
         {
@@ -31,7 +37,7 @@
         {
           "type": "path",
           "data": {
-            "pathName": "Reef5-Coral"
+            "pathName": "Reef1-Coral"
           }
         },
         {
@@ -41,15 +47,27 @@
           }
         },
         {
-          "type": "path",
+          "type": "wait",
           "data": {
-            "pathName": "Coral-Reef9Lineup"
+            "waitTime": 1.5
           }
         },
         {
           "type": "path",
           "data": {
-            "pathName": "Reef6RightAlign"
+            "pathName": "Coral-Reef9"
+          }
+        },
+        {
+          "type": "wait",
+          "data": {
+            "waitTime": 0.0
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "Reef9Score"
           }
         },
         {
@@ -63,17 +81,11 @@
           "data": {
             "name": "SHOOT"
           }
-        },
-        {
-          "type": "path",
-          "data": {
-            "pathName": "Reef6-coral"
-          }
         }
       ]
     }
   },
   "resetOdom": true,
-  "folder": null,
+  "folder": "C",
   "choreoAuto": false
 }
