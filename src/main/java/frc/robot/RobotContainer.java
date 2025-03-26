@@ -26,12 +26,14 @@ import frc.robot.commands.ForceMechanismCommand;
 import frc.robot.commands.PrepareMechanismCommand;
 import frc.robot.commands.SetLEDCommand;
 import frc.robot.commands.ToggleMechanismCommand;
+import frc.robot.commands.climber.RunClimberCommand;
 import frc.robot.commands.drive.TeleopDriveCommand;
 import frc.robot.commands.elevator.CalibrateElevator;
 import frc.robot.commands.harpoon.IntakeCommand;
 import frc.robot.commands.harpoon.ShootCommand;
 import frc.robot.commands.harpoon.StopClawCommand;
 import frc.robot.commands.vision.AlignTeleopCommand;
+import frc.robot.subsystems.Climber;
 import frc.robot.subsystems.Drivetrain;
 import frc.robot.subsystems.LED;
 import frc.robot.subsystems.Elevator;
@@ -69,6 +71,8 @@ public class RobotContainer {
     // the led subsystems. each strip (left and right) is a separate class
     private final LED ledRight = new LED(0);
     private final LED ledLeft = new LED(1);
+
+    private final Climber climber = new Climber();
 
     // Driving controller, one for xbox and one for ps5
     CommandPS5Controller driverController_PS5 = new CommandPS5Controller(OIConstants.kMainControllerPort);
@@ -324,6 +328,12 @@ public class RobotContainer {
             this.operatorController_XBOX.leftTrigger().onTrue(
                 new InstantCommand(() -> poseEstimator.targetSide(true))
             );
+
+            this.operatorController_XBOX.povUp().onTrue(new RunClimberCommand(climber, 0.5));
+            this.operatorController_XBOX.povUp().onFalse(new RunClimberCommand(climber, 0));
+
+            this.operatorController_XBOX.povDown().onTrue(new RunClimberCommand(climber, -0.5));
+            this.operatorController_XBOX.povDown().onFalse(new RunClimberCommand(climber, 0));
         }
         else {
             this.operatorController_PS5.L1().onTrue(

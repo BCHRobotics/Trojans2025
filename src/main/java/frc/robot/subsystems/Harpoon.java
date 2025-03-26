@@ -58,7 +58,7 @@ public class Harpoon extends SubsystemBase{
 
         // important configurations. Idlemode is just the mode the sensor is in when it is not being commanded. 
         this.kRotationConfig.inverted(false); // 
-        this.kRotationConfig.idleMode(IdleMode.kBrake);
+        this.kRotationConfig.idleMode(IdleMode.kCoast);
 
         // more important configs
         this.kIntakeConfig.inverted(false); // inverting intake motor
@@ -179,7 +179,7 @@ public class Harpoon extends SubsystemBase{
     public double getCorrectedEncoderPosition() {
         double rawPosition = kRotationMotor.getAbsoluteEncoder().getPosition();
 
-        return rawPosition < 0.5 ? 1 + rawPosition : rawPosition;
+        return rawPosition;
     }
 
     public double applyLimits(double input) {

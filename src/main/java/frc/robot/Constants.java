@@ -56,13 +56,13 @@ public final class Constants {
   // hmmm yes organized implementation
   // we are smart now
   public enum MechanismPosition {
-    STOWED(0,0.975), // might want to raise this to make the claw more vertical
-    L1(4,0.725),
-    L2(8.85,0.6003), // claw setpoints for these next 3 HAVE TO BE DIFFERENT, hence the .0001 and such
-    L3(13.5,0.6002),  
-    L4(20.4,0.6001),
-    INTAKE(2.65,0.95), 
-    ALGAE(8.55,0.61);
+    STOWED(0,(0.975-0.325)), // might want to raise this to make the claw more vertical
+    L1(4,(0.725-0.325)),
+    L2(8.85,(0.6003-0.325)), // claw setpoints for these next 3 HAVE TO BE DIFFERENT, hence the .0001 and such
+    L3(13.5,(0.6002-0.325)),  
+    L4(20.4,(0.6001-0.325)),
+    INTAKE(2.65,(0.85-0.325)), // do not change intake values pls
+    ALGAE(8.55,(0.61-0.325));
 
     private final double elevatorSetpoint;
     private final double clawSetpoint;
