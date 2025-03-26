@@ -3,25 +3,25 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 7.36125,
-        "y": 6.99875
+        "x": 5.06,
+        "y": 5.4
       },
       "prevControl": null,
       "nextControl": {
-        "x": 6.4545,
-        "y": 6.481999999999999
+        "x": 5.10875,
+        "y": 6.75525
       },
       "isLocked": false,
       "linkedName": null
     },
     {
       "anchor": {
-        "x": 5.197,
-        "y": 5.662999999999999
+        "x": 2.0139344262295085,
+        "y": 7.03391393442623
       },
       "prevControl": {
-        "x": 5.899249999999999,
-        "y": 6.374999999999999
+        "x": 3.4125000000000005,
+        "y": 6.56975
       },
       "nextControl": null,
       "isLocked": false,
@@ -33,13 +33,13 @@
   "pointTowardsZones": [],
   "eventMarkers": [
     {
-      "name": "elevator up",
-      "waypointRelativePos": 0.75,
+      "name": "elevator down",
+      "waypointRelativePos": 0.05,
       "endWaypointRelativePos": null,
       "command": {
         "type": "named",
         "data": {
-          "name": "L4"
+          "name": "STOW"
         }
       }
     }
@@ -53,11 +53,11 @@
     "unlimited": false
   },
   "goalEndState": {
-    "velocity": 0.4,
-    "rotation": -119.99999999999999
+    "velocity": 0.0,
+    "rotation": 127.99873244250462
   },
   "reversed": false,
-  "folder": "Opening Paths",
+  "folder": null,
   "idealStartingState": {
     "velocity": 0,
     "rotation": -119.99999999999999
