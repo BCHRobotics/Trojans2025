@@ -135,11 +135,11 @@ public class PhotonVisionPoseV2 extends SubsystemBase {
     }
 
     public double getXOffset() {
-        return 0.45;
+        return 0.52;
     }
 
     public double getYOffset() {
-        return isTargetingLeft ? -0.15 : 0.15;
+        return isTargetingLeft ? -0.16 : 0.16;
     }
 
     public void targetSide(boolean isLeft) {

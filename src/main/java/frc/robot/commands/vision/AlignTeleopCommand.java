@@ -100,16 +100,25 @@ public class AlignTeleopCommand extends Command {
         // now we actually command the drive subsystem to drive to the pose
         double commandedX = pid.calculate(fieldRelativeTagPose.getX() - fieldRelativeRobotPose.getX(), 0);
         double commandedY = fieldRelativeTagPose.getY() - fieldRelativeRobotPose.getY();
+
+        double robotAngle = MathUtils.fixAngle(fieldRelativeRobotPose.getRotation().getDegrees());
+        double tagAngle = fieldRelativeTagPose.getRotation().minus(Rotation2d.fromDegrees(180)).getDegrees();
+        if (tagAngle == -180 && robotAngle > 0) {
+            tagAngle = 180;
+        }
+        if (tagAngle == 180 && robotAngle < 0) {
+            tagAngle = 180;
+        }
         
         // for now
         double commandedRot = pidRot.calculate(
-            MathUtils.fixAngle(fieldRelativeRobotPose.getRotation().getDegrees()), 
-            MathUtils.fixAngle(fieldRelativeTagPose.getRotation().plus(Rotation2d.fromDegrees(180)).getDegrees()));
+            robotAngle, 
+            tagAngle);
 
         // clamp the values for safety, also multiply them by -1 because the PID controller will be commanding the wrong sign
-        commandedX = MathUtil.clamp(commandedX * -1, -0.5, 0.5);
-        commandedY = MathUtil.clamp(commandedY * 1, -0.5, 0.5);
-        commandedRot = MathUtil.clamp(commandedRot * 1, -0.3, 0.3);
+        commandedX = MathUtil.clamp(commandedX * -1, -0.2, 0.2);
+        commandedY = MathUtil.clamp(commandedY * 1, -0.2, 0.2);
+        commandedRot = MathUtil.clamp(commandedRot * 1, -0.5, 0.5);
 
         if (Math.abs(commandedX) < VisionConstants.allowedXError) {
             commandedX = 0;
@@ -119,10 +128,10 @@ public class AlignTeleopCommand extends Command {
         }
 
         // set the 2 zeros back to commandedX and commandedY when finished testing
-        driveSubsystem.drive(0, 0, commandedRot, true, true);
+        driveSubsystem.drive(commandedX, commandedY, commandedRot, true, true);
 
         // moving the mech
-        if (MathUtils.getDistance(fieldRelativeRobotPose, fieldRelativeTagPose) < 1.25 && !mechActive) {
+        if (MathUtils.getDistance(fieldRelativeRobotPose, fieldRelativeTagPose) < 2 && !mechActive) {
             new ToggleMechanismCommand(led1, led2, elevatorSubsystem, harpoonSubsystem).schedule();
             mechActive = true;
         }
