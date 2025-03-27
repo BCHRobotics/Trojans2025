@@ -90,6 +90,8 @@ public class RobotContainer {
     // drop down menu for selecting the auto
     SendableChooser<Command> autoChooser;
 
+    SendableChooser<Boolean> visionActivator;
+
     private boolean isRedAlliance;
 
     /**
@@ -111,6 +113,12 @@ public class RobotContainer {
         controllerOptions_operator.addOption("Playstation", 1);
         controllerOptions_operator.setDefaultOption("default", 0);
         SmartDashboard.putData("Operator Select", controllerOptions_operator);
+
+        visionActivator = new SendableChooser<Boolean>();
+        visionActivator.addOption("Yes", true);
+        visionActivator.addOption("No", false);
+        visionActivator.setDefaultOption("default", true);
+        SmartDashboard.putData("Use vision in auto?", visionActivator);
 
         // we want to set up the named commands before the auto chooser, to avoid weird errors
         configureNamedCommands();
@@ -182,10 +190,6 @@ public class RobotContainer {
 
         // move elevator/claw to the intake position, for, well, intaking
         NamedCommands.registerCommand("STOP CLAW", new StopClawCommand(harpoon));
-
-        // for the 0 coral autos, no vision is actually better
-        NamedCommands.registerCommand("VISION ON", new InstantCommand(() -> poseEstimator.setVisionPoseEnabled(true)));
-        NamedCommands.registerCommand("VISION OFF", new InstantCommand(() -> poseEstimator.setVisionPoseEnabled(false)));
     }
 
     /**
@@ -381,6 +385,11 @@ public class RobotContainer {
     // this function exists to turn pose estimation back on
     public void enterTeleop() {
         poseEstimator.setVisionPoseEnabled(true);
+    }
+
+    // serves to disable vision if needed
+    public void enterAuto() {
+        poseEstimator.setVisionPoseEnabled(visionActivator.getSelected());
     }
     
     public void resetAuto() {
