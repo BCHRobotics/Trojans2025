@@ -5,6 +5,12 @@
     "data": {
       "commands": [
         {
+          "type": "named",
+          "data": {
+            "name": "VISION OFF"
+          }
+        },
+        {
           "type": "path",
           "data": {
             "pathName": "L-Drive"

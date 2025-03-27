@@ -5,6 +5,12 @@
     "data": {
       "commands": [
         {
+          "type": "named",
+          "data": {
+            "name": "VISION ON"
+          }
+        },
+        {
           "type": "path",
           "data": {
             "pathName": "L-Reef10"

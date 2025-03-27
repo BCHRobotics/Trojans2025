@@ -96,6 +96,7 @@ public class Robot extends TimedRobot {
 
     // Schedules the teleop drive command when entering teleop
     m_robotContainer.configureDriveMode();
+    m_robotContainer.enterTeleop();
   }
 
   /** This function is called periodically during operator control. */

@@ -182,6 +182,10 @@ public class RobotContainer {
 
         // move elevator/claw to the intake position, for, well, intaking
         NamedCommands.registerCommand("STOP CLAW", new StopClawCommand(harpoon));
+
+        // for the 0 coral autos, no vision is actually better
+        NamedCommands.registerCommand("VISION ON", new InstantCommand(() -> poseEstimator.setVisionPoseEnabled(true)));
+        NamedCommands.registerCommand("VISION OFF", new InstantCommand(() -> poseEstimator.setVisionPoseEnabled(false)));
     }
 
     /**
@@ -372,6 +376,11 @@ public class RobotContainer {
             Math.abs(driverController_PS5.getLeftY()) > 0.05 || 
             Math.abs(driverController_PS5.getRightX()) > 0.05;
         }
+    }
+
+    // this function exists to turn pose estimation back on
+    public void enterTeleop() {
+        poseEstimator.setVisionPoseEnabled(true);
     }
     
     public void resetAuto() {
