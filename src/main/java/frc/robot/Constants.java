@@ -60,7 +60,7 @@ public final class Constants {
     L1(4,(0.725-0.325)),
     L2(8.85,(0.6003-0.325)), // claw setpoints for these next 3 HAVE TO BE DIFFERENT, hence the .0001 and such
     L3(13.5,(0.6002-0.325)),  
-    L4(20.4,(0.6001-0.325)),
+    L4(20.3,(0.6001-0.325)),
     INTAKE(2.65,(0.85-0.325)), // do not change intake values pls
     ALGAE(8.55,(0.61-0.325));
 
@@ -93,7 +93,7 @@ public final class Constants {
     public static final int rightElevatorID = 20;
 
     // PID terms for elevator up/down motion
-    public static final double ElevatorkP = 0.0575;
+    public static final double ElevatorkP = 0.05;
     public static final double ElevatorkI = 0.01;
     public static final double ElevatorkD = 0.000;
 

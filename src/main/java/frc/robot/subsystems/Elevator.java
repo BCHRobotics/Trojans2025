@@ -232,7 +232,7 @@ public class Elevator extends SubsystemBase{
         //uses kP, kI, and kD constants to calculate pidOutput
         double pidOutput = pidController.calculate(currentPosition, setpoint);
 
-        double output = pidOutput;
+        double output = MathUtil.clamp(pidOutput, -0.4, 0.4);
     
         primaryMotor.set(applyLimits(output));
         followerMotor.set(applyLimits(output));

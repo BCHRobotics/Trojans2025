@@ -135,7 +135,7 @@ public class PhotonVisionPoseV2 extends SubsystemBase {
     }
 
     public double getXOffset() {
-        return 0.52;
+        return 0.53;
     }
 
     public double getYOffset() {

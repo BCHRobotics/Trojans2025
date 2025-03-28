@@ -370,16 +370,9 @@ public class RobotContainer {
     }
 
     public boolean areJoysticksPressed() {
-        if (controllerOptions_driver.getSelected() == 0) {
-            return Math.abs(driverController_XBOX.getLeftX()) > 0.05 ||
-            Math.abs(driverController_XBOX.getLeftY()) > 0.05 || 
-            Math.abs(driverController_XBOX.getRightX()) > 0.05;
-        }
-        else {
-            return Math.abs(driverController_PS5.getLeftX()) > 0.05 ||
-            Math.abs(driverController_PS5.getLeftY()) > 0.05 || 
-            Math.abs(driverController_PS5.getRightX()) > 0.05;
-        }
+        return Math.abs(driverController_PS5.getLeftX()) > 0.25 ||
+            Math.abs(driverController_PS5.getLeftY()) > 0.25 || 
+            Math.abs(driverController_PS5.getRightX()) > 0.25;
     }
 
     // this function exists to turn pose estimation back on
