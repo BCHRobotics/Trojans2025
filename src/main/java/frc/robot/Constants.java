@@ -94,7 +94,7 @@ public final class Constants {
     public static final int rightElevatorID = 20;
 
     // PID terms for elevator up/down motion
-    public static final double ElevatorkP = 0.065;
+    public static final double ElevatorkP = 0.075;
     public static final double ElevatorkI = 0.01;
     public static final double ElevatorkD = 0.000;
 

@@ -34,7 +34,7 @@
   "eventMarkers": [
     {
       "name": "elevator down",
-      "waypointRelativePos": 0,
+      "waypointRelativePos": 0.075,
       "endWaypointRelativePos": null,
       "command": {
         "type": "named",
@@ -53,7 +53,7 @@
     "unlimited": false
   },
   "goalEndState": {
-    "velocity": 0.0,
+    "velocity": 2.0,
     "rotation": 52.765166018425354
   },
   "reversed": false,
