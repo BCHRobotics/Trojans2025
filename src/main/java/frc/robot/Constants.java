@@ -62,7 +62,8 @@ public final class Constants {
     L3(13.5,(0.6002-0.325)),  
     L4(20.3,(0.6001-0.325)),
     INTAKE(2.65,(0.85-0.325)), // do not change intake values pls
-    ALGAE(8.55,(0.61-0.325));
+    ALGAE(8.55,(0.61-0.325)),
+    EMERGENCY(2.5,(0.61-0.325));
 
     private final double elevatorSetpoint;
     private final double clawSetpoint;
@@ -93,7 +94,7 @@ public final class Constants {
     public static final int rightElevatorID = 20;
 
     // PID terms for elevator up/down motion
-    public static final double ElevatorkP = 0.05;
+    public static final double ElevatorkP = 0.065;
     public static final double ElevatorkI = 0.01;
     public static final double ElevatorkD = 0.000;
 
@@ -218,7 +219,7 @@ public final class Constants {
 
     // Calculations required for driving motor conversion factors and feed forward
     public static final double kDrivingMotorFreeSpeedRps = NeoMotorConstants.kFreeSpeedRpm / 60;
-    public static final double kWheelDiameterMeters = 0.07461;
+    public static final double kWheelDiameterMeters = 0.076;
     public static final double kWheelCircumferenceMeters = kWheelDiameterMeters * Math.PI;
     // 45 teeth on the wheel's bevel gear, 22 teeth on the first-stage spur gear, 15
     // teeth on the bevel pinion

@@ -37,7 +37,7 @@ public class AlignTeleopCommand extends Command {
     // if this is true, cancel the vision command
     BooleanSupplier joystickInput;
 
-    boolean waitingForInput;
+    boolean waitingForInput = false;
 
     private Pose2d fieldRelativeTagPose;
     private int desiredTagId;
@@ -59,8 +59,6 @@ public class AlignTeleopCommand extends Command {
         // defining these values here, for now, not in the constructor
         isFieldRelative = true;
         isRateLimited = true;
-
-        waitingForInput = false;
     }
 
     @Override
@@ -72,17 +70,19 @@ public class AlignTeleopCommand extends Command {
         desiredTagId = visionSubsystem.getClosestTagID();
 
         mechActive = false;
+
+        waitingForInput = false;
     }
 
     @Override
     public void execute() {
+        if (!joystickInput.getAsBoolean()) {
+            waitingForInput = true;
+        }
+
         if (desiredTagId == -1) {
             desiredTagId = visionSubsystem.getClosestTagID();
             return;
-        }
-
-        if (!joystickInput.getAsBoolean()) {
-            waitingForInput = true;
         }
         
         // first, we define the desired position
@@ -124,8 +124,8 @@ public class AlignTeleopCommand extends Command {
             tagAngle);
 
         // clamp the values for safety, also multiply them by -1 because the PID controller will be commanding the wrong sign
-        commandedX = MathUtil.clamp(commandedX * -1, -0.3, 0.3);
-        commandedY = MathUtil.clamp(commandedY * 1, -0.3, 0.3);
+        commandedX = MathUtil.clamp(commandedX * -1, -0.2, 0.2);
+        commandedY = MathUtil.clamp(commandedY * 1, -0.2, 0.2);
         commandedRot = MathUtil.clamp(commandedRot * 1, -0.5, 0.5);
 
         if (Math.abs(commandedX) < VisionConstants.allowedXError) {
@@ -151,11 +151,6 @@ public class AlignTeleopCommand extends Command {
 
     @Override
     public boolean isFinished() {
-        if (waitingForInput) {
-            return joystickInput.getAsBoolean();
-        }
-        else {
-            return MathUtils.getDistance(driveSubsystem.getPose(), fieldRelativeTagPose) < 0.05;
-        }
+        return waitingForInput && joystickInput.getAsBoolean();
     }
 }

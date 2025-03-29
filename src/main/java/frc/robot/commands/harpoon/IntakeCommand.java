@@ -13,8 +13,9 @@ public class IntakeCommand extends Command {
     private BooleanSupplier buttonPressed;
     private double speed;
    
+    boolean forceIntake;
 
-    public IntakeCommand(Elevator elevatorSubsystem, Harpoon harpoonSubsystem, double speed, BooleanSupplier buttonPressed) {
+    public IntakeCommand(Elevator elevatorSubsystem, Harpoon harpoonSubsystem, double speed, BooleanSupplier buttonPressed, boolean forceIntake) {
         // creating subsystem, adding the subsystem as a requirement so it is not used elsewhere which could cause problems. 
         this.harpoonSubsystem = harpoonSubsystem;
         this.addRequirements(harpoonSubsystem);
@@ -22,6 +23,8 @@ public class IntakeCommand extends Command {
         this.speed = speed;
         this.buttonPressed = buttonPressed;
         this.elevatorSubsystem = elevatorSubsystem;
+
+        this.forceIntake = forceIntake;
     }
 
     @Override
@@ -41,7 +44,7 @@ public class IntakeCommand extends Command {
     @Override
     public boolean isFinished() {
         // this is called after we have set the setpoint, so we can just end the command once the sensor sees the coral
-        if(harpoonSubsystem.isCoralDetected() || !buttonPressed.getAsBoolean()) {
+        if((harpoonSubsystem.isCoralDetected() && !forceIntake) || !buttonPressed.getAsBoolean()) {
             System.out.println("INTAKE DONE!");
             if (harpoonSubsystem.isCoralDetected() && elevatorSubsystem.getMode() == MechanismMode.FEEDER) {
                 System.out.println("STOWING...");
