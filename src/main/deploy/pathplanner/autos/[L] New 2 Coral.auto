@@ -7,7 +7,7 @@
         {
           "type": "path",
           "data": {
-            "pathName": "R-Reef3"
+            "pathName": "L-Reef10"
           }
         },
         {
@@ -19,7 +19,7 @@
         {
           "type": "path",
           "data": {
-            "pathName": "Reef3Score"
+            "pathName": "Reef10Score"
           }
         },
         {
@@ -37,13 +37,7 @@
         {
           "type": "path",
           "data": {
-            "pathName": "Reef3-Fix"
-          }
-        },
-        {
-          "type": "path",
-          "data": {
-            "pathName": "3Fix-Coral"
+            "pathName": "Reef10-Coral"
           }
         },
         {
@@ -61,7 +55,7 @@
         {
           "type": "path",
           "data": {
-            "pathName": "Coral-Reef5"
+            "pathName": "Coral-Reef9"
           }
         },
         {
@@ -73,7 +67,7 @@
         {
           "type": "path",
           "data": {
-            "pathName": "Reef5Score"
+            "pathName": "Reef9Score"
           }
         },
         {
@@ -92,6 +86,6 @@
     }
   },
   "resetOdom": true,
-  "folder": "R",
+  "folder": "L",
   "choreoAuto": false
 }
