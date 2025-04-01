@@ -37,7 +37,13 @@
         {
           "type": "path",
           "data": {
-            "pathName": "Reef10-Coral"
+            "pathName": "Reef10-Fix"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "10Fix-Coral"
           }
         },
         {
