@@ -19,35 +19,52 @@ import frc.robot.subsystems.PhotonVisionPoseV2;
 import frc.utils.MathUtils;
 
 public class AlignTeleopCommand extends Command {
+    // reference to the drivetrain, so the command can actually move the bot
     Drivetrain driveSubsystem;
+    // reference to the vision subsystem
     PhotonVisionPoseV2 visionSubsystem;
+    // reference to the elevator subsystem
     Elevator elevatorSubsystem;
+    // claw subsystem
     Harpoon harpoonSubsystem;
+
+    // LED subsystems, which isn't used right now, but we can use it to look at levels
     LED led1;
     LED led2;
 
+    // pid controllers, one for position and one for rotation
     PIDController pid = new PIDController(VisionConstants.kAlignP,VisionConstants.kAlignI,VisionConstants.kAlignD);
     PIDController pidRot = new PIDController(VisionConstants.kRotP,VisionConstants.kRotI,VisionConstants.kRotD);
 
+    // boolean variables used in the drive() function for driving the robot
     Boolean isFieldRelative;
     Boolean isRateLimited;
    
+    // storing the tag id that we're trying to align to
     int tagId;
 
     // if this is true, cancel the vision command
     BooleanSupplier joystickInput;
 
-    boolean waitingForInput;
+    // starts off false, then swaps to true when the joysticks are let go of
+    // command only cancels when this is set to true
+    // this allows us to activate vision while moving, and not cancel immediately because of joystick input
+    boolean waitingForInput = false;
 
+    // storing the field relative tag pose in a variable, so that we can deal with losing sight of it
     private Pose2d fieldRelativeTagPose;
     private int desiredTagId;
     private boolean mechActive;
 
-    public AlignTeleopCommand(LED led1, LED led2, Elevator elevatorSubsystem, Harpoon harpoonSubsystem, Drivetrain driveSubsystem, BooleanSupplier joystickInput, int tagId, PhotonVisionPoseV2 visionSubsystem) {
+    public AlignTeleopCommand(LED led1, LED led2, Elevator elevatorSubsystem, Harpoon harpoonSubsystem, 
+    Drivetrain driveSubsystem, BooleanSupplier joystickInput, int tagId, PhotonVisionPoseV2 visionSubsystem) {
+        // setting subsystem references
         this.driveSubsystem = driveSubsystem;
         this.visionSubsystem = visionSubsystem;
         this.elevatorSubsystem = elevatorSubsystem;
         this.harpoonSubsystem = harpoonSubsystem;
+
+        // LEDs, currently not doing much
         this.led1 = led1;
         this.led2 = led2;
 
@@ -59,30 +76,33 @@ public class AlignTeleopCommand extends Command {
         // defining these values here, for now, not in the constructor
         isFieldRelative = true;
         isRateLimited = true;
-
-        waitingForInput = false;
     }
 
     @Override
     public void initialize() {
+        // malke sure to use the drive mode system
         driveSubsystem.setDriveMode(DriveModes.ALIGNTELE);
 
+        // until we see a tag, mark the tag pose as null
         fieldRelativeTagPose = null;
 
+        // on initialize, we grab the closest tag id from the pose estimator 
         desiredTagId = visionSubsystem.getClosestTagID();
 
         mechActive = false;
+        // don't cancel the command until we let go of the joystick, when we do this bool flips to true
+        waitingForInput = false;
     }
 
     @Override
     public void execute() {
+        if (!joystickInput.getAsBoolean()) {
+            waitingForInput = true;
+        }
+
         if (desiredTagId == -1) {
             desiredTagId = visionSubsystem.getClosestTagID();
             return;
-        }
-
-        if (!joystickInput.getAsBoolean()) {
-            waitingForInput = true;
         }
         
         // first, we define the desired position
@@ -124,8 +144,8 @@ public class AlignTeleopCommand extends Command {
             tagAngle);
 
         // clamp the values for safety, also multiply them by -1 because the PID controller will be commanding the wrong sign
-        commandedX = MathUtil.clamp(commandedX * -1, -0.3, 0.3);
-        commandedY = MathUtil.clamp(commandedY * 1, -0.3, 0.3);
+        commandedX = MathUtil.clamp(commandedX * -1, -0.2, 0.2);
+        commandedY = MathUtil.clamp(commandedY * 1, -0.2, 0.2);
         commandedRot = MathUtil.clamp(commandedRot * 1, -0.5, 0.5);
 
         if (Math.abs(commandedX) < VisionConstants.allowedXError) {
@@ -151,11 +171,6 @@ public class AlignTeleopCommand extends Command {
 
     @Override
     public boolean isFinished() {
-        if (waitingForInput) {
-            return joystickInput.getAsBoolean();
-        }
-        else {
-            return MathUtils.getDistance(driveSubsystem.getPose(), fieldRelativeTagPose) < 0.05;
-        }
+        return waitingForInput && joystickInput.getAsBoolean();
     }
 }

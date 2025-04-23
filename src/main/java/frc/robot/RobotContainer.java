@@ -251,7 +251,7 @@ public class RobotContainer {
 
             // intake gamepiece
             this.driverController_XBOX.x()
-            .onTrue(new IntakeCommand(elevator, harpoon,0.6, this.driverController_XBOX.x())
+            .onTrue(new IntakeCommand(elevator, harpoon,0.6, this.driverController_XBOX.x(), true)
             );
 
             // spit out gamepiece
@@ -284,7 +284,7 @@ public class RobotContainer {
 
             // intake gamepiece
             this.driverController_PS5.square()
-            .onTrue(new IntakeCommand(elevator, harpoon,0.6, this.driverController_PS5.square())
+            .onTrue(new IntakeCommand(elevator, harpoon,0.6, this.driverController_PS5.square(), true)
             );
 
             // spit out gamepiece
@@ -342,6 +342,11 @@ public class RobotContainer {
 
             this.operatorController_XBOX.povDown().onTrue(new RunClimberCommand(climber, -0.5));
             this.operatorController_XBOX.povDown().onFalse(new RunClimberCommand(climber, 0));
+
+            this.operatorController_XBOX.povLeft().onTrue(new ForceMechanismCommand(
+                ledRight, ledLeft, 
+                elevator, MechanismMode.REEF, () -> MechanismPosition.EMERGENCY.getElevatorSetpoint(), 
+                harpoon, () -> MechanismPosition.EMERGENCY.getClawSetpoint()));
         }
         else {
             this.operatorController_PS5.L1().onTrue(

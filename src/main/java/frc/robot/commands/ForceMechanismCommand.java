@@ -58,7 +58,7 @@ public class ForceMechanismCommand extends Command {
         harpoonSubsystem.setMode(newMode);
 
         if (newMode == MechanismMode.FEEDER) {
-            new IntakeCommand(elevatorSubsystem, harpoonSubsystem, 0.6, () -> true).
+            new IntakeCommand(elevatorSubsystem, harpoonSubsystem, 0.6, () -> true, false).
             alongWith(new SetLEDCommand(led1, led2, -0.11, 0)).
             andThen(new SetLEDCommand(led1, led2, -0.05, 1.5))
             .schedule();
