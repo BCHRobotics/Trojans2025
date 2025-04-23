@@ -36,7 +36,7 @@ public class PhotonVisionPoseV2 extends SubsystemBase {
     private AprilTagFieldLayout m_fieldLayout; // Layout of AprilTags on the field
     private PhotonPoseEstimator m_poseEstimator; // Estimator for calculating robot pose
 
-    private boolean useVisionPose = true; // Flag to enable/disable vision-based updates
+    private boolean useVisionPose = false; // Flag to enable/disable vision-based updates
     
     private PhotonPipelineResult latestResult;
 
