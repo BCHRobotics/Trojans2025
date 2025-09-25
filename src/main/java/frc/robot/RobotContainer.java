@@ -25,14 +25,12 @@ import frc.robot.Constants.DriveConstants.DriveModes;
 import frc.robot.commands.ForceMechanismCommand;
 import frc.robot.commands.PrepareMechanismCommand;
 import frc.robot.commands.SetLEDCommand;
-import frc.robot.commands.ToggleMechanismCommand;
 import frc.robot.commands.climber.RunClimberCommand;
 import frc.robot.commands.drive.TeleopDriveCommand;
 import frc.robot.commands.elevator.CalibrateElevator;
 import frc.robot.commands.harpoon.IntakeCommand;
 import frc.robot.commands.harpoon.ShootCommand;
 import frc.robot.commands.harpoon.StopClawCommand;
-import frc.robot.commands.vision.AlignTeleopCommand;
 import frc.robot.subsystems.Climber;
 import frc.robot.subsystems.Drivetrain;
 import frc.robot.subsystems.LED;
@@ -41,7 +39,6 @@ import frc.robot.subsystems.Harpoon;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
-import edu.wpi.first.wpilibj2.command.button.CommandPS5Controller;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import frc.robot.subsystems.PhotonVisionPoseV2;
 
@@ -74,18 +71,8 @@ public class RobotContainer {
 
     private final Climber climber = new Climber();
 
-    // Driving controller, one for xbox and one for ps5
-    CommandPS5Controller driverController_PS5 = new CommandPS5Controller(OIConstants.kMainControllerPort);
     CommandXboxController driverController_XBOX = new CommandXboxController(OIConstants.kMainControllerPort);
-
-    // operator controller, one for xbox and one for ps5
-    CommandPS5Controller operatorController_PS5 = new CommandPS5Controller(OIConstants.kBackupControllerPort);
     CommandXboxController operatorController_XBOX = new CommandXboxController(OIConstants.kBackupControllerPort);
-
-    // drop down menu for selecting xbox/ps5 for the driver controller
-    SendableChooser<Integer> controllerOptions_driver;
-    // drop down menu for selecting xbox/ps5 for the operator controller
-    SendableChooser<Integer> controllerOptions_operator;
 
     // drop down menu for selecting the auto
     SendableChooser<Command> autoChooser;
@@ -98,22 +85,6 @@ public class RobotContainer {
      * The container for the robot, initializing everything and setting up the controller chooser
      */
     public RobotContainer() {
-        // setting up a dropdown for switching between xbox and playstation
-        // FOR DRIVER
-        controllerOptions_driver = new SendableChooser<Integer>();
-        controllerOptions_driver.addOption("Xbox", 0);
-        controllerOptions_driver.addOption("Playstation", 1);
-        controllerOptions_driver.setDefaultOption("default", 1);
-        SmartDashboard.putData("Driver Select", controllerOptions_driver);
-
-        // setting up a dropdown for switching between xbox and playstation
-        // FOR OPERATOR
-        controllerOptions_operator = new SendableChooser<Integer>();
-        controllerOptions_operator.addOption("Xbox", 0);
-        controllerOptions_operator.addOption("Playstation", 1);
-        controllerOptions_operator.setDefaultOption("default", 0);
-        SmartDashboard.putData("Operator Select", controllerOptions_operator);
-
         visionActivator = new SendableChooser<Boolean>();
         visionActivator.addOption("Yes", true);
         visionActivator.addOption("No", false);
@@ -137,9 +108,9 @@ public class RobotContainer {
 
         // Setup the commands associated with all buttons on the controller
         // driver
-        configureButtonBindingsDriver(controllerOptions_driver.getSelected() == 0);
+        configureButtonBindingsDriver();
         // operator
-        configureButtonBindingsOperator(controllerOptions_operator.getSelected() == 0);
+        configureButtonBindingsOperator();
     }
 
     // setting up the named commands for AutoBuilder
@@ -204,102 +175,47 @@ public class RobotContainer {
 
         // this double is used as a multiplier to invert the joysticks for red alliance
         final double invert = isRedAlliance ? -1 : 1;
-
-        // making sure the controller variables are set properly
-        Integer driverController = controllerOptions_driver.getSelected();
-        
-        // If no other command is running on the drivetrain, then this manual driving command (driving via controller) is used
-        if (driverController == 0) {
-            // for if we're using the xbox controller
-            m_robotDrive.setDefaultCommand(new TeleopDriveCommand(
+ 
+        // for if we're using the xbox controller
+        m_robotDrive.setDefaultCommand(new TeleopDriveCommand(
             () -> -MathUtil.applyDeadband(driverController_XBOX.getLeftY() * invert, 0.05),
             () -> -MathUtil.applyDeadband(driverController_XBOX.getLeftX() * invert, 0.05),
             () -> -MathUtil.applyDeadband(driverController_XBOX.getRightX(), 0.05),
             () -> OIConstants.kFieldRelative, () -> OIConstants.kRateLimited,
             m_robotDrive));
-        }
-        else {
-            // for if we're using the ps5 controller
-            m_robotDrive.setDefaultCommand(new TeleopDriveCommand(
-            () -> -MathUtil.applyDeadband(driverController_PS5.getLeftY() * invert, 0.05),
-            () -> -MathUtil.applyDeadband(driverController_PS5.getLeftX() * invert, 0.05),
-            () -> -MathUtil.applyDeadband(driverController_PS5.getRightX(), 0.05),
-            () -> OIConstants.kFieldRelative, () -> OIConstants.kRateLimited,
-            m_robotDrive));
-        }
 
         // Set the alliance to either red or blue (to invert controls if necessary)
         m_robotDrive.setAlliance(isRedAlliance);
     }
 
     // configure the button bindings on the driver controller
-    private void configureButtonBindingsDriver(boolean isXbox) {
-        if (isXbox) {
-            // Reset Gyro
-            driverController_XBOX.y().onTrue(new InstantCommand(() -> { m_robotDrive.zeroHeading(); }));
+    private void configureButtonBindingsDriver() {
+        // Reset Gyro
+        driverController_XBOX.y().onTrue(new InstantCommand(() -> { m_robotDrive.zeroHeading(); }));
 
-            // Slow mode command (Left Bumper)
-            driverController_XBOX.leftBumper().onTrue(new InstantCommand(() -> m_robotDrive.setSlowMode(true)));
-            driverController_XBOX.leftBumper().onFalse(new InstantCommand(() -> m_robotDrive.setSlowMode(false)));
+        // Slow mode command (Left Bumper)
+        driverController_XBOX.leftBumper().onTrue(new InstantCommand(() -> m_robotDrive.setSlowMode(true)));
+        driverController_XBOX.leftBumper().onFalse(new InstantCommand(() -> m_robotDrive.setSlowMode(false)));
 
-            // Fast mode command (Right Bumper)
-            driverController_XBOX.rightBumper().onTrue(new InstantCommand(() -> m_robotDrive.setFastMode(true)));
-            driverController_XBOX.rightBumper().onFalse(new InstantCommand(() -> m_robotDrive.setFastMode(false)));
+        // Fast mode command (Right Bumper)
+        driverController_XBOX.rightBumper().onTrue(new InstantCommand(() -> m_robotDrive.setFastMode(true)));
+        driverController_XBOX.rightBumper().onFalse(new InstantCommand(() -> m_robotDrive.setFastMode(false)));
 
-            // toggling the elevator up and down
-            driverController_XBOX.a().onTrue(new InstantCommand());
+        // toggling the elevator up and down
+        driverController_XBOX.a().onTrue(new InstantCommand());
 
-            // intake gamepiece
-            this.driverController_XBOX.x()
-            .onTrue(new IntakeCommand(elevator, harpoon,0.6, this.driverController_XBOX.x(), true)
-            );
+        // intake gamepiece
+        this.driverController_XBOX.x()
+        .onTrue(new IntakeCommand(elevator, harpoon,0.6, this.driverController_XBOX.x(), true)
+        );
 
-            // spit out gamepiece
-             this.driverController_XBOX.b()
-             .onTrue(new ShootCommand(harpoon,0.6))
-             .onFalse(new StopClawCommand(harpoon));
+        // spit out gamepiece
+         this.driverController_XBOX.b()
+         .onTrue(new ShootCommand(harpoon,0.6))
+         .onFalse(new StopClawCommand(harpoon));
 
-             this.driverController_XBOX.povDown()
-             .onTrue(new CalibrateElevator(elevator, this.driverController_XBOX.povDown()));
-        }
-        else {
-            // Reset Gyro
-            driverController_PS5.triangle().onTrue(new InstantCommand(() -> { m_robotDrive.zeroHeading(); }));
-
-            // Fast mode
-            driverController_PS5.L1().onTrue(new InstantCommand(() -> m_robotDrive.setSlowMode(true)));
-
-            // Fast mode
-            driverController_PS5.L1().onFalse(new InstantCommand(() -> m_robotDrive.setSlowMode(false)));
-
-            // Fast mode
-            driverController_PS5.R1().onTrue(new InstantCommand(() -> m_robotDrive.setFastMode(true)));
-
-            // Fast mode
-            driverController_PS5.R1().onFalse(new InstantCommand(() -> m_robotDrive.setFastMode(false)));
-
-            // intake gamepiece
-            this.driverController_PS5.cross()
-            .onTrue(new ToggleMechanismCommand(ledRight, ledLeft, elevator, harpoon));
-
-            // intake gamepiece
-            this.driverController_PS5.square()
-            .onTrue(new IntakeCommand(elevator, harpoon,0.6, this.driverController_PS5.square(), true)
-            );
-
-            // spit out gamepiece
-            this.driverController_PS5.circle()
-            .onTrue(new ShootCommand(harpoon, 0.7))
-            .onFalse(new StopClawCommand(harpoon));
-
-            this.driverController_PS5.povDown().onTrue(new CalibrateElevator(elevator, this.driverController_PS5.povDown()));
-
-            // vision alignment
-            this.driverController_PS5.R2().onTrue(
-                // for now the tag id actually does nothing
-                new AlignTeleopCommand(ledLeft, ledRight, elevator, harpoon, m_robotDrive, () -> areJoysticksPressed(), 0, poseEstimator)
-            );
-        }
+         this.driverController_XBOX.povDown()
+         .onTrue(new CalibrateElevator(elevator, this.driverController_XBOX.povDown()));
     }
 
     /**
@@ -307,11 +223,10 @@ public class RobotContainer {
      * @param isRedAlliance is the robot on the RED OR BLUE SIDE
      * @param isXbox whether the active controller is the backup (XBOX)
      */
-    private void configureButtonBindingsOperator(boolean isXbox) {
+    private void configureButtonBindingsOperator() {
         //final double invert = isRedAlliance ? -1 : 1;
 
-        if (isXbox) {
-            // NOTE FOR SLOW/FAST MODE COMMANDS
+        // NOTE FOR SLOW/FAST MODE COMMANDS
             // These commands don't have requirements else they interrupt the drive command (TeleopDriveCommand)
 
             this.operatorController_XBOX.leftBumper().onTrue(
@@ -347,37 +262,6 @@ public class RobotContainer {
                 ledRight, ledLeft, 
                 elevator, MechanismMode.REEF, () -> MechanismPosition.EMERGENCY.getElevatorSetpoint(), 
                 harpoon, () -> MechanismPosition.EMERGENCY.getClawSetpoint()));
-        }
-        else {
-            this.operatorController_PS5.L1().onTrue(
-                new PrepareMechanismCommand(elevator, MechanismMode.REEF, () -> elevator.getLowerPosition(),
-                harpoon, () -> harpoon.getLowerSetpoint())
-            );
-
-            this.operatorController_PS5.R1().onTrue(
-                new PrepareMechanismCommand(elevator, MechanismMode.REEF, () -> elevator.getUpperPosition(), 
-                harpoon, () -> harpoon.getUpperSetpoint())
-            );
-
-            this.operatorController_PS5.triangle().onTrue(
-                new PrepareMechanismCommand(elevator, MechanismMode.FEEDER, () -> MechanismPosition.INTAKE.getElevatorSetpoint(),
-                harpoon, () -> MechanismPosition.INTAKE.getClawSetpoint())
-            );
-
-            this.operatorController_PS5.R2().onTrue(
-                new InstantCommand(() -> poseEstimator.targetSide(false))
-            );
-
-            this.operatorController_PS5.R2().onTrue(
-                new InstantCommand(() -> poseEstimator.targetSide(true))
-            );
-        }
-    }
-
-    public boolean areJoysticksPressed() {
-        return Math.abs(driverController_PS5.getLeftX()) > 0.25 ||
-            Math.abs(driverController_PS5.getLeftY()) > 0.25 || 
-            Math.abs(driverController_PS5.getRightX()) > 0.25;
     }
 
     // this function exists to turn pose estimation back on
