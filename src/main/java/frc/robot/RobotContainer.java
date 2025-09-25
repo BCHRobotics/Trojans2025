@@ -24,7 +24,7 @@ import frc.robot.Constants.OIConstants;
 import frc.robot.Constants.DriveConstants.DriveModes;
 import frc.robot.commands.ForceMechanismCommand;
 import frc.robot.commands.SetLEDCommand;
-import frc.robot.commands.ToggleMechanismCommand;
+import frc.robot.commands.drive.FollowPointsCommand;
 import frc.robot.commands.drive.TeleopDriveCommand;
 import frc.robot.commands.elevator.CalibrateElevator;
 import frc.robot.commands.harpoon.IntakeCommand;
@@ -32,7 +32,6 @@ import frc.robot.commands.harpoon.ShootCommand;
 import frc.robot.commands.harpoon.StopClawCommand;
 import frc.robot.subsystems.Drivetrain;
 import frc.robot.subsystems.LED;
-import frc.robot.subsystems.Vision;
 import frc.robot.subsystems.Elevator;
 import frc.robot.subsystems.Harpoon;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -64,7 +63,8 @@ public class RobotContainer {
     private final LED ledRight = new LED(0);
     private final LED ledLeft = new LED(1);
 
-    private final Vision visionSystem = new Vision(m_robotDrive);
+    // no vision for now
+    //private final Vision visionSystem = new Vision();
 
     // Driving controller, one for xbox and one for ps5
     CommandPS5Controller driverController_PS5 = new CommandPS5Controller(OIConstants.kMainControllerPort);
@@ -191,7 +191,7 @@ public class RobotContainer {
             () -> -MathUtil.applyDeadband(driverController_XBOX.getLeftX() * invert, 0.05),
             () -> -MathUtil.applyDeadband(driverController_XBOX.getRightX(), 0.05),
             () -> OIConstants.kFieldRelative, () -> OIConstants.kRateLimited,
-            m_robotDrive, visionSystem));
+            m_robotDrive));
         }
         else {
             // for if we're using the ps5 controller
@@ -200,7 +200,7 @@ public class RobotContainer {
             () -> -MathUtil.applyDeadband(driverController_PS5.getLeftX() * invert, 0.05),
             () -> -MathUtil.applyDeadband(driverController_PS5.getRightX(), 0.05),
             () -> OIConstants.kFieldRelative, () -> OIConstants.kRateLimited,
-            m_robotDrive, visionSystem));
+            m_robotDrive));
         }
 
         // Set the alliance to either red or blue (to invert controls if necessary)
@@ -253,21 +253,21 @@ public class RobotContainer {
             // Fast mode
             driverController_PS5.R1().onFalse(new InstantCommand(() -> m_robotDrive.setFastMode(false)));
 
-            // intake gamepiece
-            this.driverController_PS5.cross()
-            .onTrue(new ToggleMechanismCommand(ledRight, ledLeft, elevator, harpoon));
+            // // intake gamepiece
+            // this.driverController_PS5.cross()
+            // .onTrue(new ToggleMechanismCommand(ledRight, ledLeft, elevator, harpoon));
 
-            // intake gamepiece
-            this.driverController_PS5.square()
-            .onTrue(new IntakeCommand(elevator, harpoon,0.6, this.driverController_PS5.square(), true)
-            );
+            // // intake gamepiece
+            // this.driverController_PS5.square()
+            // .onTrue(new IntakeCommand(elevator, harpoon,0.6, this.driverController_PS5.square(), true)
+            // );
 
-            // spit out gamepiece
-            this.driverController_PS5.circle()
-            .onTrue(new ShootCommand(harpoon, 0.7))
-            .onFalse(new StopClawCommand(harpoon));
+            // // spit out gamepiece
+            // this.driverController_PS5.circle()
+            // .onTrue(new ShootCommand(harpoon, 0.7))
+            // .onFalse(new StopClawCommand(harpoon));
 
-            this.driverController_PS5.povDown().onTrue(new CalibrateElevator(elevator, this.driverController_PS5.povDown()));
+            this.driverController_PS5.povDown().onTrue(new FollowPointsCommand(() -> OIConstants.kRateLimited,m_robotDrive));
         }
     }
 

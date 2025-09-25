@@ -6,7 +6,6 @@ import java.util.function.DoubleSupplier;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.Constants.DriveConstants.DriveModes;
 import frc.robot.subsystems.Drivetrain;
-import frc.robot.subsystems.Vision;
 
 /*
  * Command that drives the robot based on joystick input
@@ -15,7 +14,6 @@ import frc.robot.subsystems.Vision;
 public class TeleopDriveCommand extends Command {
     // This command needs to command the drivetrain, so we have a references here
     private Drivetrain driveSubsystem;
-    private Vision vision;
 
     // These three are inputs for x, y, and rot speed from the driver
     // NOTE - these are NOT DOUBLES, they are DOUBLE SUPPLIERS, which point to a double value
@@ -28,9 +26,7 @@ public class TeleopDriveCommand extends Command {
     BooleanSupplier isFieldRelative;
     BooleanSupplier isRateLimited;
 
-    double rotSpeed;
-
-    public TeleopDriveCommand(DoubleSupplier xSpeed, DoubleSupplier ySpeed, DoubleSupplier rotSpeed, BooleanSupplier fieldRelative, BooleanSupplier rateLimit, Drivetrain subsystem, Vision vision) {
+    public TeleopDriveCommand(DoubleSupplier xSpeed, DoubleSupplier ySpeed, DoubleSupplier rotSpeed, BooleanSupplier fieldRelative, BooleanSupplier rateLimit, Drivetrain subsystem) {
         // Assign the variables that point to input values
         commandX = xSpeed;
         commandY = ySpeed;
@@ -40,8 +36,6 @@ public class TeleopDriveCommand extends Command {
         isRateLimited = rateLimit;
 
         driveSubsystem = subsystem;
-
-        this.vision = vision;
         
         // This command requires the drivetrain so that it cannot run at the same time as other driving commands
         addRequirements(driveSubsystem);
@@ -57,12 +51,7 @@ public class TeleopDriveCommand extends Command {
 
     @Override
     public void execute() {
-        double speed = vision.getYaw();
-
-        if (speed != 0) {
-            rotSpeed = speed * -0.02;
-        }
-        driveSubsystem.drive(commandX.getAsDouble(), commandY.getAsDouble(), rotSpeed, isFieldRelative.getAsBoolean(), isRateLimited.getAsBoolean());
+        driveSubsystem.drive(commandX.getAsDouble(), commandY.getAsDouble(), commandRot.getAsDouble(), isFieldRelative.getAsBoolean(), isRateLimited.getAsBoolean());
     }
 
     @Override

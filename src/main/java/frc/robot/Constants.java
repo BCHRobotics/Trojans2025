@@ -6,10 +6,7 @@ package frc.robot;
 
 import com.pathplanner.lib.config.PIDConstants;
 
-import edu.wpi.first.math.geometry.Rotation3d;
-import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.geometry.Translation2d;
-import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.util.Units;
 
@@ -131,7 +128,7 @@ public final class Constants {
     // Ways to drive the robot
     public enum DriveModes {
       MANUAL,
-      ALIGNTELE,
+      POINT,
     }
 
     // Driving Parameters - Note that these are not the maximum and minimum capable speeds of
@@ -179,29 +176,6 @@ public final class Constants {
     public static final int kRearRightTurningCanId = 17;
 
     public static final boolean kGyroReversed = true;
-  }
-
-  public static final class VisionConstants{
-    // how far the robot can be from the setpoint during vision alignment
-    // these CANNOT be zero, because then commands won't cancel because the robot cannot be perfect
-    public static final double allowedXError = 0.05;
-    public static final double allowedYError = 0.05; 
-
-    public static final Transform3d[] cameraOffsets = new Transform3d[] {
-      new Transform3d(new Translation3d(Units.inchesToMeters(12.5), 0, 0.0),
-                new Rotation3d(0, 0, 0)),
-    };
-
-    // the constants used for moving the bot towards the apriltag during vision alignment
-    // NOTE - y axis doesn't go through PID, this is only for x
-    public static double kAlignP = 0.6;
-    public static double kAlignI = 0;
-    public static double kAlignD = 0;
-
-    // the constants used for rotation alignment (heading lock and vision alignment)
-    public static double kRotP = 0.018;
-    public static double kRotI = 0.00001;
-    public static double kRotD = 0;
   }
 
   public static final class ModuleConstants {

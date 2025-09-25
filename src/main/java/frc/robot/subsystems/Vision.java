@@ -1,16 +1,14 @@
 package frc.robot.subsystems;
 
-import java.lang.annotation.Target;
+import java.util.LinkedList;
 import java.util.List;
 
 import org.photonvision.PhotonCamera;
 import org.photonvision.targeting.PhotonPipelineResult;
 import org.photonvision.targeting.TargetCorner;
 
-import edu.wpi.first.math.geometry.Pose2d;
-import edu.wpi.first.networktables.NetworkTableInstance;
-import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.utils.TargetSet;
 
 /**
  * PhotonVisionPoseV2 subsystem for updating robot odometry using PhotonPoseEstimator.
@@ -20,97 +18,74 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
  * to update the robot's odometry.
  */
 public class Vision extends SubsystemBase {
-    private final Drivetrain m_drivetrain; // Reference to the drivetrain subsystem
+    public String[] cameraNames = {
+        "FrontLeft",
+    };
 
-    public PhotonCamera m_camera; // PhotonVision camera for detecting AprilTags
-    
-    private double oldDist;
-    private Pose2d oldPose;
+    public PhotonCamera[] cameras;
 
-    private double lastEstimate;
+    public List<TargetSet> cameraTargets; 
 
-    private double lastDistEstimate;
-    private double distEstimateInterval;
+    public Vision() {
+        // define all camera refs
+        cameras = new PhotonCamera[cameraNames.length];
+        cameraTargets = new LinkedList<TargetSet>();
 
-    public Vision(Drivetrain drivetrain) {
-        m_drivetrain = drivetrain;
-        
-        // Initialize the cameras using the camera names from constants
-        m_camera = new PhotonCamera("Center");
-
-        distEstimateInterval = 0.5;
+        for (int i = 0; i < cameraNames.length; i++) {
+            cameras[i] = new PhotonCamera(cameraNames[i]);
+            cameraTargets.add(new TargetSet());
+        }
     }
 
-    /**
-     * Periodic method that runs every scheduler cycle.
-     * This method updates the robot's pose using PhotonPoseEstimator.
-     */
     @Override
     public void periodic() {
+        // update the targets for each camera
+        for (int i = 0; i < cameras.length; i++) {
+            List<PhotonPipelineResult> results = cameras[i].getAllUnreadResults();
+            if (results.size() == 0) {continue;}
+            cameraTargets.get(i).setTargets(results.get(0).getTargets());
+        }
+
         printToDashboard();
     }
 
-    public double getYaw() {
-        List<PhotonPipelineResult> results = m_camera.getAllUnreadResults();
-        
-        if (oldPose == null) {
-            oldPose = m_drivetrain.getPose();
-        }
-
-        for (int i = 0; i < results.size(); i++) {
-            if (results.get(i).getBestTarget() == null || results.get(i).getBestTarget().getDetectedObjectClassID() != 0) {continue;}
-
-            List<TargetCorner> corners = results.get(i).getBestTarget().minAreaRectCorners;
-
-            TargetCorner bottomLeft = corners.get(0);
-            TargetCorner bottomRight = corners.get(1);
-            // TargetCorner topLeft = corners.get(2);
-            // TargetCorner topRight = corners.get(3);
-
-            System.out.println(bottomRight.x - bottomLeft.x);
-
-            // if (Timer.getFPGATimestamp() > lastDistEstimate + distEstimateInterval) {
-
-            //     lastDistEstimate = Timer.getFPGATimestamp();
-
-            //     List<TargetCorner> corners = results.get(i).getBestTarget().minAreaRectCorners;
-
-            //     TargetCorner bottomLeft = corners.get(0);
-            //     TargetCorner bottomRight = corners.get(1);
-            //     // TargetCorner topLeft = corners.get(2);
-            //     // TargetCorner topRight = corners.get(3);
-                
-            //     double estimatedDist = estimateDistance(oldDist, bottomRight.x - bottomLeft.x, getDistanceBetweenPoses(oldPose, m_drivetrain.getPose()));
-
-            //     if (estimatedDist > 0.1 && estimatedDist < 10) {
-            //         System.out.println(estimatedDist);
-            //         lastEstimate = estimatedDist;
-            //     } else {System.out.println(lastEstimate);}
-
-            //     // update the old variables
-            //     oldDist = bottomRight.x - bottomLeft.x;
-            //     oldPose = m_drivetrain.getPose();
-            // }
-
-            return results.get(i).getBestTarget().yaw;
-        }
-
-        return 0;
-    }
-
-    double getDistanceBetweenPoses(Pose2d a, Pose2d b) {
-        return Math.sqrt(Math.pow(a.getX() - b.getX(), 2) + Math.pow(a.getY() - b.getY(), 2));
-    }
-
-    // estimate the distance to a vision target
-    double estimateDistance(double oldScale, double newScale, double travelDist) {
-        return (travelDist * (newScale / oldScale) / (1 - (newScale / oldScale))) - travelDist;
-    }
-
-    String toCorner(TargetCorner corner) {
-        return "(" + corner.x + "," + corner.y + ")";
-    }
-
     void printToDashboard() {
+        // goal: print the distance of a target
+        // not the euclidean distance, the projected distance (or as I call it, "floor distance")
+
+        // only going from [0..1] because I only care about ONE OF THE front cameras
+        for (int i = 0; i < 1; i++) {
+            if (cameraTargets.get(i).getTargets() == null) {continue;}
+            if (cameraTargets.get(i).getTargets().size() > 0) {
+                // only want to measure the distance to algae (id 0)
+                if (cameraTargets.get(i).getTargets().get(0).objDetectId == 0) {
+                    
+                    List<TargetCorner> corners = cameraTargets.get(i).getTargets().get(0).getMinAreaRectCorners();
+                    
+
+                    double pitch = (corners.get(0).y - 480 / 2) / 480 * -1 * 55;
+                    double yaw = cameraTargets.get(i).getTargets().get(0).yaw;
+
+                    // measured, meters
+                    double camHeight = 0.203;
+
+                    // the idea here is that we have a RIGHT triangle where the hypotenuse is the vector to the target,
+                    // the base is the floor and the vertical side is the distance from the camera to the floor
+                    // (we're looking for the base)
+
+                    // we can use sin law here
+                    
+                    // sin(far angle) / vertical side
+                    double ratio = Math.sin(pitch * Math.PI / 180) / camHeight;
+                    double nearAngle = 180 - 90 - pitch;
+                    double base = Math.sin(nearAngle * Math.PI / 180) / ratio;
+                    
+                    double perpDist = Math.tan(yaw * Math.PI / 180) * base;
+                    
+                    //for now, just log it
+                    System.out.println("Distance to algae: " + base + "," + perpDist);
+                }
+            }
+        }
     }
 } 
