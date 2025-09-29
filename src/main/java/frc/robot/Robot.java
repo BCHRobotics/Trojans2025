@@ -66,8 +66,6 @@ public class Robot extends TimedRobot {
   @Override
   public void autonomousInit() {
     m_robotContainer.resetAuto();
-    m_robotContainer.enterAuto();
-
     m_autonomousCommand = m_robotContainer.getAutonomousCommand();
 
     // schedule the autonomous command (example)
@@ -96,7 +94,6 @@ public class Robot extends TimedRobot {
 
     // Schedules the teleop drive command when entering teleop
     m_robotContainer.configureDriveMode();
-    m_robotContainer.enterTeleop();
   }
 
   /** This function is called periodically during operator control. */
